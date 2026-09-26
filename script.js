@@ -3,12 +3,14 @@ let state = {
   totalEarned: 0,
   manualClicks: 0,
   goldenCaught: 0,
+  bossesDefeated: 0,
   perClick: 1,
   perSecond: 0,
   flavor: 'none',
   sound: true,
   vibration: true,
   lastSave: Date.now(),
+  lastWheelSpin: 0,
   currentSkin: 'lollipop',
   unlockedSkins: ['lollipop'],
   currentParticle: 'circles',
@@ -21,7 +23,8 @@ let state = {
     earn1k: false,
     earn50k: false,
     bots5: false,
-    golden1: false
+    golden1: false,
+    boss1: false
   },
   upgrades: {
     finger:   { name: "Super Dedo",      icon: "👆", baseCost: 15,    count: 0, addClick: 1,  addPps: 0 },
@@ -62,12 +65,19 @@ const achievementList = {
   earn1k:   { name: "Colecionador Doce", desc: "Acumule 1.000 pirulitos no total", icon: "🍬" },
   earn50k:  { name: "Império do Açúcar", desc: "Acumule 50.000 pirulitos no total", icon: "👑" },
   bots5:    { name: "Automação", desc: "Compre 5 Licker Bots", icon: "🤖" },
-  golden1:  { name: "Sorte Dourada", desc: "Apanhe 1 Pirulito Dourado", icon: "🌟" }
+  golden1:  { name: "Sorte Dourada", desc: "Apanhe 1 Pirulito Dourado", icon: "🌟" },
+  boss1:    { name: "Dentista Herói", desc: "Derrote 1 Monstro da Cárie", icon: "⚔️" }
 };
 
 let boostMultiplier = 1;
 let boostEndTime = 0;
 let boostInterval = null;
+
+let bossActive = false;
+let bossMaxHp = 50;
+let bossCurrentHp = 50;
+let bossTimer = 15;
+let bossInterval = null;
 
 const AudioContext = window.AudioContext || window.webkitAudioContext;
 let audioCtx = null;
@@ -181,6 +191,9 @@ const paneAchieve = document.getElementById('pane-achievements');
 
 lollipopEl.addEventListener('pointerdown', (e) => {
   e.preventDefault();
+  if (bossActive) {
+    damageBoss(1);
+  }
   doClick(e.clientX, e.clientY);
 });
 
@@ -213,7 +226,6 @@ function doClick(x, y) {
   checkAchievements();
   updateUI();
 }
-
 function createFloatingText(x, y, text, isCrit = false) {
   const el = document.createElement('div');
   el.className = `click-text ${isCrit ? 'crit' : ''}`;
@@ -235,6 +247,147 @@ function formatNum(num) {
 function getUpgradeCost(key) {
   const up = state.upgrades[key];
   return Math.floor(up.baseCost * Math.pow(1.15, up.count));
+}
+
+/* Sistema de Boss: Monstro da Cárie */
+function spawnBoss() {
+  if (bossActive) return;
+  bossActive = true;
+  bossMaxHp = Math.max(30, Math.floor(state.perClick * 25));
+  bossCurrentHp = bossMaxHp;
+  bossTimer = 15;
+
+  const banner = document.getElementById('boss-banner');
+  if (banner) banner.classList.remove('hidden');
+
+  updateBossUI();
+
+  bossInterval = setInterval(() => {
+    bossTimer--;
+    const timerEl = document.getElementById('boss-timer');
+    if (timerEl) timerEl.innerText = `Tempo restante: ${bossTimer}s`;
+
+    if (bossTimer <= 0) {
+      endBoss(false);
+    }
+  }, 1000);
+}
+
+function damageBoss(amount) {
+  bossCurrentHp -= amount;
+  updateBossUI();
+  if (bossCurrentHp <= 0) {
+    endBoss(true);
+  }
+}
+
+function updateBossUI() {
+  const hpBar = document.getElementById('boss-hp-bar');
+  if (hpBar) {
+    const pct = Math.max(0, (bossCurrentHp / bossMaxHp) * 100);
+    hpBar.style.width = `${pct}%`;
+  }
+}
+
+function endBoss(defeated) {
+  clearInterval(bossInterval);
+  bossActive = false;
+  const banner = document.getElementById('boss-banner');
+  if (banner) banner.classList.add('hidden');
+
+  if (defeated) {
+    const reward = Math.max(100, Math.floor(state.perSecond * 60 + state.perClick * 100));
+    state.lollipops += reward;
+    state.totalEarned += reward;
+    state.bossesDefeated++;
+    playUpgradeSound();
+    alert(`🎉 VOCÊ DERROTOU O MONSTRO DA CÁRIE!\nGanhou +${formatNum(reward)} pirulitos!`);
+    checkAchievements();
+  } else {
+    alert("❌ O Monstro da Cárie escapou...");
+  }
+  updateUI();
+}
+
+/* Evento: Chuva de Açúcar */
+function triggerSugarRain() {
+  const count = 12;
+  for (let i = 0; i < count; i++) {
+    setTimeout(() => {
+      const candy = document.createElement('div');
+      candy.className = 'falling-candy';
+      const items = ['🍬', '🍭', '🍫', '🍩', '🧁'];
+      candy.innerText = items[Math.floor(Math.random() * items.length)];
+      candy.style.left = `${Math.random() * 80 + 10}%`;
+
+      candy.onclick = (e) => {
+        e.stopPropagation();
+        const gain = Math.max(10, Math.floor(state.perClick * 5));
+        state.lollipops += gain;
+        state.totalEarned += gain;
+        playPopSound();
+        spawnParticles(e.clientX, e.clientY);
+        createFloatingText(e.clientX, e.clientY, `+${formatNum(gain)}`);
+        candy.remove();
+        updateUI();
+      };
+
+      document.body.appendChild(candy);
+      setTimeout(() => { if (candy.parentNode) candy.remove(); }, 4000);
+    }, i * 350);
+  }
+}
+
+/* Roleta Diária */
+function spinDailyWheel() {
+  const now = Date.now();
+  const cooldowntime = 24 * 60 * 60 * 1000;
+
+  if (now - state.lastWheelSpin < cooldowntime) {
+    const remaining = cooldowntime - (now - state.lastWheelSpin);
+    const hours = Math.floor(remaining / (1000 * 60 * 60));
+    const mins = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+    alert(`Aguarde ${hours}h ${mins}m para rodar novamente!`);
+    return;
+  }
+
+  state.lastWheelSpin = now;
+  const display = document.getElementById('wheelDisplay');
+  let spins = 0;
+
+  const prizes = ['🍭 500', '⭐ Boost 3x', '🪙 5000', '🍬 Chuva Doce', '💎 25000'];
+
+  const interval = setInterval(() => {
+    spins++;
+    display.innerText = prizes[Math.floor(Math.random() * prizes.length)];
+    if (spins > 15) {
+      clearInterval(interval);
+      const finalPrize = Math.floor(Math.random() * prizes.length);
+      display.innerText = prizes[finalPrize];
+      applyWheelPrize(finalPrize);
+    }
+  }, 100);
+}
+
+function applyWheelPrize(index) {
+  playUpgradeSound();
+  if (index === 0) {
+    state.lollipops += 500;
+    alert("Ganhou +500 Pirulitos!");
+  } else if (index === 1) {
+    startBoost(60, 3);
+    alert("Ganhou 3x Cliques durante 60 segundos!");
+  } else if (index === 2) {
+    state.lollipops += 5000;
+    alert("Ganhou +5.000 Pirulitos!");
+  } else if (index === 3) {
+    triggerSugarRain();
+    alert("Ativou a Chuva de Açúcar!");
+  } else if (index === 4) {
+    state.lollipops += 25000;
+    alert("GRANDE PRÉMIO! +25.000 Pirulitos!");
+  }
+  updateUI();
 }
 
 function watchRewardAd() {
@@ -342,7 +495,6 @@ function buildShopUI() {
 function buildSkinsUI() {
   paneSkins.innerHTML = '';
 
-  // 1. Skins do Pirulito
   const title1 = document.createElement('div');
   title1.className = 'skin-section-title';
   title1.innerText = '🍭 Aparência do Clique';
@@ -371,7 +523,6 @@ function buildSkinsUI() {
   }
   paneSkins.appendChild(grid1);
 
-  // 2. Partículas
   const title2 = document.createElement('div');
   title2.className = 'skin-section-title';
   title2.innerText = '✨ Efeitos de Clique';
@@ -400,7 +551,6 @@ function buildSkinsUI() {
   }
   paneSkins.appendChild(grid2);
 
-  // 3. Temas
   const title3 = document.createElement('div');
   title3.className = 'skin-section-title';
   title3.innerText = '🎨 Tema de Fundo';
@@ -502,6 +652,7 @@ function checkAchievements() {
   if (state.totalEarned >= 50000 && !state.achievements.earn50k) state.achievements.earn50k = true;
   if (state.upgrades.autolick.count >= 5 && !state.achievements.bots5) state.achievements.bots5 = true;
   if (state.goldenCaught >= 1 && !state.achievements.golden1) state.achievements.golden1 = true;
+  if (state.bossesDefeated >= 1 && !state.achievements.boss1) state.achievements.boss1 = true;
 
   buildAchievementsUI();
 }
@@ -548,6 +699,9 @@ function updateUI() {
 
   const achBoost = ((getAchievementMultiplier() - 1) * 100).toFixed(0);
 
+  const bossStat = document.getElementById('stat-bosses');
+  if (bossStat) bossStat.innerText = state.bossesDefeated;
+
   document.getElementById('stat-total').innerText = formatNum(state.totalEarned);
   document.getElementById('stat-clicks').innerText = formatNum(state.manualClicks);
   document.getElementById('stat-cpc').innerText = formatNum(state.perClick * boostMultiplier * getAchievementMultiplier());
@@ -578,9 +732,18 @@ function spawnGoldenLollipop() {
   setTimeout(() => { if (golden.parentNode) golden.remove(); }, 8000);
 }
 
+/* Timers de Eventos Aleatórios */
 setInterval(() => {
   if (Math.random() < 0.6) spawnGoldenLollipop();
 }, 45000);
+
+setInterval(() => {
+  if (Math.random() < 0.3) triggerSugarRain();
+}, 90000);
+
+setInterval(() => {
+  if (Math.random() < 0.25 && !bossActive) spawnBoss();
+}, 120000);
 
 function switchTab(tabName) {
   document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
@@ -611,12 +774,14 @@ function saveGame() {
 function loadGame() {
   const saved = localStorage.getItem('lollipop_clicker_save');
   if (saved) {
-        const parsed = JSON.parse(saved);
+    const parsed = JSON.parse(saved);
     state = { ...state, ...parsed };
 
     if (!state.unlockedSkins) state.unlockedSkins = ['lollipop'];
     if (!state.unlockedParticles) state.unlockedParticles = ['circles'];
     if (!state.unlockedThemes) state.unlockedThemes = ['purple'];
+    if (!state.lastWheelSpin) state.lastWheelSpin = 0;
+    if (!state.bossesDefeated) state.bossesDefeated = 0;
     
     const now = Date.now();
     const offlineSecs = Math.floor((now - (state.lastSave || now)) / 1000);
@@ -664,3 +829,4 @@ setInterval(() => {
 setInterval(saveGame, 10000);
 
 loadGame();
+    
