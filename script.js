@@ -18,6 +18,11 @@ let state = {
   }
 };
 
+// Variáveis do Anúncio e Bónus 3x
+let boostMultiplier = 1;
+let boostEndTime = 0;
+let boostInterval = null;
+
 const AudioContext = window.AudioContext || window.webkitAudioContext;
 let audioCtx = null;
 
@@ -119,15 +124,17 @@ lollipopEl.addEventListener('pointerdown', (e) => {
 });
 
 function doClick(x, y) {
-  state.lollipops += state.perClick;
-  state.totalEarned += state.perClick;
+  // Aplica o multiplicador do bónus de anúncio (3x)
+  const earned = state.perClick * boostMultiplier;
+  state.lollipops += earned;
+  state.totalEarned += earned;
   state.manualClicks++;
 
   playPopSound();
   if (state.vibration && navigator.vibrate) navigator.vibrate(10);
 
   spawnParticles(x, y);
-  createFloatingText(x, y, `+${formatNum(state.perClick)}`);
+  createFloatingText(x, y, `+${formatNum(earned)}`);
   updateUI();
 }
 
@@ -154,8 +161,58 @@ function getUpgradeCost(key) {
   return Math.floor(up.baseCost * Math.pow(1.15, up.count));
 }
 
+// LÓGICA DO VÍDEO RECOMPENSADO
+function watchRewardAd() {
+  if (Date.now() < boostEndTime) {
+    alert("O seu Bónus de 3x Cliques já está ativo!");
+    return;
+  }
+
+  // AQUI ENTRARÁ O SDK DO ADMOB / ADSENSE QUANDO FOR PARA PRODUÇÃO
+  const watched = confirm("🎬 [SIMULAÇÃO DE ANÚNCIO]\n\nAssistir ao vídeo de 15s para ativar 3x Cliques por 30 segundos?");
+  
+  if (watched) {
+    startBoost(30, 3);
+  }
+}
+
+function startBoost(durationSeconds, multiplier) {
+  boostMultiplier = multiplier;
+  boostEndTime = Date.now() + (durationSeconds * 1000);
+
+  if (boostInterval) clearInterval(boostInterval);
+
+  boostInterval = setInterval(() => {
+    const remaining = Math.max(0, Math.ceil((boostEndTime - Date.now()) / 1000));
+    const adBtn = document.getElementById('btn-ad-boost');
+    
+    if (adBtn) {
+      if (remaining > 0) {
+        adBtn.innerText = `🔥 3X CLIQUES ATIVO (${remaining}s)`;
+        adBtn.classList.add('active-boost');
+      } else {
+        adBtn.innerText = `🎬 Assistir Vídeo (3x Cliques / 30s)`;
+        adBtn.classList.remove('active-boost');
+        boostMultiplier = 1;
+        clearInterval(boostInterval);
+        updateUI();
+      }
+    }
+  }, 1000);
+
+  updateUI();
+}
+
 function buildShopUI() {
-  paneShop.innerHTML = '';
+  // Mantém o botão de anúncio no topo
+  const adBtnHTML = `
+    <button class="action-btn btn-ad ${Date.now() < boostEndTime ? 'active-boost' : ''}" id="btn-ad-boost" onclick="watchRewardAd()">
+      ${Date.now() < boostEndTime ? '🔥 3X CLIQUES ATIVO' : '🎬 Assistir Vídeo (3x Cliques / 30s)'}
+    </button>
+  `;
+  
+  paneShop.innerHTML = adBtnHTML;
+
   for (const key in state.upgrades) {
     const up = state.upgrades[key];
     const cost = getUpgradeCost(key);
@@ -220,7 +277,7 @@ function updateUI() {
 
   document.getElementById('stat-total').innerText = formatNum(state.totalEarned);
   document.getElementById('stat-clicks').innerText = formatNum(state.manualClicks);
-  document.getElementById('stat-cpc').innerText = formatNum(state.perClick);
+  document.getElementById('stat-cpc').innerText = formatNum(state.perClick * boostMultiplier);
   document.getElementById('stat-golden').innerText = state.goldenCaught;
 }
 
