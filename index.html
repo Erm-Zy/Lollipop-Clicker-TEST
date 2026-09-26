@@ -19,6 +19,7 @@
     const adBreak = adConfig = function(o) {adsbygoogle.push(o);};
   </script>
 
+  <!-- Estilos do Jogo -->
   <link rel="stylesheet" href="style.css?v=7">
 </head>
 <body id="gameBody" class="theme-purple" onselectstart="return false;" oncontextmenu="return false;">
@@ -31,18 +32,18 @@
     <div class="pps-display" id="pps">0 por segundo</div>
   </div>
 
-  <!-- NAVEGAÇÃO DE ÁREAS (SETAS) -->
+  <!-- NAVEGAÇÃO SUPERIOR DE ÁREAS -->
   <div class="area-nav">
     <button class="area-arrow" onclick="changeArea(-1)">◀</button>
     <div class="area-title" id="areaTitle">🍭 Mundo Principal</div>
     <button class="area-arrow" onclick="changeArea(1)">▶</button>
   </div>
 
-  <!-- ÁREA DE JOGO PRINCIPAL DINÂMICA -->
+  <!-- ÁREA DE JOGO CENTRAL -->
   <div class="game-area" id="gameArea">
 
     <!-- ÁREA 0: MUNDO PRINCIPAL -->
-    <div id="view-main" class="area-view active">
+    <div id="view-main" class="area-view">
       <div class="lollipop-glow"></div>
       <div class="lollipop" id="lollipop">🍭</div>
     </div>
@@ -68,7 +69,7 @@
       </div>
     </div>
 
-    <!-- ÁREA 2: MUNDOS (EM BREVE) -->
+    <!-- ÁREA 2: NOVOS MUNDOS -->
     <div id="view-worlds" class="area-view hidden">
       <div class="coming-soon-box">
         <div class="coming-icon">🪐</div>
@@ -80,6 +81,7 @@
 
   </div>
 
+  <!-- PAINEL INFERIOR -->
   <div class="bottom-panel">
     <div class="nav-tabs">
       <button class="tab-btn active" onclick="switchTab('shop')">🛒 LOJA</button>
@@ -101,14 +103,13 @@
           <div class="wheel-title">🎁 Roleta de Prémios Diários</div>
           <div class="wheel-wrapper">
             <div class="wheel-pointer">▼</div>
-            <canvas id="wheelCanvas" width="260" height="260"></canvas>
+            <canvas id="wheelCanvas" width="220" height="220"></canvas>
           </div>
           <button class="action-btn btn-ad" id="btn-spin-wheel" onclick="spinDailyWheel()">🎡 RODAR ROLETA</button>
           <div class="wheel-timer" id="wheelTimer">Disponível uma vez a cada 24 horas!</div>
         </div>
       </div>
 
-      <!-- ABA DE PRESTÍGIO -->
       <div class="tab-pane" id="pane-prestige">
         <div class="prestige-container">
           <h2>👑 Renascimento Doce</h2>
