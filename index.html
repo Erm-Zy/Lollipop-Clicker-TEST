@@ -1,1 +1,64 @@
-test
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Lollipop Clicker TEST</title>
+
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#ff4081">
+  <link rel="apple-touch-icon" href="icon-192.png">
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <canvas id="fxCanvas"></canvas>
+
+  <div class="header">
+    <div class="score-label">Pirulitos Coletados</div>
+    <div class="score-display" id="score">0</div>
+    <div class="pps-display" id="pps">0 por segundo</div>
+  </div>
+
+  <div class="game-area" id="gameArea">
+    <div class="lollipop-glow"></div>
+    <div class="lollipop" id="lollipop">🍭</div>
+  </div>
+
+  <div class="bottom-panel">
+    <div class="nav-tabs">
+      <button class="tab-btn active" onclick="switchTab('shop')">🛒 LOJA</button>
+      <button class="tab-btn" onclick="switchTab('stats')">📊 STATS</button>
+      <button class="tab-btn" onclick="switchTab('settings')">⚙️ OPÇÕES</button>
+    </div>
+
+    <div class="tab-content">
+      <div class="tab-pane active" id="pane-shop"></div>
+
+      <div class="tab-pane" id="pane-stats">
+        <div class="stat-row"><span>Total Produzido:</span><span id="stat-total">0</span></div>
+        <div class="stat-row"><span>Cliques Manuais:</span><span id="stat-clicks">0</span></div>
+        <div class="stat-row"><span>Poder de Clique:</span><span id="stat-cpc">1</span></div>
+        <div class="stat-row"><span>Pirulitos Dourados:</span><span id="stat-golden">0</span></div>
+      </div>
+
+      <div class="tab-pane" id="pane-settings">
+        <button class="action-btn btn-primary" id="btn-sound" onclick="toggleSound()">🔊 Som: LIGADO</button>
+        <button class="action-btn btn-primary" id="btn-vibe" onclick="toggleVibe()">📳 Vibração: LIGADA</button>
+        <button class="action-btn btn-danger" onclick="resetGame()">🗑️ Resetar Progresso</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(console.error);
+      });
+    }
+  </script>
+</body>
+</html>
