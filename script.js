@@ -8,9 +8,9 @@ let state = {
   perClick: 1,
   perSecond: 0,
   flavor: 'none',
-  music: true,
+  music: false,
   sound: true,
-  vibration: true,
+  vibration: false,
   lastSave: Date.now(),
   lastWheelSpin: 0,
   currentSkin: 'lollipop',
@@ -115,9 +115,9 @@ function initAudio() {
 }
 
 function initBGM() {
-  if (bgmStarted) return;
+  if (bgmStarted || !state.music) return;
   const bgm = document.getElementById('bgmAudio');
-  if (bgm && state.music !== false) {
+  if (bgm) {
     bgm.volume = 0.20;
     bgm.play().then(() => {
       bgmStarted = true;
@@ -127,7 +127,7 @@ function initBGM() {
 
 document.addEventListener('pointerdown', () => {
   initAudio();
-  initBGM();
+  if (state.music) initBGM();
 }, { once: true });
 
 function playPopSound() {
@@ -962,7 +962,8 @@ function loadGame() {
     if (!state.lastWheelSpin) state.lastWheelSpin = 0;
     if (!state.bossesDefeated) state.bossesDefeated = 0;
     if (!state.prestigePoints) state.prestigePoints = 0;
-    if (state.music === undefined) state.music = true;
+    if (state.music === undefined) state.music = false;
+    if (state.vibration === undefined) state.vibration = false;
 
     recalcStats();
   }
@@ -977,6 +978,11 @@ function loadGame() {
   const btnMusic = document.getElementById('btn-music');
   if (btnMusic) {
     btnMusic.innerText = `🎵 Música: ${state.music ? 'LIGADA' : 'DESLIGADA'}`;
+  }
+
+  const btnVibe = document.getElementById('btn-vibe');
+  if (btnVibe) {
+    btnVibe.innerText = `📳 Vibração: ${state.vibration ? 'LIGADA' : 'DESLIGADA'}`;
   }
 
   recalcStats();
