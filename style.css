@@ -105,12 +105,12 @@ body {
 
 .tab-btn {
   flex: 1;
-  padding: 14px 0;
+  padding: 12px 0;
   background: transparent;
   border: none;
   color: #888;
   font-weight: bold;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   cursor: pointer;
 }
 
@@ -133,6 +133,56 @@ body {
   display: flex;
   flex-direction: column;
   gap: 10px;
+}
+
+/* Seção de Sabores */
+.flavor-section {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 10px;
+  margin-bottom: 4px;
+}
+
+.flavor-title {
+  font-size: 0.8rem;
+  font-weight: bold;
+  color: #ffd54f;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+.flavor-grid {
+  display: flex;
+  gap: 6px;
+}
+
+.flavor-card {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  padding: 8px 4px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.flavor-card.active {
+  border-color: #ff4081;
+  background: rgba(255, 64, 129, 0.25);
+  box-shadow: 0 0 10px rgba(255, 64, 129, 0.4);
+}
+
+.flavor-name {
+  font-size: 0.75rem;
+  font-weight: bold;
+}
+
+.flavor-desc {
+  font-size: 0.68rem;
+  color: #bbb;
+  margin-top: 2px;
 }
 
 /* Upgrade Cards */
@@ -183,7 +233,49 @@ body {
   background: #555;
 }
 
-/* Botão de Anúncio Recompensado */
+/* Conquistas */
+.achievement-card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  opacity: 0.4;
+}
+
+.achievement-card.unlocked {
+  opacity: 1;
+  border-color: #ffd54f;
+  background: rgba(255, 213, 79, 0.1);
+}
+
+.achievement-icon {
+  font-size: 1.8rem;
+}
+
+.achievement-details {
+  flex: 1;
+}
+
+.achievement-title {
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
+.achievement-sub {
+  font-size: 0.78rem;
+  color: #aaa;
+}
+
+.achievement-status {
+  font-size: 0.8rem;
+  font-weight: bold;
+  color: #ffd54f;
+}
+
+/* Botões */
 .btn-ad {
   background: linear-gradient(135deg, #ff9800, #f57c00);
   color: #fff;
@@ -200,10 +292,6 @@ body {
   text-align: center;
 }
 
-.btn-ad:active {
-  transform: scale(0.97);
-}
-
 .btn-ad.active-boost {
   background: linear-gradient(135deg, #4caf50, #2e7d32);
   border-color: #a5d6a7;
@@ -216,7 +304,6 @@ body {
   50% { transform: scale(1.02); }
 }
 
-/* Outros botões e estatísticas */
 .action-btn {
   width: 100%;
   padding: 14px;
@@ -255,6 +342,12 @@ body {
   animation: floatUp 0.8s forwards ease-out;
   z-index: 20;
   text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+}
+
+.click-text.crit {
+  color: #ff1744;
+  font-size: 1.8rem;
+  text-shadow: 0 0 10px #ff5252, 0 2px 4px rgba(0,0,0,0.8);
 }
 
 @keyframes floatUp {
