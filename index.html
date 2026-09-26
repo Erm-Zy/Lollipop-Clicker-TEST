@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Lollipop Clicker</title>
 
-  <link rel="manifest" href="manifest.json?v=6">
+  <link rel="manifest" href="manifest.json?v=7">
   <meta name="theme-color" content="#ff4081">
   <link rel="apple-touch-icon" href="icon-192.png">
 
@@ -19,22 +19,11 @@
     const adBreak = adConfig = function(o) {adsbygoogle.push(o);};
   </script>
 
-  <!-- Estilos do Jogo -->
-  <link rel="stylesheet" href="style.css?v=6">
+  <link rel="stylesheet" href="style.css?v=7">
 </head>
 <body id="gameBody" class="theme-purple" onselectstart="return false;" oncontextmenu="return false;">
 
   <canvas id="fxCanvas"></canvas>
-
-    <!-- Banner do Chefe (Monstro da Cárie) com área de ataque direta -->
-  <div id="boss-banner" class="boss-banner hidden">
-    <div class="boss-title">👾 MONSTRO DA CÁRIE APARECEU!</div>
-    <div class="boss-hp-container">
-      <div id="boss-hp-bar" class="boss-hp-bar"></div>
-    </div>
-    <div class="boss-timer" id="boss-timer">Tempo restante: 15s</div>
-    <button class="boss-attack-btn" onclick="damageBoss(1)">⚔️ ATACAR CÁRIE! ⚔️</button>
-  </div>
 
   <div class="header">
     <div class="score-label">Pirulitos Coletados</div>
@@ -42,9 +31,53 @@
     <div class="pps-display" id="pps">0 por segundo</div>
   </div>
 
+  <!-- NAVEGAÇÃO DE ÁREAS (SETAS) -->
+  <div class="area-nav">
+    <button class="area-arrow" onclick="changeArea(-1)">◀</button>
+    <div class="area-title" id="areaTitle">🍭 Mundo Principal</div>
+    <button class="area-arrow" onclick="changeArea(1)">▶</button>
+  </div>
+
+  <!-- ÁREA DE JOGO PRINCIPAL DINÂMICA -->
   <div class="game-area" id="gameArea">
-    <div class="lollipop-glow"></div>
-    <div class="lollipop" id="lollipop">🍭</div>
+
+    <!-- ÁREA 0: MUNDO PRINCIPAL -->
+    <div id="view-main" class="area-view active">
+      <div class="lollipop-glow"></div>
+      <div class="lollipop" id="lollipop">🍭</div>
+    </div>
+
+    <!-- ÁREA 1: ARENA DOS CHEFÕES -->
+    <div id="view-boss" class="area-view hidden">
+      <div class="boss-arena-box">
+        <div id="boss-idle-state">
+          <div class="boss-avatar-idle">👾</div>
+          <h3>Arena do Chefão</h3>
+          <p>Enfrente o Monstro da Cárie para ganhar recompensas gigantescas!</p>
+          <button class="action-btn btn-danger" onclick="startBossBattle()">⚔️ INICIAR BATALHA</button>
+        </div>
+
+        <div id="boss-active-state" class="hidden">
+          <div class="boss-avatar" id="bossAvatar" onclick="hitBossArena(event)">👾</div>
+          <div class="boss-hp-container">
+            <div id="boss-hp-bar" class="boss-hp-bar"></div>
+          </div>
+          <div class="boss-timer" id="boss-timer">Tempo restante: 15s</div>
+          <div class="boss-hint">Clique rapidamente no Monstro!</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ÁREA 2: MUNDOS (EM BREVE) -->
+    <div id="view-worlds" class="area-view hidden">
+      <div class="coming-soon-box">
+        <div class="coming-icon">🪐</div>
+        <h2>Novos Mundos</h2>
+        <p>Explore Galáxias de Açúcar, Dimensões de Chocolate e Reinos Doce!</p>
+        <div class="badge-soon">🔒 EM BREVE</div>
+      </div>
+    </div>
+
   </div>
 
   <div class="bottom-panel">
@@ -52,6 +85,7 @@
       <button class="tab-btn active" onclick="switchTab('shop')">🛒 LOJA</button>
       <button class="tab-btn" onclick="switchTab('skins')">🎨 SKINS</button>
       <button class="tab-btn" onclick="switchTab('wheel')">🎡 ROLETA</button>
+      <button class="tab-btn" onclick="switchTab('prestige')">👑 PRESTÍGIO</button>
       <button class="tab-btn" onclick="switchTab('achievements')">🏆 METAS</button>
       <button class="tab-btn" onclick="switchTab('stats')">📊 STATS</button>
       <button class="tab-btn" onclick="switchTab('settings')">⚙️ OPÇÕES</button>
@@ -62,7 +96,7 @@
 
       <div class="tab-pane" id="pane-skins"></div>
 
-            <div class="tab-pane" id="pane-wheel">
+      <div class="tab-pane" id="pane-wheel">
         <div class="wheel-container">
           <div class="wheel-title">🎁 Roleta de Prémios Diários</div>
           <div class="wheel-wrapper">
@@ -74,6 +108,27 @@
         </div>
       </div>
 
+      <!-- ABA DE PRESTÍGIO -->
+      <div class="tab-pane" id="pane-prestige">
+        <div class="prestige-container">
+          <h2>👑 Renascimento Doce</h2>
+          <p>Reinicie o seu progresso e edifícios em troca de <strong>Açúcar Divino</strong>. Cada unidade concede <strong>+20% de Bónus Permanente</strong> em toda a produção!</p>
+          
+          <div class="prestige-stat-box">
+            <div>Açúcar Divino Atual: <strong id="prestige-current">0</strong> ✨</div>
+            <div>Bónus Atual: <strong id="prestige-boost-text">+0%</strong></div>
+          </div>
+
+          <div class="prestige-reward-box">
+            <span>Açúcar Divino a ganhar agora:</span>
+            <div class="prestige-gain" id="prestige-gain-display">+0 ✨</div>
+            <small id="prestige-req-desc">Requer pelo menos 1.000.000 de Pirulitos acumulados na carreira.</small>
+          </div>
+
+          <button class="action-btn btn-danger" id="btn-do-prestige" onclick="doPrestige()">👑 EFETUAR PRESTÍGIO</button>
+        </div>
+      </div>
+
       <div class="tab-pane" id="pane-achievements"></div>
 
       <div class="tab-pane" id="pane-stats">
@@ -82,6 +137,7 @@
         <div class="stat-row"><span>Poder de Clique:</span><span id="stat-cpc">1</span></div>
         <div class="stat-row"><span>Pirulitos Dourados:</span><span id="stat-golden">0</span></div>
         <div class="stat-row"><span>Chefes Derrotados:</span><span id="stat-bosses">0</span></div>
+        <div class="stat-row"><span>Nível de Prestígio:</span><span id="stat-prestige-lvl">0</span></div>
         <div class="stat-row"><span>Bónus de Conquistas:</span><span id="stat-achieve-boost">+0%</span></div>
       </div>
 
@@ -93,13 +149,12 @@
     </div>
   </div>
 
-  <!-- Lógica do Jogo -->
-  <script src="script.js?v=6"></script>
+  <script src="script.js?v=7"></script>
 
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=6').catch(console.error);
+        navigator.serviceWorker.register('./sw.js?v=7').catch(console.error);
       });
     }
   </script>
