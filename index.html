@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Lollipop Clicker</title>
 
-  <link rel="manifest" href="manifest.json?v=4">
+  <link rel="manifest" href="manifest.json?v=5">
   <meta name="theme-color" content="#ff4081">
   <link rel="apple-touch-icon" href="icon-192.png">
 
@@ -20,9 +20,9 @@
   </script>
 
   <!-- Estilos do Jogo -->
-  <link rel="stylesheet" href="style.css?v=4">
+  <link rel="stylesheet" href="style.css?v=5">
 </head>
-<body onselectstart="return false;" oncontextmenu="return false;">
+<body id="gameBody" class="theme-purple" onselectstart="return false;" oncontextmenu="return false;">
 
   <canvas id="fxCanvas"></canvas>
 
@@ -40,6 +40,7 @@
   <div class="bottom-panel">
     <div class="nav-tabs">
       <button class="tab-btn active" onclick="switchTab('shop')">🛒 LOJA</button>
+      <button class="tab-btn" onclick="switchTab('skins')">🎨 SKINS</button>
       <button class="tab-btn" onclick="switchTab('achievements')">🏆 METAS</button>
       <button class="tab-btn" onclick="switchTab('stats')">📊 STATS</button>
       <button class="tab-btn" onclick="switchTab('settings')">⚙️ OPÇÕES</button>
@@ -47,6 +48,8 @@
 
     <div class="tab-content">
       <div class="tab-pane active" id="pane-shop"></div>
+
+      <div class="tab-pane" id="pane-skins"></div>
 
       <div class="tab-pane" id="pane-achievements"></div>
 
@@ -67,12 +70,12 @@
   </div>
 
   <!-- Lógica do Jogo -->
-  <script src="script.js?v=4"></script>
+  <script src="script.js?v=5"></script>
 
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=4').catch(console.error);
+        navigator.serviceWorker.register('./sw.js?v=5').catch(console.error);
       });
     }
   </script>
