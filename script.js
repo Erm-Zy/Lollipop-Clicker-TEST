@@ -249,7 +249,7 @@ function getUpgradeCost(key) {
   return Math.floor(up.baseCost * Math.pow(1.15, up.count));
 }
 
-/* Sistema de Boss: Monstro da Cárie */
+/* --- SISTEMA DO CHEFE (CORRIGIDO) --- */
 function spawnBoss() {
   if (bossActive) return;
   bossActive = true;
@@ -262,10 +262,14 @@ function spawnBoss() {
 
   updateBossUI();
 
+  if (bossInterval) clearInterval(bossInterval);
+
   bossInterval = setInterval(() => {
     bossTimer--;
     const timerEl = document.getElementById('boss-timer');
-    if (timerEl) timerEl.innerText = `Tempo restante: ${bossTimer}s`;
+    if (timerEl) {
+      timerEl.innerText = `Tempo restante: ${bossTimer}s`;
+    }
 
     if (bossTimer <= 0) {
       endBoss(false);
@@ -274,6 +278,7 @@ function spawnBoss() {
 }
 
 function damageBoss(amount) {
+  if (!bossActive) return;
   bossCurrentHp -= amount;
   updateBossUI();
   if (bossCurrentHp <= 0) {
@@ -290,8 +295,10 @@ function updateBossUI() {
 }
 
 function endBoss(defeated) {
-  clearInterval(bossInterval);
+  if (bossInterval) clearInterval(bossInterval);
+  bossInterval = null;
   bossActive = false;
+
   const banner = document.getElementById('boss-banner');
   if (banner) banner.classList.add('hidden');
 
@@ -301,13 +308,136 @@ function endBoss(defeated) {
     state.totalEarned += reward;
     state.bossesDefeated++;
     playUpgradeSound();
-    alert(`🎉 VOCÊ DERROTOU O MONSTRO DA CÁRIE!\nGanhou +${formatNum(reward)} pirulitos!`);
+    alert(`🎉 DERROTASTE O MONSTRO DA CÁRIE!\nGanhaste +${formatNum(reward)} pirulitos!`);
     checkAchievements();
   } else {
     alert("❌ O Monstro da Cárie escapou...");
   }
   updateUI();
 }
+
+
+/* --- NOVA ROLETA VISUAL EM CANVAS --- */
+const wheelPrizes = [
+  { label: '500 🍭', color: '#e91e63' },
+  { label: '3x Boost', color: '#9c27b0' },
+  { label: '5.000 🍭', color: '#3f51b5' },
+  { label: 'Chuva Doce', color: '#00bcd4' },
+  { label: '25.000 🍭', color: '#4caf50' },
+  { label: '1.000 🍭', color: '#ff9800' }
+];
+
+let wheelAngle = 0;
+let isSpinning = false;
+
+function drawWheel() {
+  const canvas = document.getElementById('wheelCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const numOptions = wheelPrizes.length;
+  const arcSize = (2 * Math.PI) / numOptions;
+  const radius = canvas.width / 2;
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  for (let i = 0; i < numOptions; i++) {
+    const angle = wheelAngle + i * arcSize;
+    ctx.beginPath();
+    ctx.fillStyle = wheelPrizes[i].color;
+    ctx.moveTo(radius, radius);
+    ctx.arc(radius, radius, radius, angle, angle + arcSize);
+    ctx.lineTo(radius, radius);
+    ctx.fill();
+    ctx.strokeStyle = '#ffffff33';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Texto nos segmentos
+    ctx.save();
+    ctx.translate(radius, radius);
+    ctx.rotate(angle + arcSize / 2);
+    ctx.textAlign = 'right';
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 13px sans-serif';
+    ctx.fillText(wheelPrizes[i].label, radius - 15, 5);
+    ctx.restore();
+  }
+}
+
+function spinDailyWheel() {
+  if (isSpinning) return;
+
+  const now = Date.now();
+  const cooldowntime = 24 * 60 * 60 * 1000;
+
+  if (now - state.lastWheelSpin < cooldowntime) {
+    const remaining = cooldowntime - (now - state.lastWheelSpin);
+    const hours = Math.floor(remaining / (1000 * 60 * 60));
+    const mins = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+    alert(`Aguarda ${hours}h ${mins}m para rodar novamente!`);
+    return;
+  }
+
+  isSpinning = true;
+  state.lastWheelSpin = now;
+
+  let spinVelocity = Math.random() * 0.2 + 0.3; 
+  const friction = 0.985; 
+
+  function animateSpin() {
+    wheelAngle += spinVelocity;
+    spinVelocity *= friction;
+    drawWheel();
+
+    if (spinVelocity > 0.002) {
+      requestAnimationFrame(animateSpin);
+    } else {
+      isSpinning = false;
+      determineWheelWinner();
+    }
+  }
+
+  animateSpin();
+}
+
+function determineWheelWinner() {
+  const numOptions = wheelPrizes.length;
+  const arcSize = (2 * Math.PI) / numOptions;
+  
+  // Normalizar ângulo e calcular qual segmento parou no topo (-90 graus ou 3PI/2)
+  let normalizedAngle = (1.5 * Math.PI - (wheelAngle % (2 * Math.PI))) % (2 * Math.PI);
+  if (normalizedAngle < 0) normalizedAngle += 2 * Math.PI;
+
+  const winnerIndex = Math.floor(normalizedAngle / arcSize);
+  applyWheelPrize(winnerIndex);
+}
+
+function applyWheelPrize(index) {
+  playUpgradeSound();
+  if (index === 0) {
+    state.lollipops += 500;
+    alert("Ganhaste +500 Pirulitos!");
+  } else if (index === 1) {
+    startBoost(60, 3);
+    alert("Ganhaste 3x Cliques durante 60 segundos!");
+  } else if (index === 2) {
+    state.lollipops += 5000;
+    alert("Ganhaste +5.000 Pirulitos!");
+  } else if (index === 3) {
+    triggerSugarRain();
+    alert("Ativaste a Chuva de Açúcar!");
+  } else if (index === 4) {
+    state.lollipops += 25000;
+    alert("GRANDE PRÉMIO! +25.000 Pirulitos!");
+  } else if (index === 5) {
+    state.lollipops += 1000;
+    alert("Ganhaste +1.000 Pirulitos!");
+  }
+  updateUI();
+}
+
+// Inicializar desenho da roleta ao carregar a página
+setTimeout(drawWheel, 500);
 
 /* Evento: Chuva de Açúcar */
 function triggerSugarRain() {
@@ -336,58 +466,6 @@ function triggerSugarRain() {
       setTimeout(() => { if (candy.parentNode) candy.remove(); }, 4000);
     }, i * 350);
   }
-}
-
-/* Roleta Diária */
-function spinDailyWheel() {
-  const now = Date.now();
-  const cooldowntime = 24 * 60 * 60 * 1000;
-
-  if (now - state.lastWheelSpin < cooldowntime) {
-    const remaining = cooldowntime - (now - state.lastWheelSpin);
-    const hours = Math.floor(remaining / (1000 * 60 * 60));
-    const mins = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
-    alert(`Aguarde ${hours}h ${mins}m para rodar novamente!`);
-    return;
-  }
-
-  state.lastWheelSpin = now;
-  const display = document.getElementById('wheelDisplay');
-  let spins = 0;
-
-  const prizes = ['🍭 500', '⭐ Boost 3x', '🪙 5000', '🍬 Chuva Doce', '💎 25000'];
-
-  const interval = setInterval(() => {
-    spins++;
-    display.innerText = prizes[Math.floor(Math.random() * prizes.length)];
-    if (spins > 15) {
-      clearInterval(interval);
-      const finalPrize = Math.floor(Math.random() * prizes.length);
-      display.innerText = prizes[finalPrize];
-      applyWheelPrize(finalPrize);
-    }
-  }, 100);
-}
-
-function applyWheelPrize(index) {
-  playUpgradeSound();
-  if (index === 0) {
-    state.lollipops += 500;
-    alert("Ganhou +500 Pirulitos!");
-  } else if (index === 1) {
-    startBoost(60, 3);
-    alert("Ganhou 3x Cliques durante 60 segundos!");
-  } else if (index === 2) {
-    state.lollipops += 5000;
-    alert("Ganhou +5.000 Pirulitos!");
-  } else if (index === 3) {
-    triggerSugarRain();
-    alert("Ativou a Chuva de Açúcar!");
-  } else if (index === 4) {
-    state.lollipops += 25000;
-    alert("GRANDE PRÉMIO! +25.000 Pirulitos!");
-  }
-  updateUI();
 }
 
 function watchRewardAd() {
