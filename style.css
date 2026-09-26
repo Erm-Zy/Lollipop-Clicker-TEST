@@ -557,3 +557,48 @@ body.theme-gold {
   0% { top: -10%; opacity: 1; }
   100% { top: 105%; opacity: 0; }
 }
+/* Botão de Ataque no Chefe */
+.boss-attack-btn {
+  margin-top: 8px;
+  background: #ff1744;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-weight: bold;
+  font-size: 0.85rem;
+  cursor: pointer;
+  box-shadow: 0 4px 0 #b71c1c;
+  transition: transform 0.05s;
+}
+
+.boss-attack-btn:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 #b71c1c;
+}
+
+/* Nova Roleta Visual Canvas */
+.wheel-wrapper {
+  position: relative;
+  width: 260px;
+  height: 260px;
+  margin: 10px auto;
+}
+
+.wheel-pointer {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 26px;
+  color: #ffeb3b;
+  z-index: 10;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6));
+}
+
+#wheelCanvas {
+  width: 260px;
+  height: 260px;
+  border-radius: 50%;
+  box-shadow: 0 0 20px rgba(0,0,0,0.6), 0 0 0 6px #ff4081;
+}
