@@ -278,6 +278,36 @@ body {
   cursor: pointer;
   margin-top: 5px;
 }
+/* Botão de Anúncio Recompensado */
+.btn-ad {
+  background: linear-gradient(135deg, #ff9800, #f57c00);
+  color: #fff;
+  font-size: 0.95rem;
+  padding: 14px;
+  border-radius: 16px;
+  box-shadow: 0 4px 15px rgba(245, 124, 0, 0.3);
+  transition: all 0.2s ease;
+  border: 2px solid #ffe0b2;
+  margin-bottom: 8px;
+  cursor: pointer;
+}
+
+.btn-ad:active {
+  transform: scale(0.97);
+}
+
+.btn-ad.active-boost {
+  background: linear-gradient(135deg, #4caf50, #2e7d32);
+  border-color: #a5d6a7;
+  box-shadow: 0 4px 15px rgba(46, 125, 50, 0.4);
+  animation: pulseGreen 1.5s infinite;
+}
+
+@keyframes pulseGreen {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+}
+
 
 .btn-primary { background: var(--primary); color: #fff; }
 .btn-danger { background: #ff5252; color: #fff; }
