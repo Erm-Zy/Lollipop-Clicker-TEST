@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Lollipop Clicker</title>
 
-  <link rel="manifest" href="manifest.json?v=8">
+  <link rel="manifest" href="manifest.json?v=9">
   <meta name="theme-color" content="#ff4081">
   <link rel="apple-touch-icon" href="icon-192.png">
 
@@ -19,10 +19,14 @@
     const adBreak = adConfig = function(o) {adsbygoogle.push(o);};
   </script>
 
-  <!-- Estilos do Jogo -->
-  <link rel="stylesheet" href="style.css?v=8">
+  <link rel="stylesheet" href="style.css?v=9">
 </head>
 <body id="gameBody" class="theme-purple" onselectstart="return false;" oncontextmenu="return false;">
+
+  <!-- ÁUDIO DE FUNDO -->
+  <audio id="bgmAudio" loop preload="auto">
+    <source src="assets/audio/bmg1.ogg" type="audio/ogg">
+  </audio>
 
   <canvas id="fxCanvas"></canvas>
 
@@ -144,6 +148,7 @@
       </div>
 
       <div class="tab-pane" id="pane-settings">
+        <button class="action-btn btn-primary" id="btn-music" onclick="toggleMusic()">🎵 Música: LIGADA</button>
         <button class="action-btn btn-primary" id="btn-sound" onclick="toggleSound()">🔊 Som: LIGADO</button>
         <button class="action-btn btn-primary" id="btn-vibe" onclick="toggleVibe()">📳 Vibração: LIGADA</button>
         <button class="action-btn btn-danger" onclick="resetGame()">🗑️ Resetar Progresso</button>
@@ -151,12 +156,12 @@
     </div>
   </div>
 
-  <script src="script.js?v=8"></script>
+  <script src="script.js?v=9"></script>
 
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=8').catch(console.error);
+        navigator.serviceWorker.register('./sw.js?v=9').catch(console.error);
       });
     }
   </script>
