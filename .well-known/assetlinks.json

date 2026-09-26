@@ -1,8 +1,9 @@
+
 [{
       "relation": ["delegate_permission/common.handle_all_urls"],
       "target": {
         "namespace": "android_app",
         "package_name": "io.github.erm_zy.twa",
-        "sha256_cert_fingerprints": ["55:36:9C:FE:5B:BC:67:74:00:E0:0E:00:DF:50:4A:59:20:2B:D4:24:86:23:96:64:A6:A2:82:F4:94:99:3F:9B"]
+        "sha256_cert_fingerprints": ["D7:FB:41:6A:85:9C:94:1C:F4:6B:54:05:93:1A:09:B7:0C:98:EF:13:CD:13:CC:0E:F1:81:76:16:FA:B1:1E:0B"]
       }
     }]
