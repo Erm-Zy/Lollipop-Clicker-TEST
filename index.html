@@ -3,13 +3,24 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Lollipop Clicker TEST</title>
+  <title>Lollipop Clicker</title>
 
-  <link rel="manifest" href="manifest.json">
+  <link rel="manifest" href="manifest.json?v=3">
   <meta name="theme-color" content="#ff4081">
   <link rel="apple-touch-icon" href="icon-192.png">
 
-  <link rel="stylesheet" href="style.css">
+  <!-- Script Oficial do Google AdMob / H5 Games Ads -->
+  <script async data-ad-frequency-hint="30s"
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-app-pub-4640120877519318"
+          crossorigin="anonymous">
+  </script>
+  <script>
+    window.adsbygoogle = window.adsbygoogle || [];
+    const adBreak = adConfig = function(o) {adsbygoogle.push(o);};
+  </script>
+
+  <!-- Estilos do Jogo -->
+  <link rel="stylesheet" href="style.css?v=3">
 </head>
 <body onselectstart="return false;" oncontextmenu="return false;">
 
@@ -34,11 +45,7 @@
     </div>
 
     <div class="tab-content">
-      <div class="tab-pane active" id="pane-shop">
-  <button class="action-btn btn-ad" id="btn-ad-boost" onclick="watchRewardAd()">
-    🎬 Assistir Vídeo (3x Cliques / 30s)
-  </button>
-</div>
+      <div class="tab-pane active" id="pane-shop"></div>
 
       <div class="tab-pane" id="pane-stats">
         <div class="stat-row"><span>Total Produzido:</span><span id="stat-total">0</span></div>
@@ -55,12 +62,13 @@
     </div>
   </div>
 
-  <script src="script.js"></script>
+  <!-- Lógica do Jogo -->
+  <script src="script.js?v=3"></script>
 
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js').catch(console.error);
+        navigator.serviceWorker.register('./sw.js?v=3').catch(console.error);
       });
     }
   </script>
