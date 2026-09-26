@@ -226,8 +226,12 @@ function getAchievementMultiplier() {
   return (1 + (count * 0.01)) * getPrestigeMultiplier();
 }
 
+function getEffectiveClickPower() {
+  return Math.floor(state.perClick * boostMultiplier * getAchievementMultiplier());
+}
+
 function doClick(x, y) {
-  let earned = state.perClick * boostMultiplier * getAchievementMultiplier();
+  let earned = getEffectiveClickPower();
   let isCrit = false;
 
   if (state.flavor === 'morango' && Math.random() < 0.05) {
@@ -271,10 +275,13 @@ function getUpgradeCost(key) {
   return Math.floor(up.baseCost * Math.pow(1.15, up.count));
 }
 
-/* ARENA DE BATALHA DE BOSS */
+/* ARENA DE BATALHA DE BOSS (EQUILIBRADO COM PODER DE CLIQUE) */
 function startBossBattle() {
   bossActive = true;
-  bossMaxHp = Math.max(30, Math.floor(state.perClick * 30));
+  const clickDmg = Math.max(1, getEffectiveClickPower());
+  // Vida do Boss equilibrada para exigir ~18 a 20 cliques em 15 segundos
+  const clicksNeeded = 18 + (state.bossesDefeated * 2);
+  bossMaxHp = Math.max(20, clickDmg * clicksNeeded);
   bossCurrentHp = bossMaxHp;
   bossTimer = 15;
 
@@ -300,9 +307,11 @@ function startBossBattle() {
 
 function hitBossArena(e) {
   if (!bossActive) return;
-  damageBoss(1);
+  const dmg = Math.max(1, getEffectiveClickPower());
+  damageBoss(dmg);
   spawnParticles(e.clientX, e.clientY);
   playPopSound();
+  createFloatingText(e.clientX, e.clientY, `-${formatNum(dmg)}`, true);
 }
 
 function damageBoss(amount) {
@@ -319,6 +328,10 @@ function updateBossUI() {
     const pct = Math.max(0, (bossCurrentHp / bossMaxHp) * 100);
     hpBar.style.width = `${pct}%`;
   }
+  const hpText = document.getElementById('boss-hp-text');
+  if (hpText) {
+    hpText.innerText = `${formatNum(Math.max(0, bossCurrentHp))} / ${formatNum(bossMaxHp)} HP`;
+  }
 }
 
 function endBoss(defeated) {
@@ -332,7 +345,7 @@ function endBoss(defeated) {
   if (idleState) idleState.classList.remove('hidden');
 
   if (defeated) {
-    const reward = Math.max(250, Math.floor(state.perSecond * 80 + state.perClick * 120));
+    const reward = Math.max(250, Math.floor(state.perSecond * 80 + getEffectiveClickPower() * 100));
     state.lollipops += reward;
     state.totalEarned += reward;
     state.bossesDefeated++;
@@ -390,7 +403,7 @@ function triggerSugarRain() {
 
       candy.onclick = (e) => {
         e.stopPropagation();
-        const gain = Math.max(10, Math.floor(state.perClick * 5));
+        const gain = Math.max(10, Math.floor(getEffectiveClickPower() * 5));
         state.lollipops += gain;
         state.totalEarned += gain;
         playPopSound();
@@ -835,7 +848,7 @@ function updateUI() {
   if (clicksEl) clicksEl.innerText = formatNum(state.manualClicks);
 
   const cpcEl = document.getElementById('stat-cpc');
-  if (cpcEl) cpcEl.innerText = formatNum(state.perClick * boostMultiplier * getAchievementMultiplier());
+  if (cpcEl) cpcEl.innerText = formatNum(getEffectiveClickPower());
 
   const goldenEl = document.getElementById('stat-golden');
   if (goldenEl) goldenEl.innerText = state.goldenCaught;
@@ -852,7 +865,7 @@ function spawnGoldenLollipop() {
 
   golden.onclick = (e) => {
     e.stopPropagation();
-    const bonus = Math.max(50, Math.floor(state.perSecond * 15 + state.perClick * 20));
+    const bonus = Math.max(50, Math.floor(state.perSecond * 15 + getEffectiveClickPower() * 20));
     state.lollipops += bonus;
     state.totalEarned += bonus;
     state.goldenCaught++;
