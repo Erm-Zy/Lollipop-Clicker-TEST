@@ -449,4 +449,111 @@ body.theme-gold {
   0% { top: -10%; left: 10%; transform: rotate(0deg); }
   50% { left: 80%; }
   100% { top: 110%; left: 30%; transform: rotate(360deg); }
+  /* --- FASE 3: CHEFE & ROLETA & CHUVA DE AÇÚCAR --- */
+
+.hidden {
+  display: none !important;
+}
+
+/* Banner do Chefe */
+.boss-banner {
+  position: absolute;
+  top: 10px;
+  left: 5%;
+  right: 5%;
+  background: rgba(180, 0, 0, 0.9);
+  border: 2px solid #ff1744;
+  border-radius: 12px;
+  padding: 10px;
+  text-align: center;
+  z-index: 40;
+  box-shadow: 0 0 20px rgba(255, 23, 68, 0.8);
+  animation: pulseRed 1s infinite alternate;
+}
+
+@keyframes pulseRed {
+  from { box-shadow: 0 0 10px rgba(255, 23, 68, 0.5); }
+  to { box-shadow: 0 0 25px rgba(255, 23, 68, 1); }
+}
+
+.boss-title {
+  font-size: 0.95rem;
+  font-weight: 900;
+  color: #fff;
+  margin-bottom: 6px;
+}
+
+.boss-hp-container {
+  width: 100%;
+  height: 16px;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #ffffff33;
+}
+
+.boss-hp-bar {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, #ff5252, #ff1744);
+  transition: width 0.1s linear;
+}
+
+.boss-timer {
+  font-size: 0.75rem;
+  margin-top: 4px;
+  color: #ffcd29;
+  font-weight: bold;
+}
+
+/* Roleta Diária */
+.wheel-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  text-align: center;
+}
+
+.wheel-title {
+  font-size: 1rem;
+  font-weight: bold;
+  color: #ffd54f;
+}
+
+.wheel-display {
+  font-size: 4rem;
+  margin: 10px 0;
+  animation: bounce 2s infinite ease-in-out;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.wheel-timer {
+  font-size: 0.8rem;
+  color: #aaa;
+}
+
+/* Chuva de Açúcar (Doces Aéreos) */
+.falling-candy {
+  position: absolute;
+  font-size: 2.2rem;
+  cursor: pointer;
+  z-index: 35;
+  user-select: none;
+  animation: fallDown 4s linear forwards;
+  filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));
+}
+
+@keyframes fallDown {
+  0% { top: -10%; opacity: 1; }
+  100% { top: 105%; opacity: 0; }
 }
