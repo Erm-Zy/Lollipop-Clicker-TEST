@@ -5,10 +5,16 @@ let state = {
   goldenCaught: 0,
   perClick: 1,
   perSecond: 0,
-  flavor: 'none', // 'morango', 'menta', 'tuttifrutti'
+  flavor: 'none',
   sound: true,
   vibration: true,
   lastSave: Date.now(),
+  currentSkin: 'lollipop',
+  unlockedSkins: ['lollipop'],
+  currentParticle: 'circles',
+  unlockedParticles: ['circles'],
+  currentTheme: 'purple',
+  unlockedThemes: ['purple'],
   achievements: {
     click1: false,
     clicks100: false,
@@ -25,6 +31,29 @@ let state = {
     truck:    { name: "Caminhão Doce",   icon: "🚚", baseCost: 2000,  count: 0, addClick: 0,  addPps: 70 },
     planet:   { name: "Mundo do Açúcar", icon: "🪐", baseCost: 15000, count: 0, addClick: 0,  addPps: 450 }
   }
+};
+
+const skinOptions = {
+  lollipop:  { name: "Original",   icon: "🍭", cost: 0 },
+  chocolate: { name: "Chocolate",  icon: "🍫", cost: 500 },
+  star:      { name: "Estrela",    icon: "⭐", cost: 2500 },
+  neon:      { name: "Neon",       icon: "⚡", cost: 10000 },
+  galaxy:    { name: "Galáxia",    icon: "🌌", cost: 50000 },
+  gold:      { name: "Ouro Pure",  icon: "🪙", cost: 250000 }
+};
+
+const particleOptions = {
+  circles: { name: "Círculos", icon: "⚪", cost: 0 },
+  stars:   { name: "Estrelas", icon: "⭐", cost: 1000 },
+  hearts:  { name: "Corações", icon: "❤️", cost: 5000 },
+  coins:   { name: "Moedas",   icon: "🪙", cost: 20000 }
+};
+
+const themeOptions = {
+  purple: { name: "Roxo",   icon: "🌙", cost: 0,      cssClass: "theme-purple" },
+  pink:   { name: "Rosa",   icon: "💖", cost: 2000,   cssClass: "theme-pink" },
+  space:  { name: "Espaço", icon: "🌌", cost: 15000,  cssClass: "theme-space" },
+  gold:   { name: "Ouro",   icon: "✨", cost: 100000, cssClass: "theme-gold" }
 };
 
 const achievementList = {
@@ -97,6 +126,12 @@ resizeCanvas();
 
 function spawnParticles(x, y) {
   const colors = ['#ff4081', '#ffd54f', '#ffffff', '#e040fb'];
+  const shapeEmoji = {
+    stars: '⭐',
+    hearts: '❤️',
+    coins: '🪙'
+  }[state.currentParticle];
+
   for (let i = 0; i < 8; i++) {
     particles.push({
       x: x, y: y,
@@ -104,7 +139,8 @@ function spawnParticles(x, y) {
       vy: (Math.random() - 0.5) * 12 - 3,
       size: Math.random() * 8 + 4,
       color: colors[Math.floor(Math.random() * colors.length)],
-      alpha: 1
+      alpha: 1,
+      shape: shapeEmoji || 'circle'
     });
   }
 }
@@ -119,10 +155,16 @@ function updateParticles() {
     p.alpha -= 0.02;
     
     ctx.globalAlpha = Math.max(0, p.alpha);
-    ctx.fillStyle = p.color;
-    ctx.beginPath();
-    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-    ctx.fill();
+
+    if (p.shape === 'circle') {
+      ctx.fillStyle = p.color;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      ctx.fill();
+    } else {
+      ctx.font = `${p.size * 2}px sans-serif`;
+      ctx.fillText(p.shape, p.x, p.y);
+    }
 
     if (p.alpha <= 0) particles.splice(i, 1);
   }
@@ -134,6 +176,7 @@ const scoreEl = document.getElementById('score');
 const ppsEl = document.getElementById('pps');
 const lollipopEl = document.getElementById('lollipop');
 const paneShop = document.getElementById('pane-shop');
+const paneSkins = document.getElementById('pane-skins');
 const paneAchieve = document.getElementById('pane-achievements');
 
 lollipopEl.addEventListener('pointerdown', (e) => {
@@ -146,14 +189,13 @@ function getAchievementMultiplier() {
   for (const key in state.achievements) {
     if (state.achievements[key]) count++;
   }
-  return 1 + (count * 0.01); // +1% por conquista
+  return 1 + (count * 0.01);
 }
 
 function doClick(x, y) {
   let earned = state.perClick * boostMultiplier * getAchievementMultiplier();
   let isCrit = false;
 
-  // Sabor Morango: 5% de hipóteses de Clique Crítico (3x)
   if (state.flavor === 'morango' && Math.random() < 0.05) {
     earned *= 3;
     isCrit = true;
@@ -297,6 +339,141 @@ function buildShopUI() {
   }
 }
 
+function buildSkinsUI() {
+  paneSkins.innerHTML = '';
+
+  // 1. Skins do Pirulito
+  const title1 = document.createElement('div');
+  title1.className = 'skin-section-title';
+  title1.innerText = '🍭 Aparência do Clique';
+  paneSkins.appendChild(title1);
+
+  const grid1 = document.createElement('div');
+  grid1.className = 'skin-grid';
+
+  for (const key in skinOptions) {
+    const item = skinOptions[key];
+    const isUnlocked = state.unlockedSkins.includes(key);
+    const isActive = state.currentSkin === key;
+
+    const card = document.createElement('div');
+    card.className = `skin-card ${isActive ? 'active' : ''} ${!isUnlocked && state.lollipops < item.cost ? 'disabled' : ''}`;
+    card.onclick = () => selectSkin('skin', key);
+
+    card.innerHTML = `
+      <div class="skin-icon">${item.icon}</div>
+      <div class="skin-name">${item.name}</div>
+      <div class="${isUnlocked ? 'skin-status' : 'skin-cost'}">
+        ${isActive ? 'EM USO' : isUnlocked ? 'USAR' : formatNum(item.cost) + ' 🍭'}
+      </div>
+    `;
+    grid1.appendChild(card);
+  }
+  paneSkins.appendChild(grid1);
+
+  // 2. Partículas
+  const title2 = document.createElement('div');
+  title2.className = 'skin-section-title';
+  title2.innerText = '✨ Efeitos de Clique';
+  paneSkins.appendChild(title2);
+
+  const grid2 = document.createElement('div');
+  grid2.className = 'skin-grid';
+
+  for (const key in particleOptions) {
+    const item = particleOptions[key];
+    const isUnlocked = state.unlockedParticles.includes(key);
+    const isActive = state.currentParticle === key;
+
+    const card = document.createElement('div');
+    card.className = `skin-card ${isActive ? 'active' : ''} ${!isUnlocked && state.lollipops < item.cost ? 'disabled' : ''}`;
+    card.onclick = () => selectSkin('particle', key);
+
+    card.innerHTML = `
+      <div class="skin-icon">${item.icon}</div>
+      <div class="skin-name">${item.name}</div>
+      <div class="${isUnlocked ? 'skin-status' : 'skin-cost'}">
+        ${isActive ? 'EM USO' : isUnlocked ? 'USAR' : formatNum(item.cost) + ' 🍭'}
+      </div>
+    `;
+    grid2.appendChild(card);
+  }
+  paneSkins.appendChild(grid2);
+
+  // 3. Temas
+  const title3 = document.createElement('div');
+  title3.className = 'skin-section-title';
+  title3.innerText = '🎨 Tema de Fundo';
+  paneSkins.appendChild(title3);
+
+  const grid3 = document.createElement('div');
+  grid3.className = 'skin-grid';
+
+  for (const key in themeOptions) {
+    const item = themeOptions[key];
+    const isUnlocked = state.unlockedThemes.includes(key);
+    const isActive = state.currentTheme === key;
+
+    const card = document.createElement('div');
+    card.className = `skin-card ${isActive ? 'active' : ''} ${!isUnlocked && state.lollipops < item.cost ? 'disabled' : ''}`;
+    card.onclick = () => selectSkin('theme', key);
+
+    card.innerHTML = `
+      <div class="skin-icon">${item.icon}</div>
+      <div class="skin-name">${item.name}</div>
+      <div class="${isUnlocked ? 'skin-status' : 'skin-cost'}">
+        ${isActive ? 'EM USO' : isUnlocked ? 'USAR' : formatNum(item.cost) + ' 🍭'}
+      </div>
+    `;
+    grid3.appendChild(card);
+  }
+  paneSkins.appendChild(grid3);
+}
+
+function selectSkin(type, key) {
+  if (type === 'skin') {
+    const item = skinOptions[key];
+    if (!state.unlockedSkins.includes(key)) {
+      if (state.lollipops >= item.cost) {
+        state.lollipops -= item.cost;
+        state.unlockedSkins.push(key);
+        playUpgradeSound();
+      } else return;
+    }
+    state.currentSkin = key;
+    lollipopEl.innerText = item.icon;
+  } else if (type === 'particle') {
+    const item = particleOptions[key];
+    if (!state.unlockedParticles.includes(key)) {
+      if (state.lollipops >= item.cost) {
+        state.lollipops -= item.cost;
+        state.unlockedParticles.push(key);
+        playUpgradeSound();
+      } else return;
+    }
+    state.currentParticle = key;
+  } else if (type === 'theme') {
+    const item = themeOptions[key];
+    if (!state.unlockedThemes.includes(key)) {
+      if (state.lollipops >= item.cost) {
+        state.lollipops -= item.cost;
+        state.unlockedThemes.push(key);
+        playUpgradeSound();
+      } else return;
+    }
+    state.currentTheme = key;
+    applyTheme(item.cssClass);
+  }
+
+  buildSkinsUI();
+  updateUI();
+}
+
+function applyTheme(cssClass) {
+  const body = document.getElementById('gameBody');
+  body.className = cssClass;
+}
+
 function buildAchievementsUI() {
   paneAchieve.innerHTML = '';
   for (const key in achievementList) {
@@ -434,15 +611,18 @@ function saveGame() {
 function loadGame() {
   const saved = localStorage.getItem('lollipop_clicker_save');
   if (saved) {
-    const parsed = JSON.parse(saved);
+        const parsed = JSON.parse(saved);
     state = { ...state, ...parsed };
+
+    if (!state.unlockedSkins) state.unlockedSkins = ['lollipop'];
+    if (!state.unlockedParticles) state.unlockedParticles = ['circles'];
+    if (!state.unlockedThemes) state.unlockedThemes = ['purple'];
     
     const now = Date.now();
     const offlineSecs = Math.floor((now - (state.lastSave || now)) / 1000);
     recalcStats();
     
     if (offlineSecs > 5 && state.perSecond > 0) {
-      // Menta dá +25% no ganho offline (0.75 vs 0.50)
       const offlineRate = state.flavor === 'menta' ? 0.75 : 0.50;
       const offlineGain = Math.floor(offlineSecs * state.perSecond * offlineRate);
       state.lollipops += offlineGain;
@@ -450,8 +630,17 @@ function loadGame() {
       alert(`Bem-vindo de volta! Enquanto esteve fora, produziste +${formatNum(offlineGain)} pirulitos!`);
     }
   }
+
+  if (skinOptions[state.currentSkin]) {
+    lollipopEl.innerText = skinOptions[state.currentSkin].icon;
+  }
+  if (themeOptions[state.currentTheme]) {
+    applyTheme(themeOptions[state.currentTheme].cssClass);
+  }
+
   recalcStats();
   buildShopUI();
+  buildSkinsUI();
   buildAchievementsUI();
   updateUI();
 }
