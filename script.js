@@ -18,11 +18,12 @@ let state = {
   }
 };
 
-// Variáveis do Anúncio e Bónus 3x
+// Variáveis do Anúncio e Bônus 3x
 let boostMultiplier = 1;
 let boostEndTime = 0;
 let boostInterval = null;
 
+// Configuração de Áudio
 const AudioContext = window.AudioContext || window.webkitAudioContext;
 let audioCtx = null;
 
@@ -67,6 +68,7 @@ function playUpgradeSound() {
   });
 }
 
+// Canvas e Partículas
 const canvas = document.getElementById('fxCanvas');
 const ctx = canvas.getContext('2d');
 let particles = [];
@@ -113,6 +115,7 @@ function updateParticles() {
 }
 requestAnimationFrame(updateParticles);
 
+// Elementos da Interface
 const scoreEl = document.getElementById('score');
 const ppsEl = document.getElementById('pps');
 const lollipopEl = document.getElementById('lollipop');
@@ -124,7 +127,6 @@ lollipopEl.addEventListener('pointerdown', (e) => {
 });
 
 function doClick(x, y) {
-  // Aplica o multiplicador do bónus de anúncio (3x)
   const earned = state.perClick * boostMultiplier;
   state.lollipops += earned;
   state.totalEarned += earned;
@@ -161,18 +163,27 @@ function getUpgradeCost(key) {
   return Math.floor(up.baseCost * Math.pow(1.15, up.count));
 }
 
-// LÓGICA DO VÍDEO RECOMPENSADO
+// LÓGICA DO ANÚNCIO E BÔNUS (AdMob / Fallback)
 function watchRewardAd() {
   if (Date.now() < boostEndTime) {
     alert("O seu Bónus de 3x Cliques já está ativo!");
     return;
   }
 
-  // AQUI ENTRARÁ O SDK DO ADMOB / ADSENSE QUANDO FOR PARA PRODUÇÃO
-  const watched = confirm("🎬 [SIMULAÇÃO DE ANÚNCIO]\n\nAssistir ao vídeo de 15s para ativar 3x Cliques por 30 segundos?");
-  
-  if (watched) {
-    startBoost(30, 3);
+  if (typeof adBreak === 'function') {
+    adBreak({
+      type: 'reward',
+      name: 'reward_3x_boost',
+      beforeReward: (showAdFn) => { showAdFn(); },
+      adDismissed: () => { console.log('Anúncio cancelado.'); },
+      adViewed: () => { startBoost(30, 3); }
+    });
+  } else {
+    // Modo de teste / Fallback
+    const watched = confirm("🎬 [TESTE DE ANÚNCIO ADMOB]\n\nAssistir ao vídeo para ativar 3x Cliques por 30 segundos?");
+    if (watched) {
+      startBoost(30, 3);
+    }
   }
 }
 
@@ -204,10 +215,10 @@ function startBoost(durationSeconds, multiplier) {
 }
 
 function buildShopUI() {
-  // Mantém o botão de anúncio no topo
+  const isBoostActive = Date.now() < boostEndTime;
   const adBtnHTML = `
-    <button class="action-btn btn-ad ${Date.now() < boostEndTime ? 'active-boost' : ''}" id="btn-ad-boost" onclick="watchRewardAd()">
-      ${Date.now() < boostEndTime ? '🔥 3X CLIQUES ATIVO' : '🎬 Assistir Vídeo (3x Cliques / 30s)'}
+    <button class="action-btn btn-ad ${isBoostActive ? 'active-boost' : ''}" id="btn-ad-boost" onclick="watchRewardAd()">
+      ${isBoostActive ? '🔥 3X CLIQUES ATIVO' : '🎬 Assistir Vídeo (3x Cliques / 30s)'}
     </button>
   `;
   
