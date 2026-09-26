@@ -4,6 +4,7 @@ let state = {
   manualClicks: 0,
   goldenCaught: 0,
   bossesDefeated: 0,
+  prestigePoints: 0,
   perClick: 1,
   perSecond: 0,
   flavor: 'none',
@@ -24,7 +25,8 @@ let state = {
     earn50k: false,
     bots5: false,
     golden1: false,
-    boss1: false
+    boss1: false,
+    prestige1: false
   },
   upgrades: {
     finger:   { name: "Super Dedo",      icon: "👆", baseCost: 15,    count: 0, addClick: 1,  addPps: 0 },
@@ -60,14 +62,34 @@ const themeOptions = {
 };
 
 const achievementList = {
-  click1:   { name: "Primeira Toque", desc: "Dê o seu primeiro clique", icon: "👆" },
+  click1:   { name: "Primeiro Toque", desc: "Dê o seu primeiro clique", icon: "👆" },
   clicks100: { name: "Dedos Rápidos", desc: "Faça 100 cliques manuais", icon: "⚡" },
   earn1k:   { name: "Colecionador Doce", desc: "Acumule 1.000 pirulitos no total", icon: "🍬" },
   earn50k:  { name: "Império do Açúcar", desc: "Acumule 50.000 pirulitos no total", icon: "👑" },
   bots5:    { name: "Automação", desc: "Compre 5 Licker Bots", icon: "🤖" },
   golden1:  { name: "Sorte Dourada", desc: "Apanhe 1 Pirulito Dourado", icon: "🌟" },
-  boss1:    { name: "Dentista Herói", desc: "Derrote 1 Monstro da Cárie", icon: "⚔️" }
+  boss1:    { name: "Dentista Herói", desc: "Derrote 1 Monstro da Cárie", icon: "⚔️" },
+  prestige1:{ name: "Novo Recomeço", desc: "Efetue o seu primeiro Prestígio", icon: "👑" }
 };
+
+let currentArea = 0;
+const areas = [
+  { id: 'view-main', title: '🍭 Mundo Principal' },
+  { id: 'view-boss', title: '⚔️ Arena dos Chefões' },
+  { id: 'view-worlds', title: '🪐 Outros Mundos' }
+];
+
+function changeArea(dir) {
+  currentArea = (currentArea + dir + areas.length) % areas.length;
+  areas.forEach((a, i) => {
+    const el = document.getElementById(a.id);
+    if (el) {
+      if (i === currentArea) el.classList.remove('hidden');
+      else el.classList.add('hidden');
+    }
+  });
+  document.getElementById('areaTitle').innerText = areas[currentArea].title;
+}
 
 let boostMultiplier = 1;
 let boostEndTime = 0;
@@ -92,14 +114,11 @@ function playPopSound() {
   initAudio();
   const osc = audioCtx.createOscillator();
   const gain = audioCtx.createGain();
-  
   osc.type = 'sine';
   osc.frequency.setValueAtTime(300 + Math.random() * 150, audioCtx.currentTime);
   osc.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.06);
-
   gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
   gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.06);
-
   osc.connect(gain);
   gain.connect(audioCtx.destination);
   osc.start();
@@ -136,11 +155,7 @@ resizeCanvas();
 
 function spawnParticles(x, y) {
   const colors = ['#ff4081', '#ffd54f', '#ffffff', '#e040fb'];
-  const shapeEmoji = {
-    stars: '⭐',
-    hearts: '❤️',
-    coins: '🪙'
-  }[state.currentParticle];
+  const shapeEmoji = { stars: '⭐', hearts: '❤️', coins: '🪙' }[state.currentParticle];
 
   for (let i = 0; i < 8; i++) {
     particles.push({
@@ -163,7 +178,6 @@ function updateParticles() {
     p.y += p.vy;
     p.vy += 0.3;
     p.alpha -= 0.02;
-    
     ctx.globalAlpha = Math.max(0, p.alpha);
 
     if (p.shape === 'circle') {
@@ -175,7 +189,6 @@ function updateParticles() {
       ctx.font = `${p.size * 2}px sans-serif`;
       ctx.fillText(p.shape, p.x, p.y);
     }
-
     if (p.alpha <= 0) particles.splice(i, 1);
   }
   requestAnimationFrame(updateParticles);
@@ -191,18 +204,19 @@ const paneAchieve = document.getElementById('pane-achievements');
 
 lollipopEl.addEventListener('pointerdown', (e) => {
   e.preventDefault();
-  if (bossActive) {
-    damageBoss(1);
-  }
   doClick(e.clientX, e.clientY);
 });
+
+function getPrestigeMultiplier() {
+  return 1 + (state.prestigePoints * 0.20);
+}
 
 function getAchievementMultiplier() {
   let count = 0;
   for (const key in state.achievements) {
     if (state.achievements[key]) count++;
   }
-  return 1 + (count * 0.01);
+  return (1 + (count * 0.01)) * getPrestigeMultiplier();
 }
 
 function doClick(x, y) {
@@ -249,16 +263,15 @@ function getUpgradeCost(key) {
   return Math.floor(up.baseCost * Math.pow(1.15, up.count));
 }
 
-/* --- SISTEMA DO CHEFE (CORRIGIDO) --- */
-function spawnBoss() {
-  if (bossActive) return;
+/* ARENA DE BATALHA DE BOSS */
+function startBossBattle() {
   bossActive = true;
-  bossMaxHp = Math.max(30, Math.floor(state.perClick * 25));
+  bossMaxHp = Math.max(30, Math.floor(state.perClick * 30));
   bossCurrentHp = bossMaxHp;
   bossTimer = 15;
 
-  const banner = document.getElementById('boss-banner');
-  if (banner) banner.classList.remove('hidden');
+  document.getElementById('boss-idle-state').classList.add('hidden');
+  document.getElementById('boss-active-state').classList.remove('hidden');
 
   updateBossUI();
 
@@ -267,9 +280,7 @@ function spawnBoss() {
   bossInterval = setInterval(() => {
     bossTimer--;
     const timerEl = document.getElementById('boss-timer');
-    if (timerEl) {
-      timerEl.innerText = `Tempo restante: ${bossTimer}s`;
-    }
+    if (timerEl) timerEl.innerText = `Tempo restante: ${bossTimer}s`;
 
     if (bossTimer <= 0) {
       endBoss(false);
@@ -277,8 +288,14 @@ function spawnBoss() {
   }, 1000);
 }
 
-function damageBoss(amount) {
+function hitBossArena(e) {
   if (!bossActive) return;
+  damageBoss(1);
+  spawnParticles(e.clientX, e.clientY);
+  playPopSound();
+}
+
+function damageBoss(amount) {
   bossCurrentHp -= amount;
   updateBossUI();
   if (bossCurrentHp <= 0) {
@@ -299,11 +316,11 @@ function endBoss(defeated) {
   bossInterval = null;
   bossActive = false;
 
-  const banner = document.getElementById('boss-banner');
-  if (banner) banner.classList.add('hidden');
+  document.getElementById('boss-active-state').classList.add('hidden');
+  document.getElementById('boss-idle-state').classList.remove('hidden');
 
   if (defeated) {
-    const reward = Math.max(100, Math.floor(state.perSecond * 60 + state.perClick * 100));
+    const reward = Math.max(250, Math.floor(state.perSecond * 80 + state.perClick * 120));
     state.lollipops += reward;
     state.totalEarned += reward;
     state.bossesDefeated++;
@@ -316,8 +333,39 @@ function endBoss(defeated) {
   updateUI();
 }
 
+/* SISTEMA DE PRESTÍGIO */
+function getPrestigeGain() {
+  if (state.totalEarned < 1000000) return 0;
+  return Math.floor(Math.sqrt(state.totalEarned / 1000000) * 5);
+}
 
-/* --- NOVA ROLETA VISUAL EM CANVAS --- */
+function doPrestige() {
+  const gain = getPrestigeGain();
+  if (gain <= 0) {
+    alert("Precisas de pelo menos 1.000.000 de Pirulitos acumulados na carreira para efetuar Prestígio!");
+    return;
+  }
+
+  if (confirm(`Tem a certeza que deseja efetuar o Renascimento?\n\nIrás reiniciar os teus pirulitos e edifícios, mas ganharás +${gain} ✨ Açúcar Divino (+${gain * 20}% de produção permanente)!`)) {
+    state.prestigePoints += gain;
+    state.lollipops = 0;
+    state.perClick = 1;
+    state.perSecond = 0;
+
+    for (const key in state.upgrades) {
+      state.upgrades[key].count = 0;
+    }
+
+    state.achievements.prestige1 = true;
+    playUpgradeSound();
+    recalcStats();
+    buildShopUI();
+    updateUI();
+    alert(`✨ Prestígio efetuado com sucesso! Agora tens ${state.prestigePoints} Açúcar Divino!`);
+  }
+}
+
+/* ROLETA VISUAL CANVAS */
 const wheelPrizes = [
   { label: '500 🍭', color: '#e91e63' },
   { label: '3x Boost', color: '#9c27b0' },
@@ -352,7 +400,6 @@ function drawWheel() {
     ctx.lineWidth = 2;
     ctx.stroke();
 
-    // Texto nos segmentos
     ctx.save();
     ctx.translate(radius, radius);
     ctx.rotate(angle + arcSize / 2);
@@ -366,7 +413,6 @@ function drawWheel() {
 
 function spinDailyWheel() {
   if (isSpinning) return;
-
   const now = Date.now();
   const cooldowntime = 24 * 60 * 60 * 1000;
 
@@ -380,9 +426,8 @@ function spinDailyWheel() {
 
   isSpinning = true;
   state.lastWheelSpin = now;
-
-  let spinVelocity = Math.random() * 0.2 + 0.3; 
-  const friction = 0.985; 
+  let spinVelocity = Math.random() * 0.2 + 0.3;
+  const friction = 0.985;
 
   function animateSpin() {
     wheelAngle += spinVelocity;
@@ -396,15 +441,12 @@ function spinDailyWheel() {
       determineWheelWinner();
     }
   }
-
   animateSpin();
 }
 
 function determineWheelWinner() {
   const numOptions = wheelPrizes.length;
   const arcSize = (2 * Math.PI) / numOptions;
-  
-  // Normalizar ângulo e calcular qual segmento parou no topo (-90 graus ou 3PI/2)
   let normalizedAngle = (1.5 * Math.PI - (wheelAngle % (2 * Math.PI))) % (2 * Math.PI);
   if (normalizedAngle < 0) normalizedAngle += 2 * Math.PI;
 
@@ -414,58 +456,13 @@ function determineWheelWinner() {
 
 function applyWheelPrize(index) {
   playUpgradeSound();
-  if (index === 0) {
-    state.lollipops += 500;
-    alert("Ganhaste +500 Pirulitos!");
-  } else if (index === 1) {
-    startBoost(60, 3);
-    alert("Ganhaste 3x Cliques durante 60 segundos!");
-  } else if (index === 2) {
-    state.lollipops += 5000;
-    alert("Ganhaste +5.000 Pirulitos!");
-  } else if (index === 3) {
-    triggerSugarRain();
-    alert("Ativaste a Chuva de Açúcar!");
-  } else if (index === 4) {
-    state.lollipops += 25000;
-    alert("GRANDE PRÉMIO! +25.000 Pirulitos!");
-  } else if (index === 5) {
-    state.lollipops += 1000;
-    alert("Ganhaste +1.000 Pirulitos!");
-  }
+  if (index === 0) { state.lollipops += 500; alert("Ganhaste +500 Pirulitos!"); }
+  else if (index === 1) { startBoost(60, 3); alert("Ganhaste 3x Cliques durante 60s!"); }
+  else if (index === 2) { state.lollipops += 5000; alert("Ganhaste +5.000 Pirulitos!"); }
+  else if (index === 3) { triggerSugarRain(); alert("Ativaste a Chuva de Açúcar!"); }
+  else if (index === 4) { state.lollipops += 25000; alert("GRANDE PRÉMIO! +25.000 Pirulitos!"); }
+  else if (index === 5) { state.lollipops += 1000; alert("Ganhaste +1.000 Pirulitos!"); }
   updateUI();
-}
-
-// Inicializar desenho da roleta ao carregar a página
-setTimeout(drawWheel, 500);
-
-/* Evento: Chuva de Açúcar */
-function triggerSugarRain() {
-  const count = 12;
-  for (let i = 0; i < count; i++) {
-    setTimeout(() => {
-      const candy = document.createElement('div');
-      candy.className = 'falling-candy';
-      const items = ['🍬', '🍭', '🍫', '🍩', '🧁'];
-      candy.innerText = items[Math.floor(Math.random() * items.length)];
-      candy.style.left = `${Math.random() * 80 + 10}%`;
-
-      candy.onclick = (e) => {
-        e.stopPropagation();
-        const gain = Math.max(10, Math.floor(state.perClick * 5));
-        state.lollipops += gain;
-        state.totalEarned += gain;
-        playPopSound();
-        spawnParticles(e.clientX, e.clientY);
-        createFloatingText(e.clientX, e.clientY, `+${formatNum(gain)}`);
-        candy.remove();
-        updateUI();
-      };
-
-      document.body.appendChild(candy);
-      setTimeout(() => { if (candy.parentNode) candy.remove(); }, 4000);
-    }, i * 350);
-  }
 }
 
 function watchRewardAd() {
@@ -473,10 +470,8 @@ function watchRewardAd() {
     alert("O seu Bónus de 3x Cliques já está ativo!");
     return;
   }
-
   const duration = state.flavor === 'tuttifrutti' ? 45 : 30;
-  const watched = confirm(`🎬 [MODO DE TESTE ADMOB]\n\nAssistir ao vídeo de teste para ativar 3x Cliques por ${duration} segundos?`);
-  if (watched) {
+  if (confirm(`🎬 [MODO DE TESTE ADMOB]\n\nAssistir ao vídeo para ativar 3x Cliques por ${duration}s?`)) {
     startBoost(duration, 3);
   }
 }
@@ -490,7 +485,6 @@ function startBoost(durationSeconds, multiplier) {
   boostInterval = setInterval(() => {
     const remaining = Math.max(0, Math.ceil((boostEndTime - Date.now()) / 1000));
     const adBtn = document.getElementById('btn-ad-boost');
-    
     if (adBtn) {
       if (remaining > 0) {
         adBtn.innerText = `🔥 3X CLIQUES ATIVO (${remaining}s)`;
@@ -518,7 +512,7 @@ function setFlavor(flavorKey) {
 function buildShopUI() {
   const isBoostActive = Date.now() < boostEndTime;
   const adDuration = state.flavor === 'tuttifrutti' ? '45s' : '30s';
-  
+
   const flavorHTML = `
     <div class="flavor-section">
       <div class="flavor-title">🍓 Escolha o Sabor Principal</div>
@@ -544,7 +538,7 @@ function buildShopUI() {
       ${isBoostActive ? '🔥 3X CLIQUES ATIVO' : `🎬 Assistir Vídeo (3x Cliques / ${adDuration})`}
     </button>
   `;
-  
+
   paneShop.innerHTML = flavorHTML + adBtnHTML;
 
   for (const key in state.upgrades) {
@@ -600,62 +594,6 @@ function buildSkinsUI() {
     grid1.appendChild(card);
   }
   paneSkins.appendChild(grid1);
-
-  const title2 = document.createElement('div');
-  title2.className = 'skin-section-title';
-  title2.innerText = '✨ Efeitos de Clique';
-  paneSkins.appendChild(title2);
-
-  const grid2 = document.createElement('div');
-  grid2.className = 'skin-grid';
-
-  for (const key in particleOptions) {
-    const item = particleOptions[key];
-    const isUnlocked = state.unlockedParticles.includes(key);
-    const isActive = state.currentParticle === key;
-
-    const card = document.createElement('div');
-    card.className = `skin-card ${isActive ? 'active' : ''} ${!isUnlocked && state.lollipops < item.cost ? 'disabled' : ''}`;
-    card.onclick = () => selectSkin('particle', key);
-
-    card.innerHTML = `
-      <div class="skin-icon">${item.icon}</div>
-      <div class="skin-name">${item.name}</div>
-      <div class="${isUnlocked ? 'skin-status' : 'skin-cost'}">
-        ${isActive ? 'EM USO' : isUnlocked ? 'USAR' : formatNum(item.cost) + ' 🍭'}
-      </div>
-    `;
-    grid2.appendChild(card);
-  }
-  paneSkins.appendChild(grid2);
-
-  const title3 = document.createElement('div');
-  title3.className = 'skin-section-title';
-  title3.innerText = '🎨 Tema de Fundo';
-  paneSkins.appendChild(title3);
-
-  const grid3 = document.createElement('div');
-  grid3.className = 'skin-grid';
-
-  for (const key in themeOptions) {
-    const item = themeOptions[key];
-    const isUnlocked = state.unlockedThemes.includes(key);
-    const isActive = state.currentTheme === key;
-
-    const card = document.createElement('div');
-    card.className = `skin-card ${isActive ? 'active' : ''} ${!isUnlocked && state.lollipops < item.cost ? 'disabled' : ''}`;
-    card.onclick = () => selectSkin('theme', key);
-
-    card.innerHTML = `
-      <div class="skin-icon">${item.icon}</div>
-      <div class="skin-name">${item.name}</div>
-      <div class="${isUnlocked ? 'skin-status' : 'skin-cost'}">
-        ${isActive ? 'EM USO' : isUnlocked ? 'USAR' : formatNum(item.cost) + ' 🍭'}
-      </div>
-    `;
-    grid3.appendChild(card);
-  }
-  paneSkins.appendChild(grid3);
 }
 
 function selectSkin(type, key) {
@@ -670,29 +608,7 @@ function selectSkin(type, key) {
     }
     state.currentSkin = key;
     lollipopEl.innerText = item.icon;
-  } else if (type === 'particle') {
-    const item = particleOptions[key];
-    if (!state.unlockedParticles.includes(key)) {
-      if (state.lollipops >= item.cost) {
-        state.lollipops -= item.cost;
-        state.unlockedParticles.push(key);
-        playUpgradeSound();
-      } else return;
-    }
-    state.currentParticle = key;
-  } else if (type === 'theme') {
-    const item = themeOptions[key];
-    if (!state.unlockedThemes.includes(key)) {
-      if (state.lollipops >= item.cost) {
-        state.lollipops -= item.cost;
-        state.unlockedThemes.push(key);
-        playUpgradeSound();
-      } else return;
-    }
-    state.currentTheme = key;
-    applyTheme(item.cssClass);
   }
-
   buildSkinsUI();
   updateUI();
 }
@@ -775,10 +691,23 @@ function updateUI() {
     }
   }
 
+  const gainPrestige = getPrestigeGain();
+  const prestigeGainEl = document.getElementById('prestige-gain-display');
+  if (prestigeGainEl) prestigeGainEl.innerText = `+${gainPrestige} ✨`;
+
+  const prestigeCurrentEl = document.getElementById('prestige-current');
+  if (prestigeCurrentEl) prestigeCurrentEl.innerText = state.prestigePoints;
+
+  const prestigeTextEl = document.getElementById('prestige-boost-text');
+  if (prestigeTextEl) prestigeTextEl.innerText = `+${(state.prestigePoints * 20)}%`;
+
   const achBoost = ((getAchievementMultiplier() - 1) * 100).toFixed(0);
 
   const bossStat = document.getElementById('stat-bosses');
   if (bossStat) bossStat.innerText = state.bossesDefeated;
+
+  const prestigeLvlStat = document.getElementById('stat-prestige-lvl');
+  if (prestigeLvlStat) prestigeLvlStat.innerText = state.prestigePoints;
 
   document.getElementById('stat-total').innerText = formatNum(state.totalEarned);
   document.getElementById('stat-clicks').innerText = formatNum(state.manualClicks);
@@ -786,42 +715,6 @@ function updateUI() {
   document.getElementById('stat-golden').innerText = state.goldenCaught;
   document.getElementById('stat-achieve-boost').innerText = `+${achBoost}%`;
 }
-
-function spawnGoldenLollipop() {
-  const golden = document.createElement('div');
-  golden.className = 'golden-lollipop';
-  golden.innerText = '🌟';
-  document.body.appendChild(golden);
-
-  golden.onclick = (e) => {
-    e.stopPropagation();
-    const bonus = Math.max(50, Math.floor(state.perSecond * 15 + state.perClick * 20));
-    state.lollipops += bonus;
-    state.totalEarned += bonus;
-    state.goldenCaught++;
-    playUpgradeSound();
-    spawnParticles(e.clientX, e.clientY);
-    createFloatingText(e.clientX, e.clientY, `BÔNUS! +${formatNum(bonus)}`);
-    checkAchievements();
-    golden.remove();
-    updateUI();
-  };
-
-  setTimeout(() => { if (golden.parentNode) golden.remove(); }, 8000);
-}
-
-/* Timers de Eventos Aleatórios */
-setInterval(() => {
-  if (Math.random() < 0.6) spawnGoldenLollipop();
-}, 45000);
-
-setInterval(() => {
-  if (Math.random() < 0.3) triggerSugarRain();
-}, 90000);
-
-setInterval(() => {
-  if (Math.random() < 0.25 && !bossActive) spawnBoss();
-}, 120000);
 
 function switchTab(tabName) {
   document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
@@ -860,18 +753,9 @@ function loadGame() {
     if (!state.unlockedThemes) state.unlockedThemes = ['purple'];
     if (!state.lastWheelSpin) state.lastWheelSpin = 0;
     if (!state.bossesDefeated) state.bossesDefeated = 0;
-    
-    const now = Date.now();
-    const offlineSecs = Math.floor((now - (state.lastSave || now)) / 1000);
+    if (!state.prestigePoints) state.prestigePoints = 0;
+
     recalcStats();
-    
-    if (offlineSecs > 5 && state.perSecond > 0) {
-      const offlineRate = state.flavor === 'menta' ? 0.75 : 0.50;
-      const offlineGain = Math.floor(offlineSecs * state.perSecond * offlineRate);
-      state.lollipops += offlineGain;
-      state.totalEarned += offlineGain;
-      alert(`Bem-vindo de volta! Enquanto esteve fora, produziste +${formatNum(offlineGain)} pirulitos!`);
-    }
   }
 
   if (skinOptions[state.currentSkin]) {
@@ -886,6 +770,7 @@ function loadGame() {
   buildSkinsUI();
   buildAchievementsUI();
   updateUI();
+  setTimeout(drawWheel, 500);
 }
 
 function resetGame() {
@@ -907,4 +792,3 @@ setInterval(() => {
 setInterval(saveGame, 10000);
 
 loadGame();
-    
