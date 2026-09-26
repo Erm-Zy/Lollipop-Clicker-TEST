@@ -26,13 +26,14 @@
 
   <canvas id="fxCanvas"></canvas>
 
-  <!-- Banner do Chefe (Monstro da Cárie) -->
+    <!-- Banner do Chefe (Monstro da Cárie) com área de ataque direta -->
   <div id="boss-banner" class="boss-banner hidden">
     <div class="boss-title">👾 MONSTRO DA CÁRIE APARECEU!</div>
     <div class="boss-hp-container">
       <div id="boss-hp-bar" class="boss-hp-bar"></div>
     </div>
     <div class="boss-timer" id="boss-timer">Tempo restante: 15s</div>
+    <button class="boss-attack-btn" onclick="damageBoss(1)">⚔️ ATACAR CÁRIE! ⚔️</button>
   </div>
 
   <div class="header">
@@ -61,12 +62,15 @@
 
       <div class="tab-pane" id="pane-skins"></div>
 
-      <div class="tab-pane" id="pane-wheel">
+            <div class="tab-pane" id="pane-wheel">
         <div class="wheel-container">
           <div class="wheel-title">🎁 Roleta de Prémios Diários</div>
-          <div class="wheel-display" id="wheelDisplay">❓</div>
+          <div class="wheel-wrapper">
+            <div class="wheel-pointer">▼</div>
+            <canvas id="wheelCanvas" width="260" height="260"></canvas>
+          </div>
           <button class="action-btn btn-ad" id="btn-spin-wheel" onclick="spinDailyWheel()">🎡 RODAR ROLETA</button>
-          <div class="wheel-timer" id="wheelTimer">Pode rodar uma vez por dia!</div>
+          <div class="wheel-timer" id="wheelTimer">Disponível uma vez a cada 24 horas!</div>
         </div>
       </div>
 
