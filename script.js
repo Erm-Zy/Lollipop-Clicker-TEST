@@ -8,6 +8,7 @@ let state = {
   perClick: 1,
   perSecond: 0,
   flavor: 'none',
+  music: true,
   sound: true,
   vibration: true,
   lastSave: Date.now(),
@@ -103,14 +104,31 @@ let bossCurrentHp = 50;
 let bossTimer = 15;
 let bossInterval = null;
 
-/* ÁUDIO */
+/* ÁUDIO & MÚSICA */
 const AudioContext = window.AudioContext || window.webkitAudioContext;
 let audioCtx = null;
+let bgmStarted = false;
 
 function initAudio() {
   if (!audioCtx) audioCtx = new AudioContext();
   if (audioCtx.state === 'suspended') audioCtx.resume();
 }
+
+function initBGM() {
+  if (bgmStarted) return;
+  const bgm = document.getElementById('bgmAudio');
+  if (bgm && state.music !== false) {
+    bgm.volume = 0.20;
+    bgm.play().then(() => {
+      bgmStarted = true;
+    }).catch(() => {});
+  }
+}
+
+document.addEventListener('pointerdown', () => {
+  initAudio();
+  initBGM();
+}, { once: true });
 
 function playPopSound() {
   if (!state.sound) return;
@@ -145,7 +163,28 @@ function playUpgradeSound() {
   });
 }
 
-/* CANVAS DE PARTÍCULAS DE CLIQUE */
+function toggleMusic() {
+  state.music = !state.music;
+  const bgm = document.getElementById('bgmAudio');
+  const btn = document.getElementById('btn-music');
+
+  if (bgm) {
+    if (state.music) {
+      bgm.volume = 0.20;
+      bgm.play();
+    } else {
+      bgm.pause();
+    }
+  }
+
+  if (btn) {
+    btn.innerText = `🎵 Música: ${state.music ? 'LIGADA' : 'DESLIGADA'}`;
+  }
+
+  saveGame();
+}
+
+/* CANVAS DE PARTÍCULAS */
 const canvas = document.getElementById('fxCanvas');
 const ctx = canvas.getContext('2d');
 let particles = [];
@@ -275,11 +314,10 @@ function getUpgradeCost(key) {
   return Math.floor(up.baseCost * Math.pow(1.15, up.count));
 }
 
-/* ARENA DE BATALHA DE BOSS (EQUILIBRADO COM PODER DE CLIQUE) */
+/* ARENA DO CHEFÃO */
 function startBossBattle() {
   bossActive = true;
   const clickDmg = Math.max(1, getEffectiveClickPower());
-  // Vida do Boss equilibrada para exigir ~18 a 20 cliques em 15 segundos
   const clicksNeeded = 18 + (state.bossesDefeated * 2);
   bossMaxHp = Math.max(20, clickDmg * clicksNeeded);
   bossCurrentHp = bossMaxHp;
@@ -390,7 +428,7 @@ function doPrestige() {
   }
 }
 
-/* EVENTO DE CHUVA DE AÇÚCAR */
+/* CHUVA DE AÇÚCAR */
 function triggerSugarRain() {
   const count = 12;
   for (let i = 0; i < count; i++) {
@@ -924,6 +962,7 @@ function loadGame() {
     if (!state.lastWheelSpin) state.lastWheelSpin = 0;
     if (!state.bossesDefeated) state.bossesDefeated = 0;
     if (!state.prestigePoints) state.prestigePoints = 0;
+    if (state.music === undefined) state.music = true;
 
     recalcStats();
   }
@@ -933,6 +972,11 @@ function loadGame() {
   }
   if (themeOptions[state.currentTheme]) {
     applyTheme(themeOptions[state.currentTheme].cssClass);
+  }
+
+  const btnMusic = document.getElementById('btn-music');
+  if (btnMusic) {
+    btnMusic.innerText = `🎵 Música: ${state.music ? 'LIGADA' : 'DESLIGADA'}`;
   }
 
   recalcStats();
