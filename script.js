@@ -72,11 +72,12 @@ const achievementList = {
   prestige1:{ name: "Novo Recomeço", desc: "Efetue o seu primeiro Prestígio", icon: "👑" }
 };
 
+/* NAVEGAÇÃO DE ÁREAS */
 let currentArea = 0;
 const areas = [
   { id: 'view-main', title: '🍭 Mundo Principal' },
   { id: 'view-boss', title: '⚔️ Arena dos Chefões' },
-  { id: 'view-worlds', title: '🪐 Outros Mundos' }
+  { id: 'view-worlds', title: '🪐 Novos Mundos' }
 ];
 
 function changeArea(dir) {
@@ -88,7 +89,8 @@ function changeArea(dir) {
       else el.classList.add('hidden');
     }
   });
-  document.getElementById('areaTitle').innerText = areas[currentArea].title;
+  const titleEl = document.getElementById('areaTitle');
+  if (titleEl) titleEl.innerText = areas[currentArea].title;
 }
 
 let boostMultiplier = 1;
@@ -101,6 +103,7 @@ let bossCurrentHp = 50;
 let bossTimer = 15;
 let bossInterval = null;
 
+/* ÁUDIO */
 const AudioContext = window.AudioContext || window.webkitAudioContext;
 let audioCtx = null;
 
@@ -142,6 +145,7 @@ function playUpgradeSound() {
   });
 }
 
+/* CANVAS DE PARTÍCULAS DE CLIQUE */
 const canvas = document.getElementById('fxCanvas');
 const ctx = canvas.getContext('2d');
 let particles = [];
@@ -195,6 +199,7 @@ function updateParticles() {
 }
 requestAnimationFrame(updateParticles);
 
+/* ELEMENTOS DOM */
 const scoreEl = document.getElementById('score');
 const ppsEl = document.getElementById('pps');
 const lollipopEl = document.getElementById('lollipop');
@@ -202,10 +207,12 @@ const paneShop = document.getElementById('pane-shop');
 const paneSkins = document.getElementById('pane-skins');
 const paneAchieve = document.getElementById('pane-achievements');
 
-lollipopEl.addEventListener('pointerdown', (e) => {
-  e.preventDefault();
-  doClick(e.clientX, e.clientY);
-});
+if (lollipopEl) {
+  lollipopEl.addEventListener('pointerdown', (e) => {
+    e.preventDefault();
+    doClick(e.clientX, e.clientY);
+  });
+}
 
 function getPrestigeMultiplier() {
   return 1 + (state.prestigePoints * 0.20);
@@ -240,6 +247,7 @@ function doClick(x, y) {
   checkAchievements();
   updateUI();
 }
+
 function createFloatingText(x, y, text, isCrit = false) {
   const el = document.createElement('div');
   el.className = `click-text ${isCrit ? 'crit' : ''}`;
@@ -270,8 +278,10 @@ function startBossBattle() {
   bossCurrentHp = bossMaxHp;
   bossTimer = 15;
 
-  document.getElementById('boss-idle-state').classList.add('hidden');
-  document.getElementById('boss-active-state').classList.remove('hidden');
+  const idleState = document.getElementById('boss-idle-state');
+  const activeState = document.getElementById('boss-active-state');
+  if (idleState) idleState.classList.add('hidden');
+  if (activeState) activeState.classList.remove('hidden');
 
   updateBossUI();
 
@@ -316,8 +326,10 @@ function endBoss(defeated) {
   bossInterval = null;
   bossActive = false;
 
-  document.getElementById('boss-active-state').classList.add('hidden');
-  document.getElementById('boss-idle-state').classList.remove('hidden');
+  const idleState = document.getElementById('boss-idle-state');
+  const activeState = document.getElementById('boss-active-state');
+  if (activeState) activeState.classList.add('hidden');
+  if (idleState) idleState.classList.remove('hidden');
 
   if (defeated) {
     const reward = Math.max(250, Math.floor(state.perSecond * 80 + state.perClick * 120));
@@ -365,6 +377,34 @@ function doPrestige() {
   }
 }
 
+/* EVENTO DE CHUVA DE AÇÚCAR */
+function triggerSugarRain() {
+  const count = 12;
+  for (let i = 0; i < count; i++) {
+    setTimeout(() => {
+      const candy = document.createElement('div');
+      candy.className = 'falling-candy';
+      const items = ['🍬', '🍭', '🍫', '🍩', '🧁'];
+      candy.innerText = items[Math.floor(Math.random() * items.length)];
+      candy.style.left = `${Math.random() * 80 + 10}%`;
+
+      candy.onclick = (e) => {
+        e.stopPropagation();
+        const gain = Math.max(10, Math.floor(state.perClick * 5));
+        state.lollipops += gain;
+        state.totalEarned += gain;
+        playPopSound();
+        spawnParticles(e.clientX, e.clientY);
+        createFloatingText(e.clientX, e.clientY, `+${formatNum(gain)}`);
+        candy.remove();
+        updateUI();
+      };
+
+      document.body.appendChild(candy);
+      setTimeout(() => { if (candy.parentNode) candy.remove(); }, 4000);
+    }, i * 350);
+  }
+}
 /* ROLETA VISUAL CANVAS */
 const wheelPrizes = [
   { label: '500 🍭', color: '#e91e63' },
@@ -465,6 +505,7 @@ function applyWheelPrize(index) {
   updateUI();
 }
 
+/* MONETIZAÇÃO ADMOB / BOOST */
 function watchRewardAd() {
   if (Date.now() < boostEndTime) {
     alert("O seu Bónus de 3x Cliques já está ativo!");
@@ -594,6 +635,62 @@ function buildSkinsUI() {
     grid1.appendChild(card);
   }
   paneSkins.appendChild(grid1);
+
+  const title2 = document.createElement('div');
+  title2.className = 'skin-section-title';
+  title2.innerText = '✨ Efeitos de Clique';
+  paneSkins.appendChild(title2);
+
+  const grid2 = document.createElement('div');
+  grid2.className = 'skin-grid';
+
+  for (const key in particleOptions) {
+    const item = particleOptions[key];
+    const isUnlocked = state.unlockedParticles.includes(key);
+    const isActive = state.currentParticle === key;
+
+    const card = document.createElement('div');
+    card.className = `skin-card ${isActive ? 'active' : ''} ${!isUnlocked && state.lollipops < item.cost ? 'disabled' : ''}`;
+    card.onclick = () => selectSkin('particle', key);
+
+    card.innerHTML = `
+      <div class="skin-icon">${item.icon}</div>
+      <div class="skin-name">${item.name}</div>
+      <div class="${isUnlocked ? 'skin-status' : 'skin-cost'}">
+        ${isActive ? 'EM USO' : isUnlocked ? 'USAR' : formatNum(item.cost) + ' 🍭'}
+      </div>
+    `;
+    grid2.appendChild(card);
+  }
+  paneSkins.appendChild(grid2);
+
+  const title3 = document.createElement('div');
+  title3.className = 'skin-section-title';
+  title3.innerText = '🎨 Tema de Fundo';
+  paneSkins.appendChild(title3);
+
+  const grid3 = document.createElement('div');
+  grid3.className = 'skin-grid';
+
+  for (const key in themeOptions) {
+    const item = themeOptions[key];
+    const isUnlocked = state.unlockedThemes.includes(key);
+    const isActive = state.currentTheme === key;
+
+    const card = document.createElement('div');
+    card.className = `skin-card ${isActive ? 'active' : ''} ${!isUnlocked && state.lollipops < item.cost ? 'disabled' : ''}`;
+    card.onclick = () => selectSkin('theme', key);
+
+    card.innerHTML = `
+      <div class="skin-icon">${item.icon}</div>
+      <div class="skin-name">${item.name}</div>
+      <div class="${isUnlocked ? 'skin-status' : 'skin-cost'}">
+        ${isActive ? 'EM USO' : isUnlocked ? 'USAR' : formatNum(item.cost) + ' 🍭'}
+      </div>
+    `;
+    grid3.appendChild(card);
+  }
+  paneSkins.appendChild(grid3);
 }
 
 function selectSkin(type, key) {
@@ -607,15 +704,37 @@ function selectSkin(type, key) {
       } else return;
     }
     state.currentSkin = key;
-    lollipopEl.innerText = item.icon;
+    if (lollipopEl) lollipopEl.innerText = item.icon;
+  } else if (type === 'particle') {
+    const item = particleOptions[key];
+    if (!state.unlockedParticles.includes(key)) {
+      if (state.lollipops >= item.cost) {
+        state.lollipops -= item.cost;
+        state.unlockedParticles.push(key);
+        playUpgradeSound();
+      } else return;
+    }
+    state.currentParticle = key;
+  } else if (type === 'theme') {
+    const item = themeOptions[key];
+    if (!state.unlockedThemes.includes(key)) {
+      if (state.lollipops >= item.cost) {
+        state.lollipops -= item.cost;
+        state.unlockedThemes.push(key);
+        playUpgradeSound();
+      } else return;
+    }
+    state.currentTheme = key;
+    applyTheme(item.cssClass);
   }
+
   buildSkinsUI();
   updateUI();
 }
 
 function applyTheme(cssClass) {
   const body = document.getElementById('gameBody');
-  body.className = cssClass;
+  if (body) body.className = cssClass;
 }
 
 function buildAchievementsUI() {
@@ -679,8 +798,8 @@ function recalcStats() {
 }
 
 function updateUI() {
-  scoreEl.innerText = formatNum(state.lollipops);
-  ppsEl.innerText = `${formatNum(state.perSecond * getAchievementMultiplier())} por segundo`;
+  if (scoreEl) scoreEl.innerText = formatNum(state.lollipops);
+  if (ppsEl) ppsEl.innerText = `${formatNum(state.perSecond * getAchievementMultiplier())} por segundo`;
 
   for (const key in state.upgrades) {
     const card = document.getElementById(`up-${key}`);
@@ -709,12 +828,48 @@ function updateUI() {
   const prestigeLvlStat = document.getElementById('stat-prestige-lvl');
   if (prestigeLvlStat) prestigeLvlStat.innerText = state.prestigePoints;
 
-  document.getElementById('stat-total').innerText = formatNum(state.totalEarned);
-  document.getElementById('stat-clicks').innerText = formatNum(state.manualClicks);
-  document.getElementById('stat-cpc').innerText = formatNum(state.perClick * boostMultiplier * getAchievementMultiplier());
-  document.getElementById('stat-golden').innerText = state.goldenCaught;
-  document.getElementById('stat-achieve-boost').innerText = `+${achBoost}%`;
+  const totalEl = document.getElementById('stat-total');
+  if (totalEl) totalEl.innerText = formatNum(state.totalEarned);
+
+  const clicksEl = document.getElementById('stat-clicks');
+  if (clicksEl) clicksEl.innerText = formatNum(state.manualClicks);
+
+  const cpcEl = document.getElementById('stat-cpc');
+  if (cpcEl) cpcEl.innerText = formatNum(state.perClick * boostMultiplier * getAchievementMultiplier());
+
+  const goldenEl = document.getElementById('stat-golden');
+  if (goldenEl) goldenEl.innerText = state.goldenCaught;
+
+  const boostEl = document.getElementById('stat-achieve-boost');
+  if (boostEl) boostEl.innerText = `+${achBoost}%`;
 }
+
+function spawnGoldenLollipop() {
+  const golden = document.createElement('div');
+  golden.className = 'golden-lollipop';
+  golden.innerText = '🌟';
+  document.body.appendChild(golden);
+
+  golden.onclick = (e) => {
+    e.stopPropagation();
+    const bonus = Math.max(50, Math.floor(state.perSecond * 15 + state.perClick * 20));
+    state.lollipops += bonus;
+    state.totalEarned += bonus;
+    state.goldenCaught++;
+    playUpgradeSound();
+    spawnParticles(e.clientX, e.clientY);
+    createFloatingText(e.clientX, e.clientY, `BÔNUS! +${formatNum(bonus)}`);
+    checkAchievements();
+    golden.remove();
+    updateUI();
+  };
+
+  setTimeout(() => { if (golden.parentNode) golden.remove(); }, 8000);
+}
+
+setInterval(() => {
+  if (Math.random() < 0.6) spawnGoldenLollipop();
+}, 45000);
 
 function switchTab(tabName) {
   document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
@@ -729,12 +884,14 @@ function switchTab(tabName) {
 
 function toggleSound() {
   state.sound = !state.sound;
-  document.getElementById('btn-sound').innerText = `🔊 Som: ${state.sound ? 'LIGADO' : 'DESLIGADO'}`;
+  const btn = document.getElementById('btn-sound');
+  if (btn) btn.innerText = `🔊 Som: ${state.sound ? 'LIGADO' : 'DESLIGADO'}`;
 }
 
 function toggleVibe() {
   state.vibration = !state.vibration;
-  document.getElementById('btn-vibe').innerText = `📳 Vibração: ${state.vibration ? 'LIGADA' : 'DESLIGADA'}`;
+  const btn = document.getElementById('btn-vibe');
+  if (btn) btn.innerText = `📳 Vibração: ${state.vibration ? 'LIGADA' : 'DESLIGADA'}`;
 }
 
 function saveGame() {
@@ -758,7 +915,7 @@ function loadGame() {
     recalcStats();
   }
 
-  if (skinOptions[state.currentSkin]) {
+  if (skinOptions[state.currentSkin] && lollipopEl) {
     lollipopEl.innerText = skinOptions[state.currentSkin].icon;
   }
   if (themeOptions[state.currentTheme]) {
