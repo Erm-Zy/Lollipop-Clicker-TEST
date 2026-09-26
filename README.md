@@ -16,4 +16,4 @@ Versão de testes do jogo estilo *cookie clicker* de pirulito, desenvolvido do z
 - CSS3
 - JavaScript (Vanilla)
 - Service Workers & Web App Manifest
-- 
+
