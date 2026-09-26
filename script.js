@@ -163,27 +163,16 @@ function getUpgradeCost(key) {
   return Math.floor(up.baseCost * Math.pow(1.15, up.count));
 }
 
-// LÓGICA DO ANÚNCIO E BÔNUS (AdMob / Fallback)
+// LÓGICA DO ANÚNCIO E BÔNUS (Modo de Teste Direto)
 function watchRewardAd() {
   if (Date.now() < boostEndTime) {
     alert("O seu Bónus de 3x Cliques já está ativo!");
     return;
   }
 
-  if (typeof adBreak === 'function') {
-    adBreak({
-      type: 'reward',
-      name: 'reward_3x_boost',
-      beforeReward: (showAdFn) => { showAdFn(); },
-      adDismissed: () => { console.log('Anúncio cancelado.'); },
-      adViewed: () => { startBoost(30, 3); }
-    });
-  } else {
-    // Modo de teste / Fallback
-    const watched = confirm("🎬 [TESTE DE ANÚNCIO ADMOB]\n\nAssistir ao vídeo para ativar 3x Cliques por 30 segundos?");
-    if (watched) {
-      startBoost(30, 3);
-    }
+  const watched = confirm("🎬 [MODO DE TESTE ADMOB]\n\nAssistir ao vídeo de teste para ativar 3x Cliques por 30 segundos?");
+  if (watched) {
+    startBoost(30, 3);
   }
 }
 
@@ -322,8 +311,11 @@ function switchTab(tabName) {
   document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
   document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
 
-  event.target.classList.add('active');
-  document.getElementById(`pane-${tabName}`).classList.add('active');
+  if (window.event && window.event.target) {
+    window.event.target.classList.add('active');
+  }
+  const targetPane = document.getElementById(`pane-${tabName}`);
+  if (targetPane) targetPane.classList.add('active');
 }
 
 function toggleSound() {
