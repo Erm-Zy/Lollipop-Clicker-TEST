@@ -602,3 +602,133 @@ body.theme-gold {
   border-radius: 50%;
   box-shadow: 0 0 20px rgba(0,0,0,0.6), 0 0 0 6px #ff4081;
 }
+/* --- NAVEGAÇÃO ENTRE ÁREAS --- */
+.area-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 90%;
+  max-width: 400px;
+  margin: 5px auto 0 auto;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 6px 12px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.area-arrow {
+  background: #ff4081;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  font-size: 1rem;
+  cursor: pointer;
+  box-shadow: 0 3px 0 #c2185b;
+}
+
+.area-arrow:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 #c2185b;
+}
+
+.area-title {
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: #ffeb3b;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
+
+.area-view {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ARENA DE BOSSES */
+.boss-arena-box {
+  text-align: center;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 20px;
+  border-radius: 20px;
+  border: 2px solid #ff1744;
+  width: 85%;
+  max-width: 320px;
+}
+
+.boss-avatar-idle {
+  font-size: 4rem;
+  margin-bottom: 10px;
+}
+
+.boss-avatar {
+  font-size: 5rem;
+  cursor: pointer;
+  user-select: none;
+  animation: pulse 0.5s infinite alternate;
+}
+
+.boss-hint {
+  font-size: 0.8rem;
+  color: #ffcd29;
+  margin-top: 8px;
+}
+
+/* EM BREVE */
+.coming-soon-box {
+  text-align: center;
+  padding: 20px;
+}
+
+.coming-icon {
+  font-size: 4.5rem;
+  margin-bottom: 10px;
+}
+
+.badge-soon {
+  display: inline-block;
+  background: #ffd54f;
+  color: #000;
+  font-weight: 900;
+  padding: 6px 16px;
+  border-radius: 12px;
+  margin-top: 15px;
+  font-size: 0.85rem;
+}
+
+/* PRESTÍGIO */
+.prestige-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 15px;
+  text-align: center;
+}
+
+.prestige-stat-box {
+  background: rgba(255, 255, 255, 0.08);
+  padding: 12px;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.prestige-reward-box {
+  background: rgba(255, 215, 0, 0.1);
+  border: 1px dashed #ffd700;
+  padding: 15px;
+  border-radius: 12px;
+}
+
+.prestige-gain {
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: #ffd700;
+  margin: 5px 0;
+}
