@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Lollipop Clicker</title>
 
-  <link rel="manifest" href="manifest.json?v=5">
+  <link rel="manifest" href="manifest.json?v=6">
   <meta name="theme-color" content="#ff4081">
   <link rel="apple-touch-icon" href="icon-192.png">
 
@@ -20,11 +20,20 @@
   </script>
 
   <!-- Estilos do Jogo -->
-  <link rel="stylesheet" href="style.css?v=5">
+  <link rel="stylesheet" href="style.css?v=6">
 </head>
 <body id="gameBody" class="theme-purple" onselectstart="return false;" oncontextmenu="return false;">
 
   <canvas id="fxCanvas"></canvas>
+
+  <!-- Banner do Chefe (Monstro da Cárie) -->
+  <div id="boss-banner" class="boss-banner hidden">
+    <div class="boss-title">👾 MONSTRO DA CÁRIE APARECEU!</div>
+    <div class="boss-hp-container">
+      <div id="boss-hp-bar" class="boss-hp-bar"></div>
+    </div>
+    <div class="boss-timer" id="boss-timer">Tempo restante: 15s</div>
+  </div>
 
   <div class="header">
     <div class="score-label">Pirulitos Coletados</div>
@@ -41,6 +50,7 @@
     <div class="nav-tabs">
       <button class="tab-btn active" onclick="switchTab('shop')">🛒 LOJA</button>
       <button class="tab-btn" onclick="switchTab('skins')">🎨 SKINS</button>
+      <button class="tab-btn" onclick="switchTab('wheel')">🎡 ROLETA</button>
       <button class="tab-btn" onclick="switchTab('achievements')">🏆 METAS</button>
       <button class="tab-btn" onclick="switchTab('stats')">📊 STATS</button>
       <button class="tab-btn" onclick="switchTab('settings')">⚙️ OPÇÕES</button>
@@ -51,6 +61,15 @@
 
       <div class="tab-pane" id="pane-skins"></div>
 
+      <div class="tab-pane" id="pane-wheel">
+        <div class="wheel-container">
+          <div class="wheel-title">🎁 Roleta de Prémios Diários</div>
+          <div class="wheel-display" id="wheelDisplay">❓</div>
+          <button class="action-btn btn-ad" id="btn-spin-wheel" onclick="spinDailyWheel()">🎡 RODAR ROLETA</button>
+          <div class="wheel-timer" id="wheelTimer">Pode rodar uma vez por dia!</div>
+        </div>
+      </div>
+
       <div class="tab-pane" id="pane-achievements"></div>
 
       <div class="tab-pane" id="pane-stats">
@@ -58,6 +77,7 @@
         <div class="stat-row"><span>Cliques Manuais:</span><span id="stat-clicks">0</span></div>
         <div class="stat-row"><span>Poder de Clique:</span><span id="stat-cpc">1</span></div>
         <div class="stat-row"><span>Pirulitos Dourados:</span><span id="stat-golden">0</span></div>
+        <div class="stat-row"><span>Chefes Derrotados:</span><span id="stat-bosses">0</span></div>
         <div class="stat-row"><span>Bónus de Conquistas:</span><span id="stat-achieve-boost">+0%</span></div>
       </div>
 
@@ -70,12 +90,12 @@
   </div>
 
   <!-- Lógica do Jogo -->
-  <script src="script.js?v=5"></script>
+  <script src="script.js?v=6"></script>
 
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=5').catch(console.error);
+        navigator.serviceWorker.register('./sw.js?v=6').catch(console.error);
       });
     }
   </script>
