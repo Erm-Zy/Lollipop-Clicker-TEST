@@ -35,6 +35,11 @@ body.theme-gold {
   background: linear-gradient(135deg, #2c1d02, #573a08);
 }
 
+.hidden, 
+.area-view.hidden {
+  display: none !important;
+}
+
 #fxCanvas {
   position: absolute;
   top: 0;
@@ -47,42 +52,100 @@ body.theme-gold {
 
 .header {
   text-align: center;
-  padding: 20px 10px 10px;
+  padding: 15px 10px 5px;
   z-index: 2;
 }
 
 .score-label {
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   color: #e0b0ff;
   text-transform: uppercase;
   letter-spacing: 1px;
 }
 
 .score-display {
-  font-size: 2.8rem;
+  font-size: 2.6rem;
   font-weight: 900;
   color: #fff;
   text-shadow: 0 0 15px rgba(255, 64, 129, 0.6);
 }
 
 .pps-display {
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   color: #b388ff;
 }
 
-.game-area {
-  flex: 1;
+/* NAVEGAÇÃO DE ÁREAS */
+.area-nav {
   display: flex;
-  justify-content: center;
   align-items: center;
-  position: relative;
+  justify-content: space-between;
+  width: 90%;
+  max-width: 340px;
+  margin: 6px auto;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 6px 14px;
+  border-radius: 25px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-sizing: border-box;
   z-index: 2;
 }
 
+.area-arrow {
+  background: #ff4081;
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 34px;
+  height: 34px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 3px 0 #c2185b;
+  touch-action: manipulation;
+}
+
+.area-arrow:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 #c2185b;
+}
+
+.area-title {
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: #ffeb3b;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.6);
+}
+
+/* ÁREA CENTRAL DO JOGO */
+.game-area {
+  position: relative;
+  flex: 1;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+
+.area-view {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+/* PIRULITO E GLOW */
 .lollipop-glow {
   position: absolute;
-  width: 180px;
-  height: 180px;
+  width: 170px;
+  height: 170px;
   background: radial-gradient(circle, rgba(255, 64, 129, 0.4) 0%, rgba(0,0,0,0) 70%);
   border-radius: 50%;
   animation: pulse 2s infinite ease-in-out;
@@ -94,7 +157,7 @@ body.theme-gold {
 }
 
 .lollipop {
-  font-size: 7rem;
+  font-size: 6.5rem;
   cursor: pointer;
   transition: transform 0.05s ease;
   z-index: 3;
@@ -105,6 +168,86 @@ body.theme-gold {
   transform: scale(0.88) rotate(-5deg);
 }
 
+/* ARENA DE BOSSES */
+.boss-arena-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 18px;
+  border-radius: 16px;
+  border: 2px solid #ff1744;
+  width: 85%;
+  max-width: 300px;
+  box-sizing: border-box;
+  box-shadow: 0 0 20px rgba(255, 23, 68, 0.4);
+}
+
+.boss-avatar-idle {
+  font-size: 3.5rem;
+  margin-bottom: 6px;
+}
+
+.boss-avatar {
+  font-size: 4.5rem;
+  cursor: pointer;
+  user-select: none;
+  animation: pulse 0.5s infinite alternate;
+}
+
+.boss-hp-container {
+  width: 100%;
+  height: 16px;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.2);
+  margin: 10px 0;
+}
+
+.boss-hp-bar {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, #ff5252, #ff1744);
+  transition: width 0.1s linear;
+}
+
+.boss-timer {
+  font-size: 0.8rem;
+  color: #ffcd29;
+  font-weight: bold;
+}
+
+.boss-hint {
+  font-size: 0.75rem;
+  color: #aaa;
+  margin-top: 4px;
+}
+
+/* EM BREVE */
+.coming-soon-box {
+  text-align: center;
+  padding: 20px;
+}
+
+.coming-icon {
+  font-size: 4rem;
+  margin-bottom: 8px;
+}
+
+.badge-soon {
+  display: inline-block;
+  background: #ffd54f;
+  color: #000;
+  font-weight: 900;
+  padding: 6px 16px;
+  border-radius: 12px;
+  margin-top: 12px;
+  font-size: 0.85rem;
+}
+
+/* PAINEL INFERIOR */
 .bottom-panel {
   background: rgba(20, 10, 30, 0.95);
   border-top: 2px solid rgba(255, 255, 255, 0.1);
@@ -123,13 +266,13 @@ body.theme-gold {
 
 .tab-btn {
   flex: 1;
-  min-width: 65px;
-  padding: 12px 0;
+  min-width: 60px;
+  padding: 10px 0;
   background: transparent;
   border: none;
   color: #888;
   font-weight: bold;
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   cursor: pointer;
   white-space: nowrap;
 }
@@ -155,7 +298,105 @@ body.theme-gold {
   gap: 10px;
 }
 
-/* Seções de Personalização */
+/* SABORES */
+.flavor-section {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 10px;
+  margin-bottom: 4px;
+}
+
+.flavor-title {
+  font-size: 0.8rem;
+  font-weight: bold;
+  color: #ffd54f;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+.flavor-grid {
+  display: flex;
+  gap: 6px;
+}
+
+.flavor-card {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  padding: 8px 4px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.flavor-card.active {
+  border-color: #ff4081;
+  background: rgba(255, 64, 129, 0.25);
+  box-shadow: 0 0 10px rgba(255, 64, 129, 0.4);
+}
+
+.flavor-name {
+  font-size: 0.75rem;
+  font-weight: bold;
+}
+
+.flavor-desc {
+  font-size: 0.68rem;
+  color: #bbb;
+  margin-top: 2px;
+}
+
+/* UPGRADES */
+.upgrade-card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+}
+
+.upgrade-card.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.upgrade-icon {
+  font-size: 2rem;
+}
+
+.upgrade-details {
+  flex: 1;
+}
+
+.upgrade-title {
+  font-weight: bold;
+  font-size: 0.95rem;
+}
+
+.upgrade-sub {
+  font-size: 0.8rem;
+  color: #aaa;
+}
+
+.upgrade-cost-tag {
+  background: #ff4081;
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 20px;
+  font-weight: bold;
+  font-size: 0.85rem;
+}
+
+.upgrade-card.disabled .upgrade-cost-tag {
+  background: #555;
+}
+
+/* SKINS */
 .skin-section-title {
   font-size: 0.85rem;
   font-weight: bold;
@@ -216,105 +457,90 @@ body.theme-gold {
   font-weight: bold;
 }
 
-/* Seção de Sabores */
-.flavor-section {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
+/* ROLETA VISUAL CANVAS */
+.wheel-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
   padding: 10px;
-  margin-bottom: 4px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  text-align: center;
 }
 
-.flavor-title {
-  font-size: 0.8rem;
+.wheel-title {
+  font-size: 0.95rem;
   font-weight: bold;
   color: #ffd54f;
-  margin-bottom: 8px;
-  text-transform: uppercase;
 }
 
-.flavor-grid {
-  display: flex;
-  gap: 6px;
+.wheel-wrapper {
+  position: relative;
+  width: 220px;
+  height: 220px;
+  margin: 5px auto;
 }
 
-.flavor-card {
-  flex: 1;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 8px;
-  padding: 8px 4px;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.2s ease;
+.wheel-pointer {
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 24px;
+  color: #ffeb3b;
+  z-index: 10;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6));
 }
 
-.flavor-card.active {
-  border-color: #ff4081;
-  background: rgba(255, 64, 129, 0.25);
-  box-shadow: 0 0 10px rgba(255, 64, 129, 0.4);
+#wheelCanvas {
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  box-shadow: 0 0 15px rgba(0,0,0,0.6), 0 0 0 5px #ff4081;
 }
 
-.flavor-name {
+.wheel-timer {
   font-size: 0.75rem;
-  font-weight: bold;
-}
-
-.flavor-desc {
-  font-size: 0.68rem;
-  color: #bbb;
-  margin-top: 2px;
-}
-
-/* Upgrade Cards */
-.upgrade-card {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  padding: 12px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  cursor: pointer;
-}
-
-.upgrade-card.disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-.upgrade-icon {
-  font-size: 2rem;
-}
-
-.upgrade-details {
-  flex: 1;
-}
-
-.upgrade-title {
-  font-weight: bold;
-  font-size: 0.95rem;
-}
-
-.upgrade-sub {
-  font-size: 0.8rem;
   color: #aaa;
 }
 
-.upgrade-cost-tag {
-  background: #ff4081;
-  color: #fff;
-  padding: 6px 10px;
-  border-radius: 20px;
-  font-weight: bold;
+/* PRESTÍGIO */
+.prestige-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px;
+  text-align: center;
+}
+
+.prestige-stat-box {
+  background: rgba(255, 255, 255, 0.08);
+  padding: 10px;
+  border-radius: 12px;
   font-size: 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
-.upgrade-card.disabled .upgrade-cost-tag {
-  background: #555;
+.prestige-reward-box {
+  background: rgba(255, 215, 0, 0.1);
+  border: 1px dashed #ffd700;
+  padding: 12px;
+  border-radius: 12px;
 }
 
-/* Conquistas */
+.prestige-gain {
+  font-size: 1.6rem;
+  font-weight: 900;
+  color: #ffd700;
+  margin: 4px 0;
+}
+
+/* CONQUISTAS */
 .achievement-card {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -356,18 +582,18 @@ body.theme-gold {
   color: #ffd54f;
 }
 
-/* Botões */
+/* BOTÕES E STATS */
 .btn-ad {
   background: linear-gradient(135deg, #ff9800, #f57c00);
   color: #fff;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   font-weight: bold;
-  padding: 14px;
-  border-radius: 16px;
+  padding: 12px;
+  border-radius: 14px;
   box-shadow: 0 4px 15px rgba(245, 124, 0, 0.3);
   transition: all 0.2s ease;
   border: 2px solid #ffe0b2;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
   cursor: pointer;
   width: 100%;
   text-align: center;
@@ -387,11 +613,11 @@ body.theme-gold {
 
 .action-btn {
   width: 100%;
-  padding: 14px;
+  padding: 12px;
   border-radius: 12px;
   border: none;
   font-weight: bold;
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   cursor: pointer;
 }
 
@@ -403,15 +629,14 @@ body.theme-gold {
 .btn-danger {
   background: #e53935;
   color: #fff;
-  margin-top: 10px;
 }
 
 .stat-row {
   display: flex;
   justify-content: space-between;
-  padding: 10px 0;
+  padding: 8px 0;
   border-bottom: 1px solid rgba(255,255,255,0.05);
-  font-size: 0.9rem;
+  font-size: 0.88rem;
 }
 
 .click-text {
@@ -449,100 +674,8 @@ body.theme-gold {
   0% { top: -10%; left: 10%; transform: rotate(0deg); }
   50% { left: 80%; }
   100% { top: 110%; left: 30%; transform: rotate(360deg); }
-  /* --- FASE 3: CHEFE & ROLETA & CHUVA DE AÇÚCAR --- */
-
-.hidden {
-  display: none !important;
 }
 
-/* Banner do Chefe */
-.boss-banner {
-  position: absolute;
-  top: 10px;
-  left: 5%;
-  right: 5%;
-  background: rgba(180, 0, 0, 0.9);
-  border: 2px solid #ff1744;
-  border-radius: 12px;
-  padding: 10px;
-  text-align: center;
-  z-index: 40;
-  box-shadow: 0 0 20px rgba(255, 23, 68, 0.8);
-  animation: pulseRed 1s infinite alternate;
-}
-
-@keyframes pulseRed {
-  from { box-shadow: 0 0 10px rgba(255, 23, 68, 0.5); }
-  to { box-shadow: 0 0 25px rgba(255, 23, 68, 1); }
-}
-
-.boss-title {
-  font-size: 0.95rem;
-  font-weight: 900;
-  color: #fff;
-  margin-bottom: 6px;
-}
-
-.boss-hp-container {
-  width: 100%;
-  height: 16px;
-  background: rgba(0, 0, 0, 0.5);
-  border-radius: 8px;
-  overflow: hidden;
-  border: 1px solid #ffffff33;
-}
-
-.boss-hp-bar {
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, #ff5252, #ff1744);
-  transition: width 0.1s linear;
-}
-
-.boss-timer {
-  font-size: 0.75rem;
-  margin-top: 4px;
-  color: #ffcd29;
-  font-weight: bold;
-}
-
-/* Roleta Diária */
-.wheel-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  padding: 15px;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  text-align: center;
-}
-
-.wheel-title {
-  font-size: 1rem;
-  font-weight: bold;
-  color: #ffd54f;
-}
-
-.wheel-display {
-  font-size: 4rem;
-  margin: 10px 0;
-  animation: bounce 2s infinite ease-in-out;
-}
-
-@keyframes bounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
-}
-
-.wheel-timer {
-  font-size: 0.8rem;
-  color: #aaa;
-}
-
-/* Chuva de Açúcar (Doces Aéreos) */
 .falling-candy {
   position: absolute;
   font-size: 2.2rem;
@@ -556,179 +689,4 @@ body.theme-gold {
 @keyframes fallDown {
   0% { top: -10%; opacity: 1; }
   100% { top: 105%; opacity: 0; }
-}
-/* Botão de Ataque no Chefe */
-.boss-attack-btn {
-  margin-top: 8px;
-  background: #ff1744;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  padding: 8px 16px;
-  font-weight: bold;
-  font-size: 0.85rem;
-  cursor: pointer;
-  box-shadow: 0 4px 0 #b71c1c;
-  transition: transform 0.05s;
-}
-
-.boss-attack-btn:active {
-  transform: translateY(3px);
-  box-shadow: 0 1px 0 #b71c1c;
-}
-
-/* Nova Roleta Visual Canvas */
-.wheel-wrapper {
-  position: relative;
-  width: 260px;
-  height: 260px;
-  margin: 10px auto;
-}
-
-.wheel-pointer {
-  position: absolute;
-  top: -12px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 26px;
-  color: #ffeb3b;
-  z-index: 10;
-  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6));
-}
-
-#wheelCanvas {
-  width: 260px;
-  height: 260px;
-  border-radius: 50%;
-  box-shadow: 0 0 20px rgba(0,0,0,0.6), 0 0 0 6px #ff4081;
-}
-/* --- NAVEGAÇÃO ENTRE ÁREAS --- */
-.area-nav {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 90%;
-  max-width: 400px;
-  margin: 5px auto 0 auto;
-  background: rgba(0, 0, 0, 0.3);
-  padding: 6px 12px;
-  border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-}
-
-.area-arrow {
-  background: #ff4081;
-  color: white;
-  border: none;
-  border-radius: 50%;
-  width: 32px;
-  height: 32px;
-  font-size: 1rem;
-  cursor: pointer;
-  box-shadow: 0 3px 0 #c2185b;
-}
-
-.area-arrow:active {
-  transform: translateY(2px);
-  box-shadow: 0 1px 0 #c2185b;
-}
-
-.area-title {
-  font-weight: 800;
-  font-size: 0.95rem;
-  color: #ffeb3b;
-  text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-}
-
-.area-view {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
-/* ARENA DE BOSSES */
-.boss-arena-box {
-  text-align: center;
-  background: rgba(0, 0, 0, 0.4);
-  padding: 20px;
-  border-radius: 20px;
-  border: 2px solid #ff1744;
-  width: 85%;
-  max-width: 320px;
-}
-
-.boss-avatar-idle {
-  font-size: 4rem;
-  margin-bottom: 10px;
-}
-
-.boss-avatar {
-  font-size: 5rem;
-  cursor: pointer;
-  user-select: none;
-  animation: pulse 0.5s infinite alternate;
-}
-
-.boss-hint {
-  font-size: 0.8rem;
-  color: #ffcd29;
-  margin-top: 8px;
-}
-
-/* EM BREVE */
-.coming-soon-box {
-  text-align: center;
-  padding: 20px;
-}
-
-.coming-icon {
-  font-size: 4.5rem;
-  margin-bottom: 10px;
-}
-
-.badge-soon {
-  display: inline-block;
-  background: #ffd54f;
-  color: #000;
-  font-weight: 900;
-  padding: 6px 16px;
-  border-radius: 12px;
-  margin-top: 15px;
-  font-size: 0.85rem;
-}
-
-/* PRESTÍGIO */
-.prestige-container {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: 15px;
-  text-align: center;
-}
-
-.prestige-stat-box {
-  background: rgba(255, 255, 255, 0.08);
-  padding: 12px;
-  border-radius: 12px;
-  font-size: 0.9rem;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.prestige-reward-box {
-  background: rgba(255, 215, 0, 0.1);
-  border: 1px dashed #ffd700;
-  padding: 15px;
-  border-radius: 12px;
-}
-
-.prestige-gain {
-  font-size: 1.8rem;
-  font-weight: 900;
-  color: #ffd700;
-  margin: 5px 0;
 }
