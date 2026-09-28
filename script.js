@@ -2,14 +2,22 @@
 // LOLLIPOP CLICKER - SCRIPT COMPLETO E ATUALIZADO
 // ============================================================
 
-// --- ESTADO INICIAL E SALVAMENTO ---
+// ===== ESTADO INICIAL E SALVAMENTO =====
 const defaultState = {
   pirulitos: 0,
   totalEarned: 0,
   totalClicks: 0,
   prestigeLevel: 0,
   activeFlavor: 'morango',
+
+  // Compatibilidade com saves antigos.
   activeSkin: 'classic',
+
+  // ===== SKINS INDEPENDENTES =====
+  activeLollipopSkin: 'classic',
+  activeTheme: 'classic',
+  activeParticle: 'classic',
+
   upgrades: {
     maquina: 0,
     calda: 0,
@@ -21,7 +29,15 @@ const defaultState = {
     superfabrica: 0
   },
   unlockedFlavors: ['morango', 'limao', 'blueberry'],
+
+  // Compatibilidade com saves antigos.
   unlockedSkins: ['classic'],
+
+  // Cada categoria possui seus próprios desbloqueios.
+  unlockedLollipopSkins: ['classic'],
+  unlockedThemes: ['classic'],
+  unlockedParticles: ['classic'],
+
   unlockedAchievements: [],
   bossesKilled: 0,
   wheelSpins: 0,
@@ -39,7 +55,7 @@ const defaultState = {
 
 let gameState = JSON.parse(JSON.stringify(defaultState));
 
-// --- 1. SHOP & UPGRADES ---
+// ===== SHOP / UPGRADES =====
 const UPGRADES_DATA = {
   maquina: { name: 'Máquina de Pirulitos', baseCost: 15, costMult: 1.15, basePps: 0.5, icon: '🍭', desc: '+0.5 pirulitos/s' },
   calda: { name: 'Calda Açucarada', baseCost: 100, costMult: 1.15, basePps: 4, icon: '🍯', desc: '+4.0 pirulitos/s' },
@@ -51,7 +67,7 @@ const UPGRADES_DATA = {
   superfabrica: { name: 'Super Fábrica de Pirulitos', baseCost: 330000000, costMult: 1.15, basePps: 260000, icon: '🏰', desc: '+260.0K pirulitos/s' }
 };
 
-// --- 2. SABORES ---
+// ===== SABORES =====
 const FLAVORS_DATA = {
   morango: { name: 'Morango', desc: 'Sabor equilibrado (+1 por clique)', icon: '🍓', cost: 0, isFree: true, clickBonus: 1, ppsMult: 1 },
   limao: { name: 'Limão', desc: 'Maior produção (+20% PPS)', icon: '🍋', cost: 0, isFree: true, clickBonus: 0, ppsMult: 1.20 },
@@ -66,7 +82,7 @@ const FLAVORS_DATA = {
   lendario: { name: 'Sabor Lendário', desc: 'Poder Supremo: 4.0x PPS & +100 por clique', icon: '⭐', cost: 1000000000, isFree: false, clickBonus: 100, ppsMult: 4.00 }
 };
 
-// --- 3. SKINS DO PIRULITO (3 COMPONENTES: FUNDO + PIRULITO + PARTÍCULAS) ---
+// ===== SKINS DO PIRULITO / TEMAS / PARTÍCULAS =====
 const SKINS_DATA = {
   classic: { name: 'Clássico', emoji: '🍭', themeClass: 'theme-classic', glow: 'rgba(255, 64, 129, 0.4)', cost: 0, particleType: 'classic', color: '#ff4081' },
   neon: { name: 'Neon', emoji: '💖', themeClass: 'theme-neon', glow: 'rgba(0, 255, 234, 0.7)', cost: 2500, particleType: 'neon', color: '#00ffea' },
@@ -77,7 +93,7 @@ const SKINS_DATA = {
   ice: { name: 'Gelo', emoji: '🧊', themeClass: 'theme-ice', glow: 'rgba(33, 150, 243, 0.8)', cost: 500000000, particleType: 'ice', color: '#2196f3' }
 };
 
-// --- 4. CONQUISTAS ---
+// ===== CONQUISTAS =====
 const ACHIEVEMENTS_DATA = [
   { id: 'c1', title: 'Primeiro Pirulito', desc: 'Faça 1 clique no pirulito', icon: '🍭', req: s => s.totalClicks >= 1 },
   { id: 'c100', title: 'Dedo Açucarado', desc: 'Alcance 100 cliques totais', icon: '👆', req: s => s.totalClicks >= 100 },
@@ -102,30 +118,35 @@ const AREAS_DATA = [
 
 let currentAreaIndex = 0;
 
-// --- SISTEMA DE ÁUDIO (Música bgm1.ogg e Efeitos Sonoros) ---
+// ===== SISTEMA DE ÁUDIO =====
 const bgmAudio = new Audio('assets/audio/bgm1.ogg');
 bgmAudio.loop = true;
 bgmAudio.volume = 0.4;
 
 let audioCtx = null;
+
 function getAudioContext() {
   if (!audioCtx) {
     const AudioContext = window.AudioContext || window.webkitAudioContext;
     if (AudioContext) audioCtx = new AudioContext();
   }
+
   if (audioCtx && audioCtx.state === 'suspended') {
     audioCtx.resume();
   }
+
   return audioCtx;
 }
 
 function playSound(type) {
   if (!gameState.settings.sfx) return;
+
   const ctx = getAudioContext();
   if (!ctx) return;
 
   const osc = ctx.createOscillator();
   const gain = ctx.createGain();
+
   osc.connect(gain);
   gain.connect(ctx.destination);
 
@@ -135,25 +156,33 @@ function playSound(type) {
     osc.type = 'sine';
     osc.frequency.setValueAtTime(440, now);
     osc.frequency.exponentialRampToValueAtTime(880, now + 0.08);
+
     gain.gain.setValueAtTime(0.15, now);
     gain.gain.linearRampToValueAtTime(0.01, now + 0.08);
+
     osc.start(now);
     osc.stop(now + 0.08);
+
   } else if (type === 'buy') {
     osc.type = 'triangle';
     osc.frequency.setValueAtTime(523.25, now);
     osc.frequency.setValueAtTime(659.25, now + 0.08);
+
     gain.gain.setValueAtTime(0.2, now);
     gain.gain.linearRampToValueAtTime(0.01, now + 0.2);
+
     osc.start(now);
     osc.stop(now + 0.2);
+
   } else if (type === 'win') {
     osc.type = 'square';
     osc.frequency.setValueAtTime(440, now);
     osc.frequency.setValueAtTime(554.37, now + 0.1);
     osc.frequency.setValueAtTime(659.25, now + 0.2);
+
     gain.gain.setValueAtTime(0.2, now);
     gain.gain.linearRampToValueAtTime(0.01, now + 0.35);
+
     osc.start(now);
     osc.stop(now + 0.35);
   }
@@ -173,9 +202,10 @@ window.addEventListener('click', () => {
   }
 }, { once: false });
 
-// --- EFEITOS DE CANVAS & PARTÍCULAS CUSTOMIZADAS ---
+// ===== EFEITOS DE CANVAS / PARTÍCULAS =====
 const canvas = document.getElementById('fxCanvas');
 const ctx = canvas ? canvas.getContext('2d') : null;
+
 let particles = [];
 
 function resizeCanvas() {
@@ -184,27 +214,31 @@ function resizeCanvas() {
     canvas.height = window.innerHeight;
   }
 }
+
 window.addEventListener('resize', resizeCanvas);
 resizeCanvas();
 
 function spawnParticle(x, y, text = null) {
   if (!ctx) return;
-  const currentSkin = SKINS_DATA[gameState.activeSkin] || SKINS_DATA.classic;
+
+  const currentParticle =
+    SKINS_DATA[gameState.activeParticle] || SKINS_DATA.classic;
+
   const count = text ? 1 : 5;
-  
+
   for (let i = 0; i < count; i++) {
-    let pColor = currentSkin.color;
+    let pColor = currentParticle.color;
     let pSymbol = null;
 
-    if (currentSkin.particleType === 'rainbow') {
+    if (currentParticle.particleType === 'rainbow') {
       pColor = `hsl(${Math.random() * 360}, 100%, 75%)`;
-    } else if (currentSkin.particleType === 'gold') {
+    } else if (currentParticle.particleType === 'gold') {
       pSymbol = '✨';
-    } else if (currentSkin.particleType === 'cosmic') {
+    } else if (currentParticle.particleType === 'cosmic') {
       pSymbol = '⭐';
-    } else if (currentSkin.particleType === 'fire') {
+    } else if (currentParticle.particleType === 'fire') {
       pSymbol = Math.random() > 0.5 ? '🔥' : '💥';
-    } else if (currentSkin.particleType === 'ice') {
+    } else if (currentParticle.particleType === 'ice') {
       pSymbol = '❄️';
     }
 
@@ -224,80 +258,114 @@ function spawnParticle(x, y, text = null) {
 
 function updateParticles() {
   if (!ctx) return;
+
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+
   for (let i = particles.length - 1; i >= 0; i--) {
     let p = particles[i];
+
     p.x += p.vx;
     p.y += p.vy;
     p.alpha -= 0.025;
-    
+
     ctx.save();
     ctx.globalAlpha = Math.max(0, p.alpha);
+
     if (p.text) {
       ctx.font = 'bold 18px sans-serif';
       ctx.fillStyle = '#ffd54f';
       ctx.fillText(p.text, p.x, p.y);
+
     } else if (p.symbol) {
       ctx.font = '16px sans-serif';
       ctx.fillText(p.symbol, p.x, p.y);
+
     } else {
       ctx.fillStyle = p.color;
       ctx.beginPath();
       ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
       ctx.fill();
     }
+
     ctx.restore();
 
     if (p.alpha <= 0) {
       particles.splice(i, 1);
     }
   }
+
   requestAnimationFrame(updateParticles);
 }
+
 requestAnimationFrame(updateParticles);
 
-// --- FORMATADOR DE NÚMEROS ---
+// ===== FORMATADOR DE NÚMEROS =====
 function formatNum(num) {
   if (num < 1000) return Math.floor(num).toString();
+
   const suffixes = ['', 'K', 'M', 'B', 'T', 'Qa', 'Qi'];
   const i = Math.floor(Math.log10(num) / 3);
-  if (i >= suffixes.length) return num.toExponential(2);
-  const formatted = (num / Math.pow(10, i * 3)).toFixed(2);
+
+  if (i >= suffixes.length) {
+    return num.toExponential(2);
+  }
+
+  const formatted =
+    (num / Math.pow(10, i * 3)).toFixed(2);
+
   return `${formatted} ${suffixes[i]}`;
 }
 
 function getTotalUpgradesCount() {
   let count = 0;
+
   for (let key in gameState.upgrades) {
     count += gameState.upgrades[key] || 0;
   }
+
   return count;
 }
 
-// --- CÁLCULOS PRINCIPAIS ---
+// ===== CÁLCULOS PRINCIPAIS =====
 function getClickPower() {
   let base = 1;
-  const flavor = FLAVORS_DATA[gameState.activeFlavor] || FLAVORS_DATA.morango;
+
+  const flavor =
+    FLAVORS_DATA[gameState.activeFlavor] ||
+    FLAVORS_DATA.morango;
+
   base += flavor.clickBonus;
 
-  const prestigeMult = 1 + (gameState.prestigeLevel * 0.15);
-  const boostMult = Date.now() < gameState.boostEndTime ? 2 : 1;
+  const prestigeMult =
+    1 + (gameState.prestigeLevel * 0.15);
+
+  const boostMult =
+    Date.now() < gameState.boostEndTime ? 2 : 1;
 
   return base * prestigeMult * boostMult;
 }
 
 function getPps() {
   let ppsBase = 0;
+
   for (let key in UPGRADES_DATA) {
     const count = gameState.upgrades[key] || 0;
-    ppsBase += count * UPGRADES_DATA[key].basePps;
+
+    ppsBase +=
+      count * UPGRADES_DATA[key].basePps;
   }
 
-  const flavor = FLAVORS_DATA[gameState.activeFlavor] || FLAVORS_DATA.morango;
+  const flavor =
+    FLAVORS_DATA[gameState.activeFlavor] ||
+    FLAVORS_DATA.morango;
+
   ppsBase *= flavor.ppsMult;
 
-  const prestigeMult = 1 + (gameState.prestigeLevel * 0.15);
-  const boostMult = Date.now() < gameState.boostEndTime ? 2 : 1;
+  const prestigeMult =
+    1 + (gameState.prestigeLevel * 0.15);
+
+  const boostMult =
+    Date.now() < gameState.boostEndTime ? 2 : 1;
 
   return ppsBase * prestigeMult * boostMult;
 }
@@ -305,24 +373,44 @@ function getPps() {
 function getUpgradeCost(key) {
   const data = UPGRADES_DATA[key];
   const count = gameState.upgrades[key] || 0;
-  return Math.floor(data.baseCost * Math.pow(data.costMult, count));
-}
-// --- ATUALIZAÇÃO DA UI ---
-function updateUI() {
-  document.getElementById('scoreDisplay').innerText = formatNum(gameState.pirulitos);
-  document.getElementById('ppsDisplay').innerText = `${formatNum(getPps())} pirulitos / seg`;
 
-  if (gameState.pirulitos > gameState.maxScore) gameState.maxScore = gameState.pirulitos;
+  return Math.floor(
+    data.baseCost * Math.pow(data.costMult, count)
+  );
+}
+
+// ===== ATUALIZAÇÃO DA UI =====
+function updateUI() {
+  document.getElementById('scoreDisplay').innerText =
+    formatNum(gameState.pirulitos);
+
+  document.getElementById('ppsDisplay').innerText =
+    `${formatNum(getPps())} pirulitos / seg`;
+
+  if (gameState.pirulitos > gameState.maxScore) {
+    gameState.maxScore = gameState.pirulitos;
+  }
+
   const currentPps = getPps();
-  if (currentPps > gameState.maxPps) gameState.maxPps = currentPps;
+
+  if (currentPps > gameState.maxPps) {
+    gameState.maxPps = currentPps;
+  }
 
   for (let key in UPGRADES_DATA) {
-    const card = document.getElementById(`upg-${key}`);
+    const card =
+      document.getElementById(`upg-${key}`);
+
     if (card) {
       const cost = getUpgradeCost(key);
       const count = gameState.upgrades[key] || 0;
-      card.querySelector('.upgrade-sub').innerText = `Nível ${count} | ${UPGRADES_DATA[key].desc}`;
-      card.querySelector('.upgrade-cost-tag').innerText = `${formatNum(cost)} 🍭`;
+
+      card.querySelector('.upgrade-sub').innerText =
+        `Nível ${count} | ${UPGRADES_DATA[key].desc}`;
+
+      card.querySelector('.upgrade-cost-tag').innerText =
+        `${formatNum(cost)} 🍭`;
+
       if (gameState.pirulitos >= cost) {
         card.classList.remove('disabled');
       } else {
@@ -331,33 +419,84 @@ function updateUI() {
     }
   }
 
-  document.getElementById('prestigeLevel').innerText = gameState.prestigeLevel;
-  document.getElementById('prestigeBonus').innerText = `+${gameState.prestigeLevel * 15}%`;
-  const potentialPrestige = Math.floor(Math.cbrt(gameState.totalEarned / 1000000));
-  document.getElementById('prestigeGainText').innerText = `+${potentialPrestige} Prestígio`;
+  document.getElementById('prestigeLevel').innerText =
+    gameState.prestigeLevel;
 
-  document.getElementById('statCurrent').innerText = formatNum(gameState.pirulitos);
-  document.getElementById('statTotalEarned').innerText = formatNum(gameState.totalEarned);
-  document.getElementById('statPps').innerText = formatNum(getPps());
-  document.getElementById('statClickPower').innerText = formatNum(getClickPower());
-  document.getElementById('statTotalClicks').innerText = formatNum(gameState.totalClicks);
-  document.getElementById('statTimePlayed').innerText = `${Math.floor(gameState.timePlayed)}s`;
-  document.getElementById('statWheelSpins').innerText = gameState.wheelSpins;
-  document.getElementById('statBoostsObtained').innerText = gameState.boostsObtained;
-  document.getElementById('statFlavorsUnlocked').innerText = gameState.unlockedFlavors.length;
-  document.getElementById('statSkinsUnlocked').innerText = gameState.unlockedSkins.length;
-  document.getElementById('statUpgradesBought').innerText = getTotalUpgradesCount();
-  document.getElementById('statMaxScore').innerText = formatNum(gameState.maxScore);
-  document.getElementById('statMaxPps').innerText = formatNum(gameState.maxPps);
+  document.getElementById('prestigeBonus').innerText =
+    `+${gameState.prestigeLevel * 15}%`;
 
-  const adBtn = document.getElementById('adBoostBtn');
+  const potentialPrestige =
+    Math.floor(
+      Math.cbrt(gameState.totalEarned / 1000000)
+    );
+
+  document.getElementById('prestigeGainText').innerText =
+    `+${potentialPrestige} Prestígio`;
+
+  document.getElementById('statCurrent').innerText =
+    formatNum(gameState.pirulitos);
+
+  document.getElementById('statTotalEarned').innerText =
+    formatNum(gameState.totalEarned);
+
+  document.getElementById('statPps').innerText =
+    formatNum(getPps());
+
+  document.getElementById('statClickPower').innerText =
+    formatNum(getClickPower());
+
+  document.getElementById('statTotalClicks').innerText =
+    formatNum(gameState.totalClicks);
+
+  document.getElementById('statTimePlayed').innerText =
+    `${Math.floor(gameState.timePlayed)}s`;
+
+  document.getElementById('statWheelSpins').innerText =
+    gameState.wheelSpins;
+
+  document.getElementById('statBoostsObtained').innerText =
+    gameState.boostsObtained;
+
+  document.getElementById('statFlavorsUnlocked').innerText =
+    gameState.unlockedFlavors.length;
+
+  const totalAppearanceUnlocks =
+    gameState.unlockedLollipopSkins.length +
+    gameState.unlockedThemes.length +
+    gameState.unlockedParticles.length -
+    2;
+
+  document.getElementById('statSkinsUnlocked').innerText =
+    totalAppearanceUnlocks;
+
+  document.getElementById('statUpgradesBought').innerText =
+    getTotalUpgradesCount();
+
+  document.getElementById('statMaxScore').innerText =
+    formatNum(gameState.maxScore);
+
+  document.getElementById('statMaxPps').innerText =
+    formatNum(gameState.maxPps);
+
+  const adBtn =
+    document.getElementById('adBoostBtn');
+
   if (adBtn) {
     if (Date.now() < gameState.boostEndTime) {
-      const remainingSecs = Math.ceil((gameState.boostEndTime - Date.now()) / 1000);
-      adBtn.innerText = `⚡ Boost ativo: ${remainingSecs}s`;
+      const remainingSecs =
+        Math.ceil(
+          (gameState.boostEndTime - Date.now()) / 1000
+        );
+
+      adBtn.innerText =
+        `⚡ Boost ativo: ${remainingSecs}s`;
+
       adBtn.classList.add('active-boost');
+
     } else {
-      adBtn.innerText = '📺 Assistir Anúncio (2x Pirulitos por 30s)';
+      adBtn.innerText =
+        '📺 Assistir Anúncio (2x Pirulitos por 30s)';
+
       adBtn.classList.remove('active-boost');
     }
   }
@@ -366,351 +505,1109 @@ function updateUI() {
   updateWheelTimerUI();
 }
 
-// --- RENDERIZAÇÃO DE SHOP, SABORES E SKINS ---
+// ===== RENDERIZAÇÃO DE SHOP, SABORES E SKINS =====
 function renderUpgrades() {
-  const container = document.getElementById('upgradesList');
+  const container =
+    document.getElementById('upgradesList');
+
   if (!container) return;
+
   container.innerHTML = '';
+
   for (let key in UPGRADES_DATA) {
     const data = UPGRADES_DATA[key];
-    const card = document.createElement('div');
+
+    const card =
+      document.createElement('div');
+
     card.id = `upg-${key}`;
     card.className = 'upgrade-card';
+
     card.innerHTML = `
       <div class="upgrade-icon">${data.icon}</div>
-      <div class="upgrade-details">
-        <div class="upgrade-title">${data.name}</div>
-        <div class="upgrade-sub">Nível 0 | ${data.desc}</div>
+
+      <div class="upgrade-info">
+        <div class="upgrade-name">${data.name}</div>
+        <div class="upgrade-sub">
+          Nível 0 | ${data.desc}
+        </div>
       </div>
-      <div class="upgrade-cost-tag">0 🍭</div>
+
+      <div class="upgrade-action">
+        <div class="upgrade-cost-tag">
+          ${formatNum(data.baseCost)} 🍭
+        </div>
+        <button class="buy-upgrade-btn">
+          Comprar
+        </button>
+      </div>
     `;
-    card.addEventListener('click', () => buyUpgrade(key));
+
+    const button =
+      card.querySelector('.buy-upgrade-btn');
+
+    button.addEventListener('click', () => {
+      buyUpgrade(key);
+    });
+
     container.appendChild(card);
   }
 }
 
 function buyUpgrade(key) {
   const cost = getUpgradeCost(key);
-  if (gameState.pirulitos >= cost) {
-    gameState.pirulitos -= cost;
-    gameState.upgrades[key] = (gameState.upgrades[key] || 0) + 1;
-    playSound('buy');
-    updateUI();
+
+  if (gameState.pirulitos < cost) {
+    return;
   }
+
+  gameState.pirulitos -= cost;
+  gameState.upgrades[key]++;
+
+  playSound('buy');
+
+  saveGame();
+  updateUI();
 }
 
 function renderFlavors() {
-  const freeGrid = document.getElementById('freeFlavorGrid');
-  const premiumGrid = document.getElementById('premiumFlavorGrid');
-  if (!freeGrid || !premiumGrid) return;
-  freeGrid.innerHTML = '';
-  premiumGrid.innerHTML = '';
+  const freeContainer =
+    document.getElementById('freeFlavorGrid');
 
-  for (let key in FLAVORS_DATA) {
+  const premiumContainer =
+    document.getElementById('premiumFlavorGrid');
+
+  if (freeContainer) {
+    freeContainer.innerHTML = '';
+  }
+
+  if (premiumContainer) {
+    premiumContainer.innerHTML = '';
+  }
+
+  for (const key in FLAVORS_DATA) {
     const data = FLAVORS_DATA[key];
-    const unlocked = gameState.unlockedFlavors.includes(key);
-    const active = gameState.activeFlavor === key;
 
-    const card = document.createElement('div');
-    card.className = `flavor-card ${active ? 'active' : ''} ${!unlocked ? 'disabled' : ''}`;
+    const unlocked =
+      gameState.unlockedFlavors.includes(key);
+
+    const active =
+      gameState.activeFlavor === key;
+
+    const card =
+      document.createElement('div');
+
+    card.className =
+      `flavor-card ${active ? 'active' : ''} ${!unlocked ? 'locked' : ''}`;
+
     card.innerHTML = `
-      <div style="font-size: 1.5rem;">${data.icon}</div>
+      <div class="flavor-icon">${data.icon}</div>
       <div class="flavor-name">${data.name}</div>
       <div class="flavor-desc">${data.desc}</div>
-      <div class="flavor-desc" style="font-weight:bold; color:#ffd54f; margin-top:4px;">
-        ${active ? '★ Equipado' : unlocked ? 'Selecionar' : formatNum(data.cost) + ' 🍭'}
+      <div class="flavor-cost">
+        ${
+          unlocked
+            ? active
+              ? '★ Equipado'
+              : 'Usar'
+            : `${formatNum(data.cost)} 🍭`
+        }
       </div>
     `;
-    card.addEventListener('click', () => selectFlavor(key));
+
+    card.addEventListener('click', () => {
+      selectFlavor(key);
+    });
 
     if (data.isFree) {
-      freeGrid.appendChild(card);
+      if (freeContainer) {
+        freeContainer.appendChild(card);
+      }
     } else {
-      premiumGrid.appendChild(card);
+      if (premiumContainer) {
+        premiumContainer.appendChild(card);
+      }
     }
   }
 }
 
 function selectFlavor(key) {
   const data = FLAVORS_DATA[key];
+
+  if (!data) return;
+
   if (!gameState.unlockedFlavors.includes(key)) {
-    if (gameState.pirulitos >= data.cost) {
-      gameState.pirulitos -= data.cost;
-      gameState.unlockedFlavors.push(key);
-      gameState.activeFlavor = key;
-      playSound('buy');
+    if (gameState.pirulitos < data.cost) {
+      return;
     }
-  } else {
-    gameState.activeFlavor = key;
-    playSound('click');
+
+    gameState.pirulitos -= data.cost;
+    gameState.unlockedFlavors.push(key);
+
+    playSound('buy');
   }
+
+  gameState.activeFlavor = key;
+
+  playSound('click');
+
+  saveGame();
   renderFlavors();
   updateUI();
 }
 
-function renderSkins() {
-  const grid = document.getElementById('skinGrid');
-  if (!grid) return;
-  grid.innerHTML = '';
-  for (let key in SKINS_DATA) {
-    const data = SKINS_DATA[key];
-    const unlocked = gameState.unlockedSkins.includes(key);
-    const active = gameState.activeSkin === key;
+// ===== SKINS INDEPENDENTES =====
+const APPEARANCE_CATEGORIES = {
+  lollipop: {
+    gridId: 'lollipopSkinGrid',
+    unlockedKey: 'unlockedLollipopSkins',
+    activeKey: 'activeLollipopSkin',
+    title: 'Pirulito'
+  },
 
-    const card = document.createElement('div');
-    card.className = `skin-card ${active ? 'active' : ''} ${!unlocked ? 'disabled' : ''}`;
+  theme: {
+    gridId: 'themeGrid',
+    unlockedKey: 'unlockedThemes',
+    activeKey: 'activeTheme',
+    title: 'Fundo'
+  },
+
+  particle: {
+    gridId: 'particleGrid',
+    unlockedKey: 'unlockedParticles',
+    activeKey: 'activeParticle',
+    title: 'Partículas'
+  }
+};
+
+function renderAppearanceCategory(categoryKey) {
+  const config =
+    APPEARANCE_CATEGORIES[categoryKey];
+
+  const grid =
+    document.getElementById(config.gridId);
+
+  if (!grid) return;
+
+  grid.innerHTML = '';
+
+  const unlockedList =
+    gameState[config.unlockedKey] || [];
+
+  const activeKey =
+    gameState[config.activeKey];
+
+  for (const key in SKINS_DATA) {
+    const data = SKINS_DATA[key];
+
+    const unlocked =
+      unlockedList.includes(key);
+
+    const active =
+      activeKey === key;
+
+    const card =
+      document.createElement('div');
+
+    card.className =
+      `skin-card ${active ? 'active' : ''} ${!unlocked ? 'disabled' : ''}`;
+
     card.innerHTML = `
       <div class="skin-icon">${data.emoji}</div>
       <div class="skin-name">${data.name}</div>
+
       <div class="${unlocked ? 'skin-status' : 'skin-cost'}">
-        ${active ? 'Equipado' : unlocked ? 'Usar' : formatNum(data.cost) + ' 🍭'}
+        ${
+          active
+            ? '★ Equipado'
+            : unlocked
+              ? 'Usar'
+              : formatNum(data.cost) + ' 🍭'
+        }
       </div>
     `;
-    card.addEventListener('click', () => selectSkin(key));
+
+    card.addEventListener('click', () => {
+      selectAppearance(categoryKey, key);
+    });
+
     grid.appendChild(card);
   }
 }
 
-function selectSkin(key) {
-  const data = SKINS_DATA[key];
-  if (!gameState.unlockedSkins.includes(key)) {
-    if (gameState.pirulitos >= data.cost) {
-      gameState.pirulitos -= data.cost;
-      gameState.unlockedSkins.push(key);
-      gameState.activeSkin = key;
-      playSound('buy');
+function renderSkins() {
+  renderAppearanceCategory('lollipop');
+  renderAppearanceCategory('theme');
+  renderAppearanceCategory('particle');
+}
+
+function selectAppearance(categoryKey, key) {
+  const config =
+    APPEARANCE_CATEGORIES[categoryKey];
+
+  const data =
+    SKINS_DATA[key];
+
+  if (!data) return;
+
+  const unlockedList =
+    gameState[config.unlockedKey];
+
+  if (!unlockedList.includes(key)) {
+    if (gameState.pirulitos < data.cost) {
+      return;
     }
+
+    gameState.pirulitos -= data.cost;
+    unlockedList.push(key);
+
+    gameState[config.activeKey] = key;
+
+    playSound('buy');
+
   } else {
-    gameState.activeSkin = key;
+    gameState[config.activeKey] = key;
+
     playSound('click');
   }
-  applySkinToMainLollipop();
+
+  // Mantém compatibilidade com o save antigo.
+  if (!gameState.unlockedSkins.includes(key)) {
+    gameState.unlockedSkins.push(key);
+  }
+
+  applyAppearance();
+
+  saveGame();
   renderSkins();
   updateUI();
 }
 
-function applySkinToMainLollipop() {
-  const lollipopEl = document.getElementById('lollipop');
-  const glowEl = document.getElementById('lollipopGlow');
-  const skin = SKINS_DATA[gameState.activeSkin] || SKINS_DATA.classic;
+function applyAppearance() {
+  const lollipopEl =
+    document.getElementById('lollipop');
 
+  const glowEl =
+    document.getElementById('lollipopGlow');
+
+  const lollipopSkin =
+    SKINS_DATA[gameState.activeLollipopSkin] ||
+    SKINS_DATA.classic;
+
+  const theme =
+    SKINS_DATA[gameState.activeTheme] ||
+    SKINS_DATA.classic;
+
+  // ===== FUNDO =====
   document.body.className = '';
-  document.body.classList.add(skin.themeClass);
+  document.body.classList.add(theme.themeClass);
 
+  // ===== PIRULITO =====
   if (lollipopEl) {
-    lollipopEl.innerText = skin.emoji;
+    lollipopEl.innerText =
+      lollipopSkin.emoji;
   }
+
+  // ===== BRILHO DO PIRULITO =====
   if (glowEl) {
-    glowEl.style.background = `radial-gradient(circle, ${skin.glow} 0%, rgba(0,0,0,0) 70%)`;
+    glowEl.style.background =
+      `radial-gradient(circle, ${lollipopSkin.glow} 0%, rgba(0,0,0,0) 70%)`;
   }
 }
 
-function renderAchievements() {
-  const list = document.getElementById('achievementsList');
-  if (!list) return;
-  list.innerHTML = '';
-  ACHIEVEMENTS_DATA.forEach(ach => {
-    const unlocked = gameState.unlockedAchievements.includes(ach.id);
-    const card = document.createElement('div');
-    card.className = `achievement-card ${unlocked ? 'unlocked' : ''}`;
-    card.innerHTML = `
-      <div class="achievement-icon">${ach.icon}</div>
-      <div class="achievement-details">
-        <div class="achievement-title">${ach.title}</div>
-        <div class="achievement-sub">${ach.desc}</div>
-      </div>
-      <div class="achievement-status">${unlocked ? '✅' : '🔒'}</div>
-    `;
-    list.appendChild(card);
-  });
+// Compatibilidade com chamadas antigas.
+function applySkinToMainLollipop() {
+  applyAppearance();
 }
-
-function checkAchievements() {
-  let changed = false;
-  ACHIEVEMENTS_DATA.forEach(ach => {
-    if (!gameState.unlockedAchievements.includes(ach.id) && ach.req(gameState)) {
-      gameState.unlockedAchievements.push(ach.id);
-      spawnParticle(window.innerWidth / 2, 100, `🏆 ${ach.title}`);
-      playSound('win');
-      changed = true;
+    if (targetPane) {
+      targetPane.classList.add('active');
     }
-  });
-  if (changed) renderAchievements();
-}
-
-// --- CLIQUE NO PIRULITO ---
-const lollipopBtn = document.getElementById('lollipop');
-if (lollipopBtn) {
-  lollipopBtn.addEventListener('click', (e) => {
-    const power = getClickPower();
-    gameState.pirulitos += power;
-    gameState.totalEarned += power;
-    gameState.totalClicks += 1;
 
     playSound('click');
-
-    const clickText = document.createElement('div');
-    clickText.className = 'click-text';
-    clickText.innerText = `+${formatNum(power)}`;
-    clickText.style.left = `${e.clientX - 20}px`;
-    clickText.style.top = `${e.clientY - 30}px`;
-    document.body.appendChild(clickText);
-    setTimeout(() => clickText.remove(), 800);
-
-    spawnParticle(e.clientX, e.clientY);
-
-    const bottomPanel = document.getElementById('bottomPanel');
-    if (bottomPanel && bottomPanel.classList.contains('open')) {
-      bottomPanel.classList.remove('open');
-    }
-
-    updateUI();
   });
-}
+});
 
-// --- NAVEGAÇÃO DE ÁREAS ---
-function updateAreaView() {
-  AREAS_DATA.forEach((area, i) => {
-    const el = document.getElementById(area.elementId);
-    if (el) {
-      if (i === currentAreaIndex) {
-        el.classList.remove('hidden');
+// ===== ROLETA =====
+const wheelCanvas = document.getElementById('wheelCanvas');
+const wheelCtx = wheelCanvas ? wheelCanvas.getContext('2d') : null;
+
+const wheelRewards = [
+  {
+    label: '5% Pirulitos',
+    type: 'percent',
+    value: 0.05,
+    color: '#ff4081'
+  },
+  {
+    label: '15% Pirulitos',
+    type: 'percent',
+    value: 0.15,
+    color: '#7c4dff'
+  },
+  {
+    label: '2x Boost (30s)',
+    type: 'boost',
+    value: 30,
+    color: '#00bcd4'
+  },
+  {
+    label: '30% Pirulitos',
+    type: 'percent',
+    value: 0.30,
+    color: '#4caf50'
+  },
+  {
+    label: 'Raro (+Clique)',
+    type: 'click',
+    value: 10,
+    color: '#ff9800'
+  },
+  {
+    label: '50% Pirulitos',
+    type: 'percent',
+    value: 0.50,
+    color: '#e91e63'
+  }
+];
+
+let wheelAngle = 0;
+let wheelSpinning = false;
+
+function drawWheel(angleOffset = 0) {
+  if (!wheelCtx) return;
+
+  const numSlices = wheelRewards.length;
+  const arc = (Math.PI * 2) / numSlices;
+
+  wheelCtx.clearRect(0, 0, 220, 220);
+
+  for (let i = 0; i < numSlices; i++) {
+    const angle = angleOffset + i * arc;
+
+    // ===== FATIA =====
+    wheelCtx.beginPath();
+    wheelCtx.fillStyle = wheelRewards[i].color;
+    wheelCtx.moveTo(110, 110);
+    wheelCtx.arc(
+      110,
+      110,
+      100,
+      angle,
+      angle + arc
+    );
+    wheelCtx.lineTo(110, 110);
+    wheelCtx.fill();
+
+    wheelCtx.strokeStyle = 'rgba(255,255,255,0.25)';
+    wheelCtx.lineWidth = 1;
+    wheelCtx.stroke();
+
+    // ===== TEXTO DA FATIA =====
+    wheelCtx.save();
+
+    wheelCtx.fillStyle = '#fff';
+    wheelCtx.font = 'bold 9px sans-serif';
+    wheelCtx.textAlign = 'center';
+    wheelCtx.textBaseline = 'middle';
+
+    const textAngle = angle + arc / 2;
+
+    wheelCtx.translate(
+      110 + Math.cos(textAngle) * 62,
+      110 + Math.sin(textAngle) * 62
+    );
+
+    wheelCtx.rotate(
+      textAngle + Math.PI / 2
+    );
+
+    const label = wheelRewards[i].label;
+    const words = label.split(' ');
+    const lines = [];
+    let currentLine = '';
+
+    for (const word of words) {
+      const testLine =
+        currentLine.length > 0
+          ? `${currentLine} ${word}`
+          : word;
+
+      if (
+        wheelCtx.measureText(testLine).width > 48 &&
+        currentLine.length > 0
+      ) {
+        lines.push(currentLine);
+        currentLine = word;
       } else {
-        el.classList.add('hidden');
+        currentLine = testLine;
       }
     }
-  });
-  const titleEl = document.getElementById('areaTitle');
-  if (titleEl) titleEl.innerText = AREAS_DATA[currentAreaIndex].title;
-}
 
-const prevAreaBtn = document.getElementById('prevAreaBtn');
-if (prevAreaBtn) {
-  prevAreaBtn.addEventListener('click', () => {
-    currentAreaIndex = (currentAreaIndex - 1 + AREAS_DATA.length) % AREAS_DATA.length;
-    updateAreaView();
-    playSound('click');
-  });
-}
-
-const nextAreaBtn = document.getElementById('nextAreaBtn');
-if (nextAreaBtn) {
-  nextAreaBtn.addEventListener('click', () => {
-    currentAreaIndex = (currentAreaIndex + 1) % AREAS_DATA.length;
-    updateAreaView();
-    playSound('click');
-  });
-}
-
-// --- ARENA DE BOSSES ---
-let bossActive = false;
-let bossMaxHp = 100;
-let bossCurrentHp = 100;
-let bossTimerInterval = null;
-let bossTimeLeft = 30;
-
-const startBossBtn = document.getElementById('startBossBtn');
-const bossAvatar = document.getElementById('bossAvatar');
-
-if (startBossBtn) {
-  startBossBtn.addEventListener('click', () => {
-    if (bossActive) return;
-    bossActive = true;
-    bossMaxHp = Math.floor(100 * Math.pow(1.6, gameState.bossesKilled));
-    bossCurrentHp = bossMaxHp;
-    bossTimeLeft = 30;
-
-    if (bossAvatar) bossAvatar.className = 'boss-avatar';
-    startBossBtn.style.display = 'none';
-
-    updateBossUI();
-
-    bossTimerInterval = setInterval(() => {
-      bossTimeLeft--;
-      const bossTimerEl = document.getElementById('bossTimer');
-      if (bossTimerEl) bossTimerEl.innerText = `Tempo: ${bossTimeLeft}s`;
-      if (bossTimeLeft <= 0) {
-        endBoss(false);
-      }
-    }, 1000);
-  });
-}
-
-if (bossAvatar) {
-  bossAvatar.addEventListener('click', (e) => {
-    if (!bossActive) return;
-    const dmg = getClickPower();
-    bossCurrentHp -= dmg;
-    playSound('click');
-    spawnParticle(e.clientX, e.clientY, `-${formatNum(dmg)}`);
-    if (bossCurrentHp <= 0) {
-      bossCurrentHp = 0;
-      endBoss(true);
+    if (currentLine) {
+      lines.push(currentLine);
     }
-    updateBossUI();
-  });
-}
 
-function updateBossUI() {
-  const hpPct = Math.max(0, (bossCurrentHp / bossMaxHp) * 100);
-  const hpBarEl = document.getElementById('bossHpBar');
-  const hpTextEl = document.getElementById('bossHpText');
-  if (hpBarEl) hpBarEl.style.width = `${hpPct}%`;
-  if (hpTextEl) hpTextEl.innerText = `${formatNum(bossCurrentHp)} / ${formatNum(bossMaxHp)} HP`;
-}
+    const visibleLines = lines.slice(0, 2);
 
-function endBoss(won) {
-  clearInterval(bossTimerInterval);
-  bossActive = false;
-  if (bossAvatar) bossAvatar.className = 'boss-avatar-idle';
-  if (startBossBtn) startBossBtn.style.display = 'block';
+    visibleLines.forEach((line, lineIndex) => {
+      const y =
+        (lineIndex - (visibleLines.length - 1) / 2) * 11;
 
-  if (won) {
-    gameState.bossesKilled += 1;
-    const reward = Math.floor(bossMaxHp * 15);
-    gameState.pirulitos += reward;
-    gameState.totalEarned += reward;
-    playSound('win');
-    alert(`🎉 Vitória! Você derrotou o Boss e ganhou ${formatNum(reward)} pirulitos!`);
-  } else {
-    alert('❌ O tempo acabou! O Boss escapou.');
+      wheelCtx.fillText(line, 0, y);
+    });
+
+    wheelCtx.restore();
   }
+
+  // ===== CENTRO DA ROLETA =====
+  wheelCtx.beginPath();
+  wheelCtx.fillStyle = '#fff';
+  wheelCtx.arc(110, 110, 14, 0, Math.PI * 2);
+  wheelCtx.fill();
+
+  wheelCtx.beginPath();
+  wheelCtx.fillStyle = '#ff4081';
+  wheelCtx.arc(110, 110, 7, 0, Math.PI * 2);
+  wheelCtx.fill();
+}
+
+function getWheelCooldown() {
+  const cooldown = 24 * 60 * 60 * 1000;
+  const elapsed = Date.now() - gameState.lastWheelTime;
+
+  return Math.max(0, cooldown - elapsed);
+}
+
+function updateWheelTimerUI() {
+  const timerEl =
+    document.getElementById('wheelTimer');
+
+  const spinBtn =
+    document.getElementById('spinBtn');
+
+  if (!timerEl || !spinBtn) return;
+
+  const remaining = getWheelCooldown();
+
+  if (remaining <= 0) {
+    timerEl.innerText =
+      'Disponível para girar!';
+
+    spinBtn.disabled = false;
+
+    return;
+  }
+
+  spinBtn.disabled = true;
+
+  const totalSeconds =
+    Math.ceil(remaining / 1000);
+
+  const hours =
+    Math.floor(totalSeconds / 3600);
+
+  const minutes =
+    Math.floor((totalSeconds % 3600) / 60);
+
+  const seconds =
+    totalSeconds % 60;
+
+  timerEl.innerText =
+    `Próximo giro: ${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+}
+
+function applyWheelReward(reward) {
+  if (reward.type === 'percent') {
+    const amount =
+      Math.max(
+        1,
+        Math.floor(
+          gameState.pirulitos * reward.value
+        )
+      );
+
+    gameState.pirulitos += amount;
+    gameState.totalEarned += amount;
+
+    alert(
+      `🎉 Você ganhou ${formatNum(amount)} pirulitos!`
+    );
+
+  } else if (reward.type === 'boost') {
+    gameState.boostEndTime =
+      Date.now() + (reward.value * 1000);
+
+    gameState.boostsObtained += 1;
+
+    alert(
+      `⚡ Boost 2x ativado por ${reward.value} segundos!`
+    );
+
+  } else if (reward.type === 'click') {
+    const flavor =
+      FLAVORS_DATA[gameState.activeFlavor] ||
+      FLAVORS_DATA.morango;
+
+    flavor.clickBonus += reward.value;
+
+    alert(
+      `🍭 Seu clique recebeu +${reward.value} permanentemente!`
+    );
+  }
+
+  playSound('win');
+}
+
+function spinWheel() {
+  if (wheelSpinning) return;
+
+  if (getWheelCooldown() > 0) {
+    return;
+  }
+
+  wheelSpinning = true;
+
+  const spinBtn =
+    document.getElementById('spinBtn');
+
+  if (spinBtn) {
+    spinBtn.disabled = true;
+  }
+
+  gameState.lastWheelTime = Date.now();
+  gameState.wheelSpins += 1;
+
+  const rewardIndex =
+    Math.floor(
+      Math.random() * wheelRewards.length
+    );
+
+  const numSlices =
+    wheelRewards.length;
+
+  const arc =
+    (Math.PI * 2) / numSlices;
+
+  // Faz a recompensa sorteada parar no topo.
+  const targetAngle =
+    -(rewardIndex * arc + arc / 2);
+
+  const currentNormalized =
+    wheelAngle % (Math.PI * 2);
+
+  let delta =
+    targetAngle - currentNormalized;
+
+  while (delta < 0) {
+    delta += Math.PI * 2;
+  }
+
+  const extraRotations =
+    5 + Math.floor(Math.random() * 3);
+
+  const finalAngle =
+    wheelAngle +
+    delta +
+    extraRotations * Math.PI * 2;
+
+  const startAngle = wheelAngle;
+  const duration = 3500;
+  const startTime = performance.now();
+
+  function animateWheel(now) {
+    const elapsed =
+      now - startTime;
+
+    const progress =
+      Math.min(1, elapsed / duration);
+
+    // Ease-out cúbico.
+    const eased =
+      1 - Math.pow(1 - progress, 3);
+
+    wheelAngle =
+      startAngle +
+      (finalAngle - startAngle) * eased;
+
+    drawWheel(wheelAngle);
+
+    if (progress < 1) {
+      requestAnimationFrame(animateWheel);
+    } else {
+      wheelAngle = finalAngle;
+      drawWheel(wheelAngle);
+
+      wheelSpinning = false;
+
+      applyWheelReward(
+        wheelRewards[rewardIndex]
+      );
+
+      saveGame();
+      updateUI();
+    }
+  }
+
+  requestAnimationFrame(animateWheel);
+}
+
+if (wheelCanvas) {
+  drawWheel(0);
+}
+
+const spinBtn =
+  document.getElementById('spinBtn');
+
+if (spinBtn) {
+  spinBtn.addEventListener(
+    'click',
+    spinWheel
+  );
+}
+
+// ===== ANÚNCIOS / GOOGLE ADS =====
+const adBoostBtn =
+  document.getElementById('adBoostBtn');
+
+if (adBoostBtn) {
+  adBoostBtn.addEventListener(
+    'click',
+    () => {
+      // O anúncio ainda é MOCK.
+      // A integração real do Google Ads fica preservada
+      // para quando o ID definitivo estiver disponível.
+
+      if (Date.now() < gameState.boostEndTime) {
+        return;
+      }
+
+      const watched =
+        confirm(
+          '📺 ANÚNCIO DE TESTE\n\n' +
+          'Este é um anúncio simulado.\n' +
+          'Para fins de teste, vamos considerar que você assistiu ao anúncio.\n\n' +
+          'Clique em OK para receber o boost 2x por 30 segundos.'
+        );
+
+      if (!watched) {
+        return;
+      }
+
+      // IMPORTANTE:
+      // O usuário NÃO precisa esperar 30 segundos.
+      // O boost é concedido imediatamente.
+      gameState.boostEndTime =
+        Date.now() + (30 * 1000);
+
+      gameState.boostsObtained += 1;
+
+      playSound('win');
+
+      alert(
+        '⚡ Anúncio concluído!\n\n' +
+        'Boost 2x ativado por 30 segundos.'
+      );
+
+      saveGame();
+      updateUI();
+    }
+  );
+}
+
+// ===== PRESTÍGIO =====
+const prestigeBtn =
+  document.getElementById('prestigeBtn');
+
+if (prestigeBtn) {
+  prestigeBtn.addEventListener(
+    'click',
+    () => {
+      const potentialPrestige =
+        Math.floor(
+          Math.cbrt(
+            gameState.totalEarned / 1000000
+          )
+        );
+
+      if (potentialPrestige <= 0) {
+        alert(
+          'Você precisa produzir pelo menos 1.000.000 de pirulitos no total para obter Prestígio.'
+        );
+
+        return;
+      }
+
+      const confirmed =
+        confirm(
+          `Você ganhará ${potentialPrestige} de Prestígio.\n\n` +
+          'Isso resetará seus pirulitos e upgrades.\n\n' +
+          'Continuar?'
+        );
+
+      if (!confirmed) return;
+
+      gameState.prestigeLevel +=
+        potentialPrestige;
+
+      gameState.pirulitos = 0;
+
+      for (const key in gameState.upgrades) {
+        gameState.upgrades[key] = 0;
+      }
+
+      playSound('win');
+
+      saveGame();
+      renderUpgrades();
+      updateUI();
+
+      alert(
+        `👑 Prestígio realizado!\n\n` +
+        `Você recebeu +${potentialPrestige} Prestígio.`
+      );
+    }
+  );
+}
+
+// ===== CONFIGURAÇÕES =====
+const toggleMusicBtn =
+  document.getElementById('toggleMusicBtn');
+
+const toggleSfxBtn =
+  document.getElementById('toggleSfxBtn');
+
+if (toggleMusicBtn) {
+  toggleMusicBtn.addEventListener(
+    'click',
+    () => {
+      gameState.settings.music =
+        !gameState.settings.music;
+
+      toggleMusicBtn.innerText =
+        gameState.settings.music
+          ? 'ON'
+          : 'OFF';
+
+      updateMusicState();
+
+      saveGame();
+    }
+  );
+}
+
+if (toggleSfxBtn) {
+  toggleSfxBtn.addEventListener(
+    'click',
+    () => {
+      gameState.settings.sfx =
+        !gameState.settings.sfx;
+
+      toggleSfxBtn.innerText =
+        gameState.settings.sfx
+          ? 'ON'
+          : 'OFF';
+
+      if (gameState.settings.sfx) {
+        playSound('click');
+      }
+
+      saveGame();
+    }
+  );
+}
+
+// ===== SALVAMENTO =====
+function saveGame() {
+  try {
+    localStorage.setItem(
+      'lollipopSave',
+      JSON.stringify(gameState)
+    );
+  } catch (e) {
+    console.error(
+      'Erro ao salvar o jogo:',
+      e
+    );
+  }
+}
+
+// ===== CARREGAMENTO E MIGRAÇÃO DE SAVE =====
+function loadGame() {
+  const saved =
+    localStorage.getItem(
+      'lollipopSave'
+    );
+
+  if (saved) {
+    try {
+      const parsed =
+        JSON.parse(saved);
+
+      gameState =
+        Object.assign(
+          {},
+          defaultState,
+          parsed
+        );
+
+      if (parsed.settings) {
+        gameState.settings =
+          Object.assign(
+            {},
+            defaultState.settings,
+            parsed.settings
+          );
+      }
+
+      if (parsed.upgrades) {
+        gameState.upgrades =
+          Object.assign(
+            {},
+            defaultState.upgrades,
+            parsed.upgrades
+          );
+      }
+
+      // ===== MIGRAÇÃO DO SISTEMA ANTIGO DE SKINS =====
+      const legacyActiveSkin =
+        parsed.activeSkin ||
+        'classic';
+
+      const legacyUnlockedSkins =
+        Array.isArray(
+          parsed.unlockedSkins
+        )
+          ? parsed.unlockedSkins
+          : ['classic'];
+
+      if (
+        !Array.isArray(
+          parsed.unlockedLollipopSkins
+        )
+      ) {
+        gameState.unlockedLollipopSkins =
+          [...legacyUnlockedSkins];
+      }
+
+      if (
+        !Array.isArray(
+          parsed.unlockedThemes
+        )
+      ) {
+        gameState.unlockedThemes =
+          [...legacyUnlockedSkins];
+      }
+
+      if (
+        !Array.isArray(
+          parsed.unlockedParticles
+        )
+      ) {
+        gameState.unlockedParticles =
+          [...legacyUnlockedSkins];
+      }
+
+      if (!parsed.activeLollipopSkin) {
+        gameState.activeLollipopSkin =
+          legacyActiveSkin;
+      }
+
+      if (!parsed.activeTheme) {
+        gameState.activeTheme =
+          legacyActiveSkin;
+      }
+
+      if (!parsed.activeParticle) {
+        gameState.activeParticle =
+          legacyActiveSkin;
+      }
+
+      // Garante que o Clássico sempre exista.
+      if (
+        !gameState.unlockedLollipopSkins.includes(
+          'classic'
+        )
+      ) {
+        gameState.unlockedLollipopSkins.push(
+          'classic'
+        );
+      }
+
+      if (
+        !gameState.unlockedThemes.includes(
+          'classic'
+        )
+      ) {
+        gameState.unlockedThemes.push(
+          'classic'
+        );
+      }
+
+      if (
+        !gameState.unlockedParticles.includes(
+          'classic'
+        )
+      ) {
+        gameState.unlockedParticles.push(
+          'classic'
+        );
+      }
+
+      // Mantém compatibilidade com o sistema antigo.
+      gameState.activeSkin =
+        gameState.activeLollipopSkin;
+
+      gameState.unlockedSkins = [
+        ...new Set([
+          ...gameState.unlockedSkins,
+          ...gameState.unlockedLollipopSkins,
+          ...gameState.unlockedThemes,
+          ...gameState.unlockedParticles
+        ])
+      ];
+
+    } catch (e) {
+      console.error(
+        'Erro ao carregar save:',
+        e
+      );
+    }
+  }
+
+  if (toggleMusicBtn) {
+    toggleMusicBtn.innerText =
+      gameState.settings.music
+        ? 'ON'
+        : 'OFF';
+  }
+
+  if (toggleSfxBtn) {
+    toggleSfxBtn.innerText =
+      gameState.settings.sfx
+        ? 'ON'
+        : 'OFF';
+  }
+
+  updateMusicState();
+  applyAppearance();
+
+  renderUpgrades();
+  renderFlavors();
+  renderSkins();
+  renderAchievements();
+
   updateUI();
 }
 
-// --- BOTTOM SHEET MENU ---
-const menuToggleBtn = document.getElementById('menuToggleBtn');
-const bottomPanel = document.getElementById('bottomPanel');
-const closeMenuDrag = document.getElementById('closeMenuDrag');
+// ===== PRODUÇÃO AUTOMÁTICA =====
+let lastProductionTime =
+  Date.now();
 
-if (menuToggleBtn && bottomPanel) {
-  menuToggleBtn.addEventListener('click', () => {
-    bottomPanel.classList.toggle('open');
-    playSound('click');
-  });
+function productionTick() {
+  const now =
+    Date.now();
+
+  const elapsed =
+    (now - lastProductionTime) / 1000;
+
+  lastProductionTime =
+    now;
+
+  // Evita ganhos gigantes caso a aba fique suspensa.
+  const safeElapsed =
+    Math.min(elapsed, 5);
+
+  const pps =
+    getPps();
+
+  const produced =
+    pps * safeElapsed;
+
+  if (produced > 0) {
+    gameState.pirulitos +=
+      produced;
+
+    gameState.totalEarned +=
+      produced;
+  }
+
+  gameState.timePlayed +=
+    safeElapsed;
+
+  updateUI();
 }
 
-if (closeMenuDrag && bottomPanel) {
-  closeMenuDrag.addEventListener('click', () => {
-    bottomPanel.classList.remove('open');
-    playSound('click');
-  });
+setInterval(
+  productionTick,
+  1000
+);
+
+// ===== RESETAR PROGRESSO =====
+const resetDataBtn =
+  document.getElementById('resetDataBtn');
+
+if (resetDataBtn) {
+  resetDataBtn.addEventListener(
+    'click',
+    () => {
+      const confirmed =
+        confirm(
+          '⚠️ ATENÇÃO!\n\n' +
+          'Isso apagará todo o seu progresso.\n\n' +
+          'Esta ação não pode ser desfeita.\n\n' +
+          'Tem certeza?'
+        );
+
+      if (!confirmed) return;
+
+      localStorage.removeItem(
+        'lollipopSave'
+      );
+
+      gameState =
+        JSON.parse(
+          JSON.stringify(
+            defaultState
+          )
+        );
+
+      applyAppearance();
+      renderUpgrades();
+      renderFlavors();
+      renderSkins();
+      renderAchievements();
+
+      updateUI();
+
+      alert(
+        '🔄 Progresso resetado com sucesso!'
+      );
+    }
+  );
 }
 
-document.querySelectorAll('.nav-tabs .tab-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.nav-tabs .tab-btn').forEach(b => b.classList.remove('active'));
-    document.querySelectorAll('.tab-content .tab-pane').forEach(p => p.classList.remove('active'));
+// ===== INICIALIZAÇÃO =====
+loadGame();
+updateAreaView();
+updateWheelTimerUI();
 
-    btn.classList.add('active');
-    const tabTarget = btn.getAttribute('data-tab');
-    const targetPane = document.getElementById(`tab-${tabTarget}`);
+// Salva automaticamente a cada 10 segundos.
+setInterval(
+  saveGame,
+  10000
+);
+
+// Salva ao sair da página.
+window.addEventListener(
+  'beforeunload',
+  saveGame
+);
     if (targetPane) targetPane.classList.add('active');
     playSound('click');
   });
 });
 
-// --- ROLETA ---
+// ===== ROLETA =====
 const wheelCanvas = document.getElementById('wheelCanvas');
 const wheelCtx = wheelCanvas ? wheelCanvas.getContext('2d') : null;
 const spinBtn = document.getElementById('spinBtn');
@@ -730,12 +1627,15 @@ const wheelRewards = [
 
 function drawWheel(angleOffset = 0) {
   if (!wheelCtx) return;
+
   const numSlices = wheelRewards.length;
   const arc = (Math.PI * 2) / numSlices;
 
   wheelCtx.clearRect(0, 0, 220, 220);
+
   for (let i = 0; i < numSlices; i++) {
     const angle = angleOffset + i * arc;
+
     wheelCtx.beginPath();
     wheelCtx.fillStyle = wheelRewards[i].color;
     wheelCtx.moveTo(110, 110);
@@ -745,14 +1645,58 @@ function drawWheel(angleOffset = 0) {
 
     wheelCtx.save();
     wheelCtx.fillStyle = '#fff';
-    wheelCtx.font = 'bold 10px sans-serif';
-    wheelCtx.translate(110 + Math.cos(angle + arc / 2) * 60, 110 + Math.sin(angle + arc / 2) * 60);
-    wheelCtx.rotate(angle + arc / 2 + Math.PI / 2);
+    wheelCtx.font = 'bold 9px sans-serif';
+    wheelCtx.textAlign = 'center';
+    wheelCtx.textBaseline = 'middle';
+
+    const textAngle = angle + arc / 2;
+
+    wheelCtx.translate(
+      110 + Math.cos(textAngle) * 62,
+      110 + Math.sin(textAngle) * 62
+    );
+
+    wheelCtx.rotate(textAngle + Math.PI / 2);
+
     const labelText = wheelRewards[i].label;
-    wheelCtx.fillText(labelText, -wheelCtx.measureText(labelText).width / 2, 0);
+    const words = labelText.split(' ');
+    const lines = [];
+    let currentLine = '';
+
+    for (const word of words) {
+      const testLine =
+        currentLine.length > 0
+          ? `${currentLine} ${word}`
+          : word;
+
+      if (
+        wheelCtx.measureText(testLine).width > 48 &&
+        currentLine.length > 0
+      ) {
+        lines.push(currentLine);
+        currentLine = word;
+      } else {
+        currentLine = testLine;
+      }
+    }
+
+    if (currentLine) {
+      lines.push(currentLine);
+    }
+
+    const visibleLines = lines.slice(0, 2);
+
+    visibleLines.forEach((line, lineIndex) => {
+      const y =
+        (lineIndex - (visibleLines.length - 1) / 2) * 11;
+
+      wheelCtx.fillText(line, 0, y);
+    });
+
     wheelCtx.restore();
   }
 }
+
 drawWheel(0);
 
 if (spinBtn) {
@@ -833,7 +1777,7 @@ function updateWheelTimerUI() {
   }
 }
 
-// --- ANÚNCIO MOCK (IMEDIATO - 30 SEGUNDOS) ---
+// ===== ANÚNCIOS / GOOGLE ADS =====
 const adBoostBtn = document.getElementById('adBoostBtn');
 if (adBoostBtn) {
   adBoostBtn.addEventListener('click', () => {
@@ -849,7 +1793,7 @@ try {
   (adsbygoogle = window.adsbygoogle || []).push({});
 } catch (e) {}
 
-// --- PRESTÍGIO ---
+// ===== PRESTÍGIO =====
 const prestigeBtn = document.getElementById('prestigeBtn');
 if (prestigeBtn) {
   prestigeBtn.addEventListener('click', () => {
@@ -869,7 +1813,7 @@ if (prestigeBtn) {
   });
 }
 
-// --- CONFIGURAÇÕES ---
+// ===== CONFIGURAÇÕES =====
 const toggleMusicBtn = document.getElementById('toggleMusicBtn');
 const toggleSfxBtn = document.getElementById('toggleSfxBtn');
 const resetDataBtn = document.getElementById('resetDataBtn');
@@ -907,7 +1851,7 @@ if (resetDataBtn) {
   });
 }
 
-// --- LOOP E SAVE ---
+// ===== LOOP E SALVAMENTO =====
 setInterval(() => {
   const pps = getPps();
   if (pps > 0) {
@@ -925,22 +1869,100 @@ setInterval(() => {
 
 function loadGame() {
   const saved = localStorage.getItem('lollipopSave');
+
   if (saved) {
     try {
       const parsed = JSON.parse(saved);
+
       gameState = Object.assign({}, defaultState, parsed);
-      if (parsed.settings) gameState.settings = Object.assign({}, defaultState.settings, parsed.settings);
-      if (parsed.upgrades) gameState.upgrades = Object.assign({}, defaultState.upgrades, parsed.upgrades);
+
+      if (parsed.settings) {
+        gameState.settings = Object.assign(
+          {},
+          defaultState.settings,
+          parsed.settings
+        );
+      }
+
+      if (parsed.upgrades) {
+        gameState.upgrades = Object.assign(
+          {},
+          defaultState.upgrades,
+          parsed.upgrades
+        );
+      }
+
+      // ===== MIGRAÇÃO DE SAVES ANTIGOS =====
+      const legacyActiveSkin = parsed.activeSkin || 'classic';
+
+      const legacyUnlockedSkins =
+        Array.isArray(parsed.unlockedSkins)
+          ? parsed.unlockedSkins
+          : ['classic'];
+
+      if (!Array.isArray(parsed.unlockedLollipopSkins)) {
+        gameState.unlockedLollipopSkins = [...legacyUnlockedSkins];
+      }
+
+      if (!Array.isArray(parsed.unlockedThemes)) {
+        gameState.unlockedThemes = [...legacyUnlockedSkins];
+      }
+
+      if (!Array.isArray(parsed.unlockedParticles)) {
+        gameState.unlockedParticles = [...legacyUnlockedSkins];
+      }
+
+      if (!parsed.activeLollipopSkin) {
+        gameState.activeLollipopSkin = legacyActiveSkin;
+      }
+
+      if (!parsed.activeTheme) {
+        gameState.activeTheme = legacyActiveSkin;
+      }
+
+      if (!parsed.activeParticle) {
+        gameState.activeParticle = legacyActiveSkin;
+      }
+
+      if (!gameState.unlockedLollipopSkins.includes('classic')) {
+        gameState.unlockedLollipopSkins.push('classic');
+      }
+
+      if (!gameState.unlockedThemes.includes('classic')) {
+        gameState.unlockedThemes.push('classic');
+      }
+
+      if (!gameState.unlockedParticles.includes('classic')) {
+        gameState.unlockedParticles.push('classic');
+      }
+
+      // Compatibilidade com o formato antigo.
+      gameState.activeSkin = gameState.activeLollipopSkin;
+      gameState.unlockedSkins = [
+        ...new Set([
+          ...gameState.unlockedSkins,
+          ...gameState.unlockedLollipopSkins,
+          ...gameState.unlockedThemes,
+          ...gameState.unlockedParticles
+        ])
+      ];
     } catch (e) {
       console.error('Erro ao carregar save', e);
     }
   }
 
-  if (toggleMusicBtn) toggleMusicBtn.innerText = gameState.settings.music ? 'ON' : 'OFF';
-  if (toggleSfxBtn) toggleSfxBtn.innerText = gameState.settings.sfx ? 'ON' : 'OFF';
+  if (toggleMusicBtn) {
+    toggleMusicBtn.innerText =
+      gameState.settings.music ? 'ON' : 'OFF';
+  }
+
+  if (toggleSfxBtn) {
+    toggleSfxBtn.innerText =
+      gameState.settings.sfx ? 'ON' : 'OFF';
+  }
 
   updateMusicState();
-  applySkinToMainLollipop();
+  applyAppearance();
   renderUpgrades();
   renderFlavors();
   renderSkins();
