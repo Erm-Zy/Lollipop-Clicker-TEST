@@ -9,7 +9,7 @@
   <!-- GOOGLE ADSENSE TEST STUB (Estrutura de Teste / Placeholder) -->
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3940256099942544" crossorigin="anonymous"></script>
 </head>
-<body class="theme-classic">
+<body>
 
   <!-- Canvas de Efeitos Especiais (Partículas) -->
   <canvas id="fxCanvas"></canvas>
@@ -62,6 +62,28 @@
     </section>
   </main>
 
+  <!-- Modal do Anúncio Recompensado (30 Segundos) -->
+  <div id="adModal" class="hidden" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.92); z-index: 999; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px;">
+    <div style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 16px; padding: 24px; text-align: center; max-width: 320px; width: 100%;">
+      <h3 style="color: #ffd54f; margin-bottom: 10px;">📺 Anúncio de Teste</h3>
+      <p style="font-size: 0.9rem; color: #eee; margin-bottom: 15px;">Assistindo anúncio para receber bônus 2x...</p>
+      
+      <!-- Container de Anúncio Google Ads Placeholder -->
+      <div id="googleAdContainer" style="min-height: 100px; background: rgba(0,0,0,0.4); border-radius: 8px; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; color: #888;">
+        <!-- Google AdSlot Placement Test -->
+        <ins class="adsbygoogle"
+             style="display:block; width: 100%; height: 90px;"
+             data-ad-client="ca-pub-3940256099942544"
+             data-ad-slot="1234567890"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+      </div>
+
+      <div id="adTimerDisplay" style="font-size: 1.8rem; font-weight: 900; color: #ff4081; margin-bottom: 15px;">30s</div>
+      <button id="closeAdBtn" class="action-btn btn-danger" style="display: none;">Receber Recompensa</button>
+    </div>
+  </div>
+
   <!-- Botão Flutuante para Abrir o Menu -->
   <button id="menuToggleBtn" class="menu-toggle-btn">🛒 Loja & Opções</button>
 
@@ -83,23 +105,8 @@
 
     <!-- Conteúdo do Menu -->
     <div class="tab-content">
-      <!-- ABA 1: Upgrades (SHOP) -->
-      <div id="tab-upgrades" class="tab-pane active">
-        <!-- Botão de Anúncio Recompensado MOCK (No Shop) -->
-        <button id="adBoostBtn" class="btn-ad" style="margin-bottom: 12px;">📺 Assistir Anúncio (2x Pirulitos por 30s)</button>
-
-        <!-- Placeholder para integração futura do Google Ads -->
-        <div id="googleAdContainer" style="display: none; min-height: 60px; background: rgba(0,0,0,0.4); border-radius: 8px; margin-bottom: 10px;">
-          <ins class="adsbygoogle"
-               style="display:block; width: 100%; height: 60px;"
-               data-ad-client="ca-pub-3940256099942544"
-               data-ad-slot="1234567890"
-               data-ad-format="auto"
-               data-full-width-responsive="true"></ins>
-        </div>
-
-        <div id="upgradesList" style="display: flex; flex-direction: column; gap: 10px;"></div>
-      </div>
+      <!-- ABA 1: Upgrades -->
+      <div id="tab-upgrades" class="tab-pane active"></div>
 
       <!-- ABA 2: Sabores -->
       <div id="tab-flavors" class="tab-pane">
@@ -115,7 +122,7 @@
 
       <!-- ABA 3: Skins -->
       <div id="tab-skins" class="tab-pane">
-        <div class="skin-section-title">Skins do Pirulito (Fundo + Pirulito + Partículas)</div>
+        <div class="skin-section-title">Skins do Pirulito</div>
         <div id="skinGrid" class="skin-grid"></div>
       </div>
 
@@ -155,7 +162,8 @@
 
       <!-- ABA 7: Stats -->
       <div id="tab-stats" class="tab-pane">
-        <div id="statsList" style="margin-top: 5px;">
+        <button id="adBoostBtn" class="btn-ad">📺 Assistir Anúncio (2x Pirulitos por 4min)</button>
+        <div id="statsList" style="margin-top: 10px;">
           <div class="stat-row"><span>Pirulitos Atuais:</span><b id="statCurrent">0</b></div>
           <div class="stat-row"><span>Pirulitos Totais Produzidos:</span><b id="statTotalEarned">0</b></div>
           <div class="stat-row"><span>Pirulitos por Segundo:</span><b id="statPps">0</b></div>
@@ -178,7 +186,7 @@
           <div style="font-weight: bold; color: #ffd54f; font-size: 1rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 6px;">⚙️ Configurações</div>
           
           <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.05); padding: 10px 14px; border-radius: 12px;">
-            <span>🎵 Música de Fundo (bgm1.ogg)</span>
+            <span>🎵 Música de Fundo</span>
             <button id="toggleMusicBtn" class="action-btn btn-primary" style="width: 80px; padding: 6px;">ON</button>
           </div>
 
