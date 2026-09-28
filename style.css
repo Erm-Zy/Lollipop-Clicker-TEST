@@ -8,17 +8,35 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+/* Correção da altura dinâmica e aplicação da arte de fundo da skin roxa iniciante */
+html, body {
+  height: 100%;
+  height: 100dvh; /* Dynamic Viewport Height para ajustar às barras do telemóvel */
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
 body {
   color: #fff;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  height: 100vh;
-  overflow: hidden;
   display: flex;
   flex-direction: column;
   transition: background 0.5s ease;
+  
+  /* Caminho correto da imagem de fundo */
+  background-color: #120a1f; 
+  background-image: url('assets/images/bg-purple.png'); 
+  background-size: cover;     
+  background-position: center;
+  background-repeat: no-repeat;
+  
+  /* Proteção para os botões do sistema na parte inferior do Android */
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
-/* Temas de Fundo */
+/* Temas de Fundo Alternativos */
 body.theme-purple {
   background: linear-gradient(135deg, #1a0826, #2d1236);
 }
@@ -167,7 +185,6 @@ body.theme-gold {
 .lollipop:active {
   transform: scale(0.88) rotate(-5deg);
 }
-
 /* ARENA DE BOSSES */
 .boss-arena-box {
   display: flex;
@@ -304,6 +321,7 @@ body.theme-gold {
   flex: 1;
   overflow-y: auto;
   padding: 12px;
+  padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
 }
 
 .tab-pane {
