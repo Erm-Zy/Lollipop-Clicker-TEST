@@ -2,168 +2,149 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Lollipop Clicker</title>
-
-  <link rel="manifest" href="manifest.json?v=9">
-  <meta name="theme-color" content="#ff4081">
-  <link rel="apple-touch-icon" href="icon-192.png">
-
-  <!-- Script Oficial do Google AdMob / H5 Games Ads -->
-  <script async data-ad-frequency-hint="30s"
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-app-pub-4640120877519318"
-          crossorigin="anonymous">
-  </script>
-  <script>
-    window.adsbygoogle = window.adsbygoogle || [];
-    const adBreak = adConfig = function(o) {adsbygoogle.push(o);};
-  </script>
-
-  <link rel="stylesheet" href="style.css?v=9">
+  <link rel="stylesheet" href="style.css">
 </head>
-<body id="gameBody" class="theme-purple" onselectstart="return false;" oncontextmenu="return false;">
+<body>
 
-  <!-- ÁUDIO DE FUNDO -->
-  <audio id="bgmAudio" loop preload="auto">
-    <source src="assets/audio/bmg1.ogg" type="audio/ogg">
-  </audio>
-
+  <!-- Canvas de Efeitos Especiais (Partículas / Confetes) -->
   <canvas id="fxCanvas"></canvas>
 
-  <div class="header">
-    <div class="score-label">Pirulitos Coletados</div>
-    <div class="score-display" id="score">0</div>
-    <div class="pps-display" id="pps">0 por segundo</div>
-  </div>
+  <!-- Cabeçalho (Placar e PPS) -->
+  <header class="header">
+    <div class="score-label">Pirulitos</div>
+    <div id="scoreDisplay" class="score-display">0</div>
+    <div id="ppsDisplay" class="pps-display">0 pirulitos / seg</div>
+  </header>
 
-  <!-- NAVEGAÇÃO SUPERIOR DE ÁREAS -->
-  <div class="area-nav">
-    <button class="area-arrow" onclick="changeArea(-1)">◀</button>
-    <div class="area-title" id="areaTitle">🍭 Mundo Principal</div>
-    <button class="area-arrow" onclick="changeArea(1)">▶</button>
-  </div>
+  <!-- Navegação de Áreas -->
+  <nav class="area-nav">
+    <button id="prevAreaBtn" class="area-arrow">&lt;</button>
+    <div id="areaTitle" class="area-title">🍭 Fábrica de Pirulitos</div>
+    <button id="nextAreaBtn" class="area-arrow">&gt;</button>
+  </nav>
 
-  <!-- ÁREA DE JOGO CENTRAL -->
-  <div class="game-area" id="gameArea">
-
-    <!-- ÁREA 0: MUNDO PRINCIPAL -->
-    <div id="view-main" class="area-view">
+  <!-- Área Central do Jogo -->
+  <main class="game-area">
+    <!-- ÁREA 1: Clicker Principal -->
+    <section id="areaClicker" class="area-view">
       <div class="lollipop-glow"></div>
-      <div class="lollipop" id="lollipop">🍭</div>
-    </div>
+      <div id="lollipop" class="lollipop">🍭</div>
+    </section>
 
-    <!-- ÁREA 1: ARENA DOS CHEFÕES -->
-    <div id="view-boss" class="area-view hidden">
+    <!-- ÁREA 2: Arena de Bosses -->
+    <section id="areaBoss" class="area-view hidden">
       <div class="boss-arena-box">
-        <div id="boss-idle-state">
-          <div class="boss-avatar-idle">👾</div>
-          <h3>Arena do Chefão</h3>
-          <p>Enfrente o Monstro da Cárie para ganhar recompensas gigantescas!</p>
-          <button class="action-btn btn-danger" onclick="startBossBattle()">⚔️ INICIAR BATALHA</button>
+        <div id="bossAvatar" class="boss-avatar-idle">👾</div>
+        <div id="bossName" style="font-weight: bold; margin-bottom: 4px;">Chefe Monstro</div>
+        <div class="boss-hp-container">
+          <div id="bossHpBar" class="boss-hp-bar"></div>
         </div>
-
-        <div id="boss-active-state" class="hidden">
-          <div class="boss-avatar" id="bossAvatar" onclick="hitBossArena(event)">👾</div>
-          <div class="boss-hp-container">
-            <div id="boss-hp-bar" class="boss-hp-bar"></div>
-          </div>
-          <div class="boss-hp-text" id="boss-hp-text">0 / 0 HP</div>
-          <div class="boss-timer" id="boss-timer">Tempo restante: 15s</div>
-          <div class="boss-hint">Clique rapidamente no Monstro!</div>
-        </div>
+        <div id="bossHpText" class="boss-hp-text">100 / 100 HP</div>
+        <div id="bossTimer" class="boss-timer">Tempo: 30s</div>
+        <button id="startBossBtn" class="action-btn btn-primary" style="margin-top: 10px;">Desafiar Boss</button>
+        <div class="boss-hint">Clique rápido no Boss para derrotá-lo antes que o tempo acabe!</div>
       </div>
-    </div>
+    </section>
 
-    <!-- ÁREA 2: NOVOS MUNDOS -->
-    <div id="view-worlds" class="area-view hidden">
+    <!-- ÁREA 3: Em Breve -->
+    <section id="areaSoon" class="area-view hidden">
       <div class="coming-soon-box">
-        <div class="coming-icon">🪐</div>
-        <h2>Novos Mundos</h2>
-        <p>Explore Galáxias de Açúcar, Dimensões de Chocolate e Reinos Doce!</p>
-        <div class="badge-soon">🔒 EM BREVE</div>
+        <div class="coming-icon">🚀</div>
+        <h2>Nova Dimensão</h2>
+        <p style="font-size: 0.85rem; color: #ccc; margin-top: 6px;">Novas mecânicas e minijogos estão em desenvolvimento!</p>
+        <span class="badge-soon">Em Breve</span>
       </div>
-    </div>
+    </section>
+  </main>
 
-  </div>
+  <!-- Botão Flutuante para Abrir a Loja/Menu -->
+  <button id="menuToggleBtn" class="menu-toggle-btn">🛒 Loja & Opções</button>
 
-  <!-- PAINEL INFERIOR -->
-  <div class="bottom-panel">
+  <!-- Painel Inferior Deslizante (Bottom Sheet) -->
+  <div id="bottomPanel" class="bottom-panel">
+    <!-- Puxador Superior -->
+    <div id="closeMenuDrag" class="close-menu-drag"></div>
+
+    <!-- Navegação em Abas -->
     <div class="nav-tabs">
-      <button class="tab-btn active" onclick="switchTab('shop')">🛒 LOJA</button>
-      <button class="tab-btn" onclick="switchTab('skins')">🎨 SKINS</button>
-      <button class="tab-btn" onclick="switchTab('wheel')">🎡 ROLETA</button>
-      <button class="tab-btn" onclick="switchTab('prestige')">👑 PRESTÍGIO</button>
-      <button class="tab-btn" onclick="switchTab('achievements')">🏆 METAS</button>
-      <button class="tab-btn" onclick="switchTab('stats')">📊 STATS</button>
-      <button class="tab-btn" onclick="switchTab('settings')">⚙️ OPÇÕES</button>
+      <button class="tab-btn active" data-tab="upgrades">⚡ Upgrades</button>
+      <button class="tab-btn" data-tab="flavors">🍓 Sabores</button>
+      <button class="tab-btn" data-tab="skins">🎨 Skins</button>
+      <button class="tab-btn" data-tab="roulette">🎰 Roleta</button>
+      <button class="tab-btn" data-tab="prestige">👑 Prestígio</button>
+      <button class="tab-btn" data-tab="achievements">🏆 Conquistas</button>
+      <button class="tab-btn" data-tab="stats">📊 Stats</button>
     </div>
 
+    <!-- Conteúdo do Menu -->
     <div class="tab-content">
-      <div class="tab-pane active" id="pane-shop"></div>
+      <!-- ABA 1: Upgrades (Geradores) -->
+      <div id="tab-upgrades" class="tab-pane active"></div>
 
-      <div class="tab-pane" id="pane-skins"></div>
+      <!-- ABA 2: Sabores -->
+      <div id="tab-flavors" class="tab-pane">
+        <div class="flavor-section">
+          <div class="flavor-title">Selecione o Sabor Ativo</div>
+          <div id="flavorGrid" class="flavor-grid"></div>
+        </div>
+      </div>
 
-      <div class="tab-pane" id="pane-wheel">
+      <!-- ABA 3: Skins -->
+      <div id="tab-skins" class="tab-pane">
+        <div class="skin-section-title">Temas & Fundo</div>
+        <div id="skinGrid" class="skin-grid"></div>
+      </div>
+
+      <!-- ABA 4: Roleta Visual -->
+      <div id="tab-roulette" class="tab-pane">
         <div class="wheel-container">
-          <div class="wheel-title">🎁 Roleta de Prémios Diários</div>
+          <div class="wheel-title">🎰 Roleta da Sorte Diária</div>
           <div class="wheel-wrapper">
             <div class="wheel-pointer">▼</div>
             <canvas id="wheelCanvas" width="220" height="220"></canvas>
           </div>
-          <button class="action-btn btn-ad" id="btn-spin-wheel" onclick="spinDailyWheel()">🎡 RODAR ROLETA</button>
-          <div class="wheel-timer" id="wheelTimer">Disponível uma vez a cada 24 horas!</div>
+          <button id="spinBtn" class="action-btn btn-ad">Girar Roleta Grátis</button>
+          <div id="wheelTimer" class="wheel-timer">Disponível para girar!</div>
         </div>
       </div>
 
-      <div class="tab-pane" id="pane-prestige">
+      <!-- ABA 5: Prestígio -->
+      <div id="tab-prestige" class="tab-pane">
         <div class="prestige-container">
-          <h2>👑 Renascimento Doce</h2>
-          <p>Reinicie o seu progresso e edifícios em troca de <strong>Açúcar Divino</strong>. Cada unidade concede <strong>+20% de Bónus Permanente</strong> em toda a produção!</p>
-          
           <div class="prestige-stat-box">
-            <div>Açúcar Divino Atual: <strong id="prestige-current">0</strong> ✨</div>
-            <div>Bónus Atual: <strong id="prestige-boost-text">+0%</strong></div>
+            <div>Prestígio Atual: <b id="prestigeLevel">0</b></div>
+            <div>Bónus de Produção: <b id="prestigeBonus" style="color:#ffd700;">+0%</b></div>
           </div>
-
           <div class="prestige-reward-box">
-            <span>Açúcar Divino a ganhar agora:</span>
-            <div class="prestige-gain" id="prestige-gain-display">+0 ✨</div>
-            <small id="prestige-req-desc">Requer pelo menos 1.000.000 de Pirulitos acumulados na carreira.</small>
+            <div>Ao reiniciar você ganhará:</div>
+            <div id="prestigeGainText" class="prestige-gain">+0 Prestígio</div>
+            <div style="font-size: 0.75rem; color: #bbb;">Requer no mínimo 1.000.000 de Pirulitos acumulados.</div>
           </div>
-
-          <button class="action-btn btn-danger" id="btn-do-prestige" onclick="doPrestige()">👑 EFETUAR PRESTÍGIO</button>
+          <button id="prestigeBtn" class="action-btn btn-danger">Reiniciar & Ganhar Prestígio</button>
         </div>
       </div>
 
-      <div class="tab-pane" id="pane-achievements"></div>
-
-      <div class="tab-pane" id="pane-stats">
-        <div class="stat-row"><span>Total Produzido:</span><span id="stat-total">0</span></div>
-        <div class="stat-row"><span>Cliques Manuais:</span><span id="stat-clicks">0</span></div>
-        <div class="stat-row"><span>Poder de Clique:</span><span id="stat-cpc">1</span></div>
-        <div class="stat-row"><span>Pirulitos Dourados:</span><span id="stat-golden">0</span></div>
-        <div class="stat-row"><span>Chefes Derrotados:</span><span id="stat-bosses">0</span></div>
-        <div class="stat-row"><span>Nível de Prestígio:</span><span id="stat-prestige-lvl">0</span></div>
-        <div class="stat-row"><span>Bónus de Conquistas:</span><span id="stat-achieve-boost">+0%</span></div>
+      <!-- ABA 6: Conquistas -->
+      <div id="tab-achievements" class="tab-pane">
+        <div id="achievementsList" style="display: flex; flex-direction: column; gap: 8px;"></div>
       </div>
 
-      <div class="tab-pane" id="pane-settings">
-  <button class="action-btn btn-primary" id="btn-music" onclick="toggleMusic()">🎵 Música: DESLIGADA</button>
-  <button class="action-btn btn-primary" id="btn-sound" onclick="toggleSound()">🔊 Som: LIGADO</button>
-  <button class="action-btn btn-primary" id="btn-vibe" onclick="toggleVibe()">📳 Vibração: DESLIGADA</button>
-  <button class="action-btn btn-danger" onclick="resetGame()">🗑️ Resetar Progresso</button>
+      <!-- ABA 7: Stats & Opções -->
+      <div id="tab-stats" class="tab-pane">
+        <button id="adBoostBtn" class="btn-ad">📺 Assistir Anúncio (2x Pirulitos por 4min)</button>
+        <div id="statsList">
+          <div class="stat-row"><span>Pirulitos Totais Clicados:</span><b id="statTotalClicks">0</b></div>
+          <div class="stat-row"><span>Pirulitos Produzidos (Sempre):</span><b id="statTotalEarned">0</b></div>
+          <div class="stat-row"><span>Chefes Derrotados:</span><b id="statBossesKilled">0</b></div>
+          <div class="stat-row"><span>Giros na Roleta:</span><b id="statWheelSpins">0</b></div>
+        </div>
+        <button id="resetDataBtn" class="action-btn btn-danger" style="margin-top: 15px;">🗑️ Reiniciar Todo o Progresso</button>
       </div>
     </div>
   </div>
 
-  <script src="script.js?v=9"></script>
-
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=9').catch(console.error);
-      });
-    }
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>
