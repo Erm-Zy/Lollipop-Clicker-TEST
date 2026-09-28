@@ -5,13 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Lollipop Clicker</title>
   <link rel="stylesheet" href="style.css">
+  
+  <!-- GOOGLE ADSENSE TEST STUB (Estrutura de Teste / Placeholder) -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3940256099942544" crossorigin="anonymous"></script>
 </head>
 <body>
 
-  <!-- Canvas de Efeitos Especiais (Partículas / Confetes) -->
+  <!-- Canvas de Efeitos Especiais (Partículas) -->
   <canvas id="fxCanvas"></canvas>
 
-  <!-- Cabeçalho (Placar e PPS) -->
+  <!-- Cabeçalho (Placar e Produção) -->
   <header class="header">
     <div class="score-label">Pirulitos</div>
     <div id="scoreDisplay" class="score-display">0</div>
@@ -29,7 +32,7 @@
   <main class="game-area">
     <!-- ÁREA 1: Clicker Principal -->
     <section id="areaClicker" class="area-view">
-      <div class="lollipop-glow"></div>
+      <div class="lollipop-glow" id="lollipopGlow"></div>
       <div id="lollipop" class="lollipop">🍭</div>
     </section>
 
@@ -37,7 +40,7 @@
     <section id="areaBoss" class="area-view hidden">
       <div class="boss-arena-box">
         <div id="bossAvatar" class="boss-avatar-idle">👾</div>
-        <div id="bossName" style="font-weight: bold; margin-bottom: 4px;">Chefe Monstro</div>
+        <div id="bossName" style="font-weight: bold; margin-bottom: 4px;">Chefe Monstro Doce</div>
         <div class="boss-hp-container">
           <div id="bossHpBar" class="boss-hp-bar"></div>
         </div>
@@ -53,47 +56,73 @@
       <div class="coming-soon-box">
         <div class="coming-icon">🚀</div>
         <h2>Nova Dimensão</h2>
-        <p style="font-size: 0.85rem; color: #ccc; margin-top: 6px;">Novas mecânicas e minijogos estão em desenvolvimento!</p>
+        <p style="font-size: 0.85rem; color: #ccc; margin-top: 6px;">Novas mecânicas e minijogos em desenvolvimento!</p>
         <span class="badge-soon">Em Breve</span>
       </div>
     </section>
   </main>
 
-  <!-- Botão Flutuante para Abrir a Loja/Menu -->
+  <!-- Modal do Anúncio Recompensado (30 Segundos) -->
+  <div id="adModal" class="hidden" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.92); z-index: 999; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px;">
+    <div style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 16px; padding: 24px; text-align: center; max-width: 320px; width: 100%;">
+      <h3 style="color: #ffd54f; margin-bottom: 10px;">📺 Anúncio de Teste</h3>
+      <p style="font-size: 0.9rem; color: #eee; margin-bottom: 15px;">Assistindo anúncio para receber bônus 2x...</p>
+      
+      <!-- Container de Anúncio Google Ads Placeholder -->
+      <div id="googleAdContainer" style="min-height: 100px; background: rgba(0,0,0,0.4); border-radius: 8px; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; color: #888;">
+        <!-- Google AdSlot Placement Test -->
+        <ins class="adsbygoogle"
+             style="display:block; width: 100%; height: 90px;"
+             data-ad-client="ca-pub-3940256099942544"
+             data-ad-slot="1234567890"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+      </div>
+
+      <div id="adTimerDisplay" style="font-size: 1.8rem; font-weight: 900; color: #ff4081; margin-bottom: 15px;">30s</div>
+      <button id="closeAdBtn" class="action-btn btn-danger" style="display: none;">Receber Recompensa</button>
+    </div>
+  </div>
+
+  <!-- Botão Flutuante para Abrir o Menu -->
   <button id="menuToggleBtn" class="menu-toggle-btn">🛒 Loja & Opções</button>
 
   <!-- Painel Inferior Deslizante (Bottom Sheet) -->
   <div id="bottomPanel" class="bottom-panel">
-    <!-- Puxador Superior -->
     <div id="closeMenuDrag" class="close-menu-drag"></div>
 
     <!-- Navegação em Abas -->
     <div class="nav-tabs">
-      <button class="tab-btn active" data-tab="upgrades">⚡ Upgrades</button>
+      <button class="tab-btn active" data-tab="upgrades">⚡ Shop</button>
       <button class="tab-btn" data-tab="flavors">🍓 Sabores</button>
       <button class="tab-btn" data-tab="skins">🎨 Skins</button>
       <button class="tab-btn" data-tab="roulette">🎰 Roleta</button>
       <button class="tab-btn" data-tab="prestige">👑 Prestígio</button>
       <button class="tab-btn" data-tab="achievements">🏆 Conquistas</button>
       <button class="tab-btn" data-tab="stats">📊 Stats</button>
+      <button class="tab-btn" data-tab="settings">⚙️ Configs</button>
     </div>
 
     <!-- Conteúdo do Menu -->
     <div class="tab-content">
-      <!-- ABA 1: Upgrades (Geradores) -->
+      <!-- ABA 1: Upgrades -->
       <div id="tab-upgrades" class="tab-pane active"></div>
 
       <!-- ABA 2: Sabores -->
       <div id="tab-flavors" class="tab-pane">
         <div class="flavor-section">
-          <div class="flavor-title">Selecione o Sabor Ativo</div>
-          <div id="flavorGrid" class="flavor-grid"></div>
+          <div class="flavor-title">Sabores Gratuitos</div>
+          <div id="freeFlavorGrid" class="flavor-grid"></div>
+        </div>
+        <div class="flavor-section" style="margin-top: 10px;">
+          <div class="flavor-title">Sabores Especiais & Compráveis</div>
+          <div id="premiumFlavorGrid" class="flavor-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;"></div>
         </div>
       </div>
 
       <!-- ABA 3: Skins -->
       <div id="tab-skins" class="tab-pane">
-        <div class="skin-section-title">Temas & Fundo</div>
+        <div class="skin-section-title">Skins do Pirulito</div>
         <div id="skinGrid" class="skin-grid"></div>
       </div>
 
@@ -115,12 +144,12 @@
         <div class="prestige-container">
           <div class="prestige-stat-box">
             <div>Prestígio Atual: <b id="prestigeLevel">0</b></div>
-            <div>Bónus de Produção: <b id="prestigeBonus" style="color:#ffd700;">+0%</b></div>
+            <div>Bônus de Produção: <b id="prestigeBonus" style="color:#ffd700;">+0%</b></div>
           </div>
           <div class="prestige-reward-box">
             <div>Ao reiniciar você ganhará:</div>
             <div id="prestigeGainText" class="prestige-gain">+0 Prestígio</div>
-            <div style="font-size: 0.75rem; color: #bbb;">Requer no mínimo 1.000.000 de Pirulitos acumulados.</div>
+            <div style="font-size: 0.75rem; color: #bbb;">Requer no mínimo 1.000.000 de Pirulitos acumulados na história.</div>
           </div>
           <button id="prestigeBtn" class="action-btn btn-danger">Reiniciar & Ganhar Prestígio</button>
         </div>
@@ -131,17 +160,45 @@
         <div id="achievementsList" style="display: flex; flex-direction: column; gap: 8px;"></div>
       </div>
 
-      <!-- ABA 7: Stats & Opções -->
+      <!-- ABA 7: Stats -->
       <div id="tab-stats" class="tab-pane">
         <button id="adBoostBtn" class="btn-ad">📺 Assistir Anúncio (2x Pirulitos por 4min)</button>
-        <div id="statsList">
-          <div class="stat-row"><span>Pirulitos Totais Clicados:</span><b id="statTotalClicks">0</b></div>
-          <div class="stat-row"><span>Pirulitos Produzidos (Sempre):</span><b id="statTotalEarned">0</b></div>
-          <div class="stat-row"><span>Chefes Derrotados:</span><b id="statBossesKilled">0</b></div>
-          <div class="stat-row"><span>Giros na Roleta:</span><b id="statWheelSpins">0</b></div>
+        <div id="statsList" style="margin-top: 10px;">
+          <div class="stat-row"><span>Pirulitos Atuais:</span><b id="statCurrent">0</b></div>
+          <div class="stat-row"><span>Pirulitos Totais Produzidos:</span><b id="statTotalEarned">0</b></div>
+          <div class="stat-row"><span>Pirulitos por Segundo:</span><b id="statPps">0</b></div>
+          <div class="stat-row"><span>Pirulitos por Clique:</span><b id="statClickPower">0</b></div>
+          <div class="stat-row"><span>Cliques Totais:</span><b id="statTotalClicks">0</b></div>
+          <div class="stat-row"><span>Tempo Jogado:</span><b id="statTimePlayed">0s</b></div>
+          <div class="stat-row"><span>Roletas Utilizadas:</span><b id="statWheelSpins">0</b></div>
+          <div class="stat-row"><span>Bônus Obtidos:</span><b id="statBoostsObtained">0</b></div>
+          <div class="stat-row"><span>Sabores Desbloqueados:</span><b id="statFlavorsUnlocked">0</b></div>
+          <div class="stat-row"><span>Skins Desbloqueadas:</span><b id="statSkinsUnlocked">0</b></div>
+          <div class="stat-row"><span>Upgrades Comprados:</span><b id="statUpgradesBought">0</b></div>
+          <div class="stat-row"><span>Maior Saldo Já Alcançado:</span><b id="statMaxScore">0</b></div>
+          <div class="stat-row"><span>Maior PPS Já Alcançado:</span><b id="statMaxPps">0</b></div>
         </div>
-        <button id="resetDataBtn" class="action-btn btn-danger" style="margin-top: 15px;">🗑️ Reiniciar Todo o Progresso</button>
       </div>
+
+      <!-- ABA 8: Configurações -->
+      <div id="tab-settings" class="tab-pane">
+        <div style="display: flex; flex-direction: column; gap: 12px; padding: 10px 0;">
+          <div style="font-weight: bold; color: #ffd54f; font-size: 1rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 6px;">⚙️ Configurações</div>
+          
+          <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.05); padding: 10px 14px; border-radius: 12px;">
+            <span>🎵 Música de Fundo</span>
+            <button id="toggleMusicBtn" class="action-btn btn-primary" style="width: 80px; padding: 6px;">ON</button>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.05); padding: 10px 14px; border-radius: 12px;">
+            <span>🔊 Efeitos Sonoros</span>
+            <button id="toggleSfxBtn" class="action-btn btn-primary" style="width: 80px; padding: 6px;">ON</button>
+          </div>
+
+          <button id="resetDataBtn" class="action-btn btn-danger" style="margin-top: 15px;">🔄 Resetar Todo o Progresso</button>
+        </div>
+      </div>
+
     </div>
   </div>
 
