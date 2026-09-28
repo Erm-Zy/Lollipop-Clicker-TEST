@@ -2,206 +2,858 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Lollipop Clicker</title>
-  <link rel="stylesheet" href="style.css">
-  
-  <!-- GOOGLE ADSENSE TEST STUB (Estrutura de Teste / Placeholder) -->
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3940256099942544" crossorigin="anonymous"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Lollipop Clicker - Jogo de Doces</title>
+  <style>
+    /* ==========================================================================
+       1. ESTILOS GERAIS E TEMAS DAS SKINS (FUNDO)
+       ========================================================================== */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body, html {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: #121212;
+      color: #ffffff;
+    }
+
+    #game-container {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      height: 100vh;
+      position: relative;
+      transition: background 0.5s ease;
+    }
+
+    /* Temas de Fundo (Skin Element A) */
+    .theme-classic {
+      background: radial-gradient(circle, #2c3e50 0%, #0f2027 100%);
+    }
+
+    .theme-rainbow {
+      background: linear-gradient(135deg, #ff007f, #7f00ff, #00f0ff, #00ff7f, #ff007f);
+      background-size: 400% 400%;
+      animation: rainbowBG 12s ease infinite;
+    }
+
+    @keyframes rainbowBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .theme-cosmic {
+      background: radial-gradient(circle at center, #1b2735 0%, #090a0f 100%);
+    }
+
+    .theme-fire {
+      background: radial-gradient(circle, #800909 0%, #2b0000 100%);
+    }
+
+    .theme-ice {
+      background: radial-gradient(circle, #0e4b6e 0%, #021a2e 100%);
+    }
+
+    /* ==========================================================================
+       2. CABEÇALHO E PLACAR
+       ========================================================================== */
+    #header {
+      padding: 15px;
+      text-align: center;
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(5px);
+      border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+      z-index: 10;
+    }
+
+    .score-container {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #ffeb3b;
+      text-shadow: 0 0 10px rgba(255, 235, 59, 0.5);
+    }
+
+    .dps-container {
+      font-size: 0.95rem;
+      color: #e0e0e0;
+      margin-top: 4px;
+    }
+
+    .boost-banner {
+      margin-top: 8px;
+      font-size: 0.9rem;
+      font-weight: bold;
+      color: #00ffcc;
+      background: rgba(0, 255, 204, 0.15);
+      padding: 4px 12px;
+      border-radius: 20px;
+      display: inline-block;
+      border: 1px solid rgba(0, 255, 204, 0.4);
+    }
+
+    /* ==========================================================================
+       3. ÁREA DE CLIQUE E PIRULITO (SKIN ELEM B) E CANVAS DE PARTÍCULAS (ELEM C)
+       ========================================================================== */
+    #click-area {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      cursor: pointer;
+    }
+
+    #particle-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .lollipop {
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      position: relative;
+      z-index: 2;
+      transition: transform 0.05s ease;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+
+    .lollipop:active {
+      transform: scale(0.92);
+    }
+
+    /* Skins do Pirulito */
+    .lollipop-classic {
+      background: radial-gradient(circle, #ff4081 0%, #c2185b 100%);
+      border: 6px solid #fff;
+    }
+
+    .lollipop-rainbow {
+      background: conic-gradient(#ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3, #ff0000);
+      border: 6px solid #fff;
+    }
+
+    .lollipop-cosmic {
+      background: radial-gradient(circle, #e040fb 0%, #4a148c 100%);
+      border: 6px solid #00e5ff;
+      box-shadow: 0 0 20px #00e5ff;
+    }
+
+    .lollipop-fire {
+      background: radial-gradient(circle, #ff9100 0%, #dd2c00 100%);
+      border: 6px solid #ffea00;
+      box-shadow: 0 0 20px #ff3d00;
+    }
+
+    .lollipop-ice {
+      background: radial-gradient(circle, #80d8ff 0%, #0091ea 100%);
+      border: 6px solid #e0f7fa;
+      box-shadow: 0 0 20px #80d8ff;
+    }
+
+    /* ==========================================================================
+       4. PAINEL DE NAVEGAÇÃO E SEÇÕES (SHOP, ROLETA, SKINS, ETC.)
+       ========================================================================== */
+    #nav-tabs {
+      display: flex;
+      background: rgba(0, 0, 0, 0.8);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      z-index: 10;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 12px 5px;
+      background: none;
+      border: none;
+      color: #888;
+      font-size: 0.85rem;
+      font-weight: bold;
+      cursor: pointer;
+      text-align: center;
+      transition: color 0.2s, background 0.2s;
+    }
+
+    .tab-btn.active {
+      color: #ffeb3b;
+      background: rgba(255, 255, 255, 0.05);
+      border-bottom: 3px solid #ffeb3b;
+    }
+
+    #content-panel {
+      height: 250px;
+      background: rgba(18, 18, 18, 0.95);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      overflow-y: auto;
+      z-index: 10;
+      padding: 15px;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* BOTÃO DE ANÚNCIO NO SHOP */
+    .ad-button-card {
+      background: linear-gradient(135deg, #1b5e20, #2e7d32);
+      border: 2px solid #4caf50;
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+
+    .ad-info {
+      flex: 1;
+    }
+
+    .ad-title {
+      font-weight: bold;
+      font-size: 1rem;
+      color: #ffffff;
+    }
+
+    .ad-desc {
+      font-size: 0.8rem;
+      color: #c8e6c9;
+      margin-top: 2px;
+    }
+
+    .btn-action {
+      background: #ffeb3b;
+      color: #000;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: transform 0.1s;
+    }
+
+    .btn-action:active {
+      transform: scale(0.95);
+    }
+
+    /* ITEMS DO SHOP / UPGRADES */
+    .shop-item {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+      padding: 10px;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* ==========================================================================
+       5. ROLETA - ORGANIZAÇÃO DE LAYOUT E CAIXAS DENTRO DOS LIMITES
+       ========================================================================== */
+    .roulette-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      max-width: 400px;
+      margin: 0 auto;
+    }
+
+    .roulette-box {
+      width: 100%;
+      background: rgba(0, 0, 0, 0.4);
+      border: 2px solid #ffb300;
+      border-radius: 12px;
+      padding: 15px;
+      text-align: center;
+      box-shadow: inset 0 0 15px rgba(255, 179, 0, 0.2);
+      box-sizing: border-border-box;
+      overflow: hidden; /* Evita vazamento de texto */
+    }
+
+    .roulette-prize-display {
+      min-height: 80px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 8px;
+      border: 1px dashed rgba(255, 255, 255, 0.2);
+    }
+
+    .roulette-prize-title {
+      font-size: 1.1rem;
+      font-weight: bold;
+      color: #ffca28;
+      margin-bottom: 4px;
+      word-break: break-word;
+    }
+
+    .roulette-prize-duration {
+      font-size: 0.85rem;
+      color: #e0e0e0;
+    }
+
+    .roulette-controls {
+      margin-top: 10px;
+      width: 100%;
+    }
+
+    /* ==========================================================================
+       6. GRID DE SKINS
+       ========================================================================== */
+    .skin-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 10px;
+    }
+
+    .skin-card {
+      background: rgba(255, 255, 255, 0.05);
+      border: 2px solid transparent;
+      border-radius: 8px;
+      padding: 10px;
+      text-align: center;
+      cursor: pointer;
+    }
+
+    .skin-card.active {
+      border-color: #00e5ff;
+      background: rgba(0, 229, 255, 0.1);
+    }
+
+    .skin-preview {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      margin: 0 auto 8px auto;
+    }
+
+    /* Configurações */
+    .settings-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+  </style>
 </head>
-<body>
+<body class="theme-classic">
 
-  <!-- Canvas de Efeitos Especiais (Partículas) -->
-  <canvas id="fxCanvas"></canvas>
-
-  <!-- Cabeçalho (Placar e Produção) -->
-  <header class="header">
-    <div class="score-label">Pirulitos</div>
-    <div id="scoreDisplay" class="score-display">0</div>
-    <div id="ppsDisplay" class="pps-display">0 pirulitos / seg</div>
-  </header>
-
-  <!-- Navegação de Áreas -->
-  <nav class="area-nav">
-    <button id="prevAreaBtn" class="area-arrow">&lt;</button>
-    <div id="areaTitle" class="area-title">🍭 Fábrica de Pirulitos</div>
-    <button id="nextAreaBtn" class="area-arrow">&gt;</button>
-  </nav>
-
-  <!-- Área Central do Jogo -->
-  <main class="game-area">
-    <!-- ÁREA 1: Clicker Principal -->
-    <section id="areaClicker" class="area-view">
-      <div class="lollipop-glow" id="lollipopGlow"></div>
-      <div id="lollipop" class="lollipop">🍭</div>
-    </section>
-
-    <!-- ÁREA 2: Arena de Bosses -->
-    <section id="areaBoss" class="area-view hidden">
-      <div class="boss-arena-box">
-        <div id="bossAvatar" class="boss-avatar-idle">👾</div>
-        <div id="bossName" style="font-weight: bold; margin-bottom: 4px;">Chefe Monstro Doce</div>
-        <div class="boss-hp-container">
-          <div id="bossHpBar" class="boss-hp-bar"></div>
-        </div>
-        <div id="bossHpText" class="boss-hp-text">100 / 100 HP</div>
-        <div id="bossTimer" class="boss-timer">Tempo: 30s</div>
-        <button id="startBossBtn" class="action-btn btn-primary" style="margin-top: 10px;">Desafiar Boss</button>
-        <div class="boss-hint">Clique rápido no Boss para derrotá-lo antes que o tempo acabe!</div>
-      </div>
-    </section>
-
-    <!-- ÁREA 3: Em Breve -->
-    <section id="areaSoon" class="area-view hidden">
-      <div class="coming-soon-box">
-        <div class="coming-icon">🚀</div>
-        <h2>Nova Dimensão</h2>
-        <p style="font-size: 0.85rem; color: #ccc; margin-top: 6px;">Novas mecânicas e minijogos em desenvolvimento!</p>
-        <span class="badge-soon">Em Breve</span>
-      </div>
-    </section>
-  </main>
-
-  <!-- Modal do Anúncio Recompensado (30 Segundos) -->
-  <div id="adModal" class="hidden" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.92); z-index: 999; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px;">
-    <div style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 16px; padding: 24px; text-align: center; max-width: 320px; width: 100%;">
-      <h3 style="color: #ffd54f; margin-bottom: 10px;">📺 Anúncio de Teste</h3>
-      <p style="font-size: 0.9rem; color: #eee; margin-bottom: 15px;">Assistindo anúncio para receber bônus 2x...</p>
-      
-      <!-- Container de Anúncio Google Ads Placeholder -->
-      <div id="googleAdContainer" style="min-height: 100px; background: rgba(0,0,0,0.4); border-radius: 8px; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; color: #888;">
-        <!-- Google AdSlot Placement Test -->
-        <ins class="adsbygoogle"
-             style="display:block; width: 100%; height: 90px;"
-             data-ad-client="ca-pub-3940256099942544"
-             data-ad-slot="1234567890"
-             data-ad-format="auto"
-             data-full-width-responsive="true"></ins>
-      </div>
-
-      <div id="adTimerDisplay" style="font-size: 1.8rem; font-weight: 900; color: #ff4081; margin-bottom: 15px;">30s</div>
-      <button id="closeAdBtn" class="action-btn btn-danger" style="display: none;">Receber Recompensa</button>
-    </div>
+<div id="game-container">
+  <!-- CABEÇALHO -->
+  <div id="header">
+    <div class="score-container"><span id="doces-count">0</span> 🍭</div>
+    <div class="dps-container">por segundo: <span id="dps-count">0</span></div>
+    <div id="boost-status" class="boost-banner" style="display: none;">⚡ Boost ativo: 30s</div>
   </div>
 
-  <!-- Botão Flutuante para Abrir o Menu -->
-  <button id="menuToggleBtn" class="menu-toggle-btn">🛒 Loja & Opções</button>
-
-  <!-- Painel Inferior Deslizante (Bottom Sheet) -->
-  <div id="bottomPanel" class="bottom-panel">
-    <div id="closeMenuDrag" class="close-menu-drag"></div>
-
-    <!-- Navegação em Abas -->
-    <div class="nav-tabs">
-      <button class="tab-btn active" data-tab="upgrades">⚡ Shop</button>
-      <button class="tab-btn" data-tab="flavors">🍓 Sabores</button>
-      <button class="tab-btn" data-tab="skins">🎨 Skins</button>
-      <button class="tab-btn" data-tab="roulette">🎰 Roleta</button>
-      <button class="tab-btn" data-tab="prestige">👑 Prestígio</button>
-      <button class="tab-btn" data-tab="achievements">🏆 Conquistas</button>
-      <button class="tab-btn" data-tab="stats">📊 Stats</button>
-      <button class="tab-btn" data-tab="settings">⚙️ Configs</button>
-    </div>
-
-    <!-- Conteúdo do Menu -->
-    <div class="tab-content">
-      <!-- ABA 1: Upgrades -->
-      <div id="tab-upgrades" class="tab-pane active"></div>
-
-      <!-- ABA 2: Sabores -->
-      <div id="tab-flavors" class="tab-pane">
-        <div class="flavor-section">
-          <div class="flavor-title">Sabores Gratuitos</div>
-          <div id="freeFlavorGrid" class="flavor-grid"></div>
-        </div>
-        <div class="flavor-section" style="margin-top: 10px;">
-          <div class="flavor-title">Sabores Especiais & Compráveis</div>
-          <div id="premiumFlavorGrid" class="flavor-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;"></div>
-        </div>
-      </div>
-
-      <!-- ABA 3: Skins -->
-      <div id="tab-skins" class="tab-pane">
-        <div class="skin-section-title">Skins do Pirulito</div>
-        <div id="skinGrid" class="skin-grid"></div>
-      </div>
-
-      <!-- ABA 4: Roleta Visual -->
-      <div id="tab-roulette" class="tab-pane">
-        <div class="wheel-container">
-          <div class="wheel-title">🎰 Roleta da Sorte Diária</div>
-          <div class="wheel-wrapper">
-            <div class="wheel-pointer">▼</div>
-            <canvas id="wheelCanvas" width="220" height="220"></canvas>
-          </div>
-          <button id="spinBtn" class="action-btn btn-ad">Girar Roleta Grátis</button>
-          <div id="wheelTimer" class="wheel-timer">Disponível para girar!</div>
-        </div>
-      </div>
-
-      <!-- ABA 5: Prestígio -->
-      <div id="tab-prestige" class="tab-pane">
-        <div class="prestige-container">
-          <div class="prestige-stat-box">
-            <div>Prestígio Atual: <b id="prestigeLevel">0</b></div>
-            <div>Bônus de Produção: <b id="prestigeBonus" style="color:#ffd700;">+0%</b></div>
-          </div>
-          <div class="prestige-reward-box">
-            <div>Ao reiniciar você ganhará:</div>
-            <div id="prestigeGainText" class="prestige-gain">+0 Prestígio</div>
-            <div style="font-size: 0.75rem; color: #bbb;">Requer no mínimo 1.000.000 de Pirulitos acumulados na história.</div>
-          </div>
-          <button id="prestigeBtn" class="action-btn btn-danger">Reiniciar & Ganhar Prestígio</button>
-        </div>
-      </div>
-
-      <!-- ABA 6: Conquistas -->
-      <div id="tab-achievements" class="tab-pane">
-        <div id="achievementsList" style="display: flex; flex-direction: column; gap: 8px;"></div>
-      </div>
-
-      <!-- ABA 7: Stats -->
-      <div id="tab-stats" class="tab-pane">
-        <button id="adBoostBtn" class="btn-ad">📺 Assistir Anúncio (2x Pirulitos por 4min)</button>
-        <div id="statsList" style="margin-top: 10px;">
-          <div class="stat-row"><span>Pirulitos Atuais:</span><b id="statCurrent">0</b></div>
-          <div class="stat-row"><span>Pirulitos Totais Produzidos:</span><b id="statTotalEarned">0</b></div>
-          <div class="stat-row"><span>Pirulitos por Segundo:</span><b id="statPps">0</b></div>
-          <div class="stat-row"><span>Pirulitos por Clique:</span><b id="statClickPower">0</b></div>
-          <div class="stat-row"><span>Cliques Totais:</span><b id="statTotalClicks">0</b></div>
-          <div class="stat-row"><span>Tempo Jogado:</span><b id="statTimePlayed">0s</b></div>
-          <div class="stat-row"><span>Roletas Utilizadas:</span><b id="statWheelSpins">0</b></div>
-          <div class="stat-row"><span>Bônus Obtidos:</span><b id="statBoostsObtained">0</b></div>
-          <div class="stat-row"><span>Sabores Desbloqueados:</span><b id="statFlavorsUnlocked">0</b></div>
-          <div class="stat-row"><span>Skins Desbloqueadas:</span><b id="statSkinsUnlocked">0</b></div>
-          <div class="stat-row"><span>Upgrades Comprados:</span><b id="statUpgradesBought">0</b></div>
-          <div class="stat-row"><span>Maior Saldo Já Alcançado:</span><b id="statMaxScore">0</b></div>
-          <div class="stat-row"><span>Maior PPS Já Alcançado:</span><b id="statMaxPps">0</b></div>
-        </div>
-      </div>
-
-      <!-- ABA 8: Configurações -->
-      <div id="tab-settings" class="tab-pane">
-        <div style="display: flex; flex-direction: column; gap: 12px; padding: 10px 0;">
-          <div style="font-weight: bold; color: #ffd54f; font-size: 1rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 6px;">⚙️ Configurações</div>
-          
-          <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.05); padding: 10px 14px; border-radius: 12px;">
-            <span>🎵 Música de Fundo</span>
-            <button id="toggleMusicBtn" class="action-btn btn-primary" style="width: 80px; padding: 6px;">ON</button>
-          </div>
-
-          <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.05); padding: 10px 14px; border-radius: 12px;">
-            <span>🔊 Efeitos Sonoros</span>
-            <button id="toggleSfxBtn" class="action-btn btn-primary" style="width: 80px; padding: 6px;">ON</button>
-          </div>
-
-          <button id="resetDataBtn" class="action-btn btn-danger" style="margin-top: 15px;">🔄 Resetar Todo o Progresso</button>
-        </div>
-      </div>
-
-    </div>
+  <!-- ÁREA DE CLIQUE -->
+  <div id="click-area">
+    <canvas id="particle-canvas"></canvas>
+    <div id="lollipop-target" class="lollipop lollipop-classic"></div>
   </div>
 
-  <script src="script.js"></script>
+  <!-- NAVEGAÇÃO DAS ABAS -->
+  <div id="nav-tabs">
+    <button class="tab-btn active" onclick="switchTab('shop')">🛒 SHOP</button>
+    <button class="tab-btn" onclick="switchTab('skins')">🎨 SKINS</button>
+    <button class="tab-btn" onclick="switchTab('roleta')">🎰 ROLETA</button>
+    <button class="tab-btn" onclick="switchTab('stats')">📊 STATS</button>
+    <button class="tab-btn" onclick="switchTab('settings')">⚙️ OPÇÕES</button>
+  </div>
+
+  <!-- PAINEL DE CONTEÚDO -->
+  <div id="content-panel">
+    
+    <!-- ABA: SHOP -->
+    <div id="tab-shop" class="tab-content active">
+      <!-- BOTÃO DE ANÚNCIO (DENTRO DO SHOP) -->
+      <div class="ad-button-card">
+        <div class="ad-info">
+          <div class="ad-title">📺 Assistir Anúncio</div>
+          <div class="ad-desc">Ganhe 2x de Produção por 30s</div>
+        </div>
+        <button id="btn-watch-ad" class="btn-action" onclick="watchAdClick()">ASSISTIR</button>
+      </div>
+
+      <!-- UPGRADES -->
+      <div id="upgrades-list"></div>
+    </div>
+
+    <!-- ABA: SKINS (Muda Fundo, Pirulito e Partículas) -->
+    <div id="tab-skins" class="tab-content">
+      <div class="skin-grid" id="skin-container"></div>
+    </div>
+
+    <!-- ABA: ROLETA (Layout Organizado Sem Invadir Outros Elementos) -->
+    <div id="tab-roleta" class="tab-content">
+      <div class="roulette-container">
+        <h3>🎰 ROLETA DIÁRIA</h3>
+        <div class="roulette-box">
+          <div class="roulette-prize-display">
+            <div id="roulette-prize-name" class="roulette-prize-title">PRÊMIO</div>
+            <div id="roulette-prize-sub" class="roulette-prize-duration">Clique para girar!</div>
+          </div>
+        </div>
+        <div class="roulette-controls">
+          <button id="btn-spin-roulette" class="btn-action" style="width: 100%; padding: 12px;" onclick="spinRoulette()">GIRAR ROLETA</button>
+          <div id="roulette-cooldown" style="font-size: 0.8rem; color: #aaa; margin-top: 6px; text-align: center;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ABA: ESTATÍSTICAS -->
+    <div id="tab-stats" class="tab-content">
+      <p>🍭 Doces no total: <span id="stat-total-doces">0</span></p>
+      <p>👆 Cliques efetuados: <span id="stat-total-clicks">0</span></p>
+      <p>⏱️ Tempo jogado: <span id="stat-play-time">0s</span></p>
+    </div>
+
+    <!-- ABA: CONFIGURAÇÕES -->
+    <div id="tab-settings" class="tab-content">
+      <div class="settings-row">
+        <span>🎵 Música de Fundo</span>
+        <button id="btn-toggle-music" class="btn-action" onclick="toggleMusic()">LIGADA</button>
+      </div>
+      <div class="settings-row">
+        <span>🔊 Efeitos Sonoros</span>
+        <button id="btn-toggle-sfx" class="btn-action" onclick="toggleSFX()">LIGADOS</button>
+      </div>
+      <div style="margin-top: 15px;">
+        <button class="btn-action" style="background: #f44336; color: white; width: 100%;" onclick="resetGame()">Resetar Progresso</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+<script>
+  /* ==========================================================================
+     1. ESTADO DO JOGO E VARIÁVEIS
+     ========================================================================== */
+  const gameState = {
+    doces: 0,
+    totalDoces: 0,
+    clicks: 0,
+    startTime: Date.now(),
+    currentSkin: 'classic',
+    musicOn: true,
+    sfxOn: true,
+    lastSpinTime: 0,
+    boostEndTime: 0,
+    boostMultiplier: 1,
+    upgrades: {
+      cursor: { count: 0, baseCost: 15, dps: 0.5, name: 'Ponteiro Doce' },
+      grandma: { count: 0, baseCost: 100, dps: 4, name: 'Vovó Confeiteira' },
+      factory: { count: 0, baseCost: 1100, dps: 32, name: 'Fábrica de Balas' }
+    }
+  };
+
+  /* DEFINIÇÃO DAS SKINS (FUNDO + PIRULITO + PARTÍCULAS) */
+  const SKINS_DATA = {
+    classic: { name: '🍭 Clássico', theme: 'theme-classic', lollipop: 'lollipop-classic', particle: 'sparkle' },
+    rainbow: { name: '🌈 Arco-Íris', theme: 'theme-rainbow', lollipop: 'lollipop-rainbow', particle: 'color' },
+    cosmic: { name: '🌌 Cósmico', theme: 'theme-cosmic', lollipop: 'lollipop-cosmic', particle: 'star' },
+    fire: { name: '🔥 Fogo', theme: 'theme-fire', lollipop: 'lollipop-fire', particle: 'fire' },
+    ice: { name: '❄️ Gelo', theme: 'theme-ice', lollipop: 'lollipop-ice', particle: 'snow' }
+  };
+
+  /* PRÊMIOS DA ROLETA */
+  const ROULETTE_PRIZES = [
+    { title: '2x PRODUÇÃO', sub: '30 SEGUNDOS', boost: 2, duration: 30 },
+    { title: '3x PRODUÇÃO', sub: '15 SEGUNDOS', boost: 3, duration: 15 },
+    { title: 'SUPER BÔNUS', sub: '+500 DOCES', instant: 500 },
+    { title: 'BOOST LEVE', sub: '1.5x por 30s', boost: 1.5, duration: 30 }
+  ];
+
+  /* ESTRUTURA MOCK DO GOOGLE ADS PRESERVADA */
+  window.GoogleAdsIntegration = {
+    initialized: true,
+    ready: true,
+    showRewardAdMock: function(onSuccess) {
+      // Mock de teste conforme requisitos
+      const confirmText = "📺 Anúncio de teste concluído!\nVocê recebeu um boost de 2x por 30 segundos.";
+      alert(confirmText);
+      onSuccess();
+    }
+  };
+
+  /* ==========================================================================
+     2. ÁUDIO - CONECTADO EXATAMENTE A assets/audio/bgm1.ogg
+     ========================================================================== */
+  const bgmAudio = new Audio();
+  bgmAudio.src = 'assets/audio/bgm1.ogg';
+  bgmAudio.loop = true;
+  bgmAudio.volume = 0.4;
+
+  let audioUnlocked = false;
+
+  function initAudioUnlock() {
+    if (audioUnlocked) return;
+    const unlock = () => {
+      if (gameState.musicOn && bgmAudio.paused) {
+        bgmAudio.play().catch(() => {});
+      }
+      audioUnlocked = true;
+      document.removeEventListener('click', unlock);
+      document.removeEventListener('touchstart', unlock);
+    };
+    document.addEventListener('click', unlock);
+    document.addEventListener('touchstart', unlock);
+  }
+
+  function toggleMusic() {
+    gameState.musicOn = !gameState.musicOn;
+    document.getElementById('btn-toggle-music').innerText = gameState.musicOn ? 'LIGADA' : 'DESLIGADA';
+    if (gameState.musicOn) {
+      bgmAudio.play().catch(() => {});
+    } else {
+      bgmAudio.pause();
+    }
+    saveGame();
+  }
+
+  function toggleSFX() {
+    gameState.sfxOn = !gameState.sfxOn;
+    document.getElementById('btn-toggle-sfx').innerText = gameState.sfxOn ? 'LIGADOS' : 'DESLIGADOS';
+    saveGame();
+  }
+
+  /* ==========================================================================
+     3. SISTEMA DE PARTÍCULAS
+     ========================================================================== */
+  const canvas = document.getElementById('particle-canvas');
+  const ctx = canvas.getContext('2d');
+  let particles = [];
+
+  function resizeCanvas() {
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+  }
+  window.addEventListener('resize', resizeCanvas);
+  resizeCanvas();
+
+  function spawnParticles(x, y) {
+    const skinInfo = SKINS_DATA[gameState.currentSkin] || SKINS_DATA.classic;
+    const count = 8;
+    for (let i = 0; i < count; i++) {
+      particles.push({
+        x: x,
+        y: y,
+        vx: (Math.random() - 0.5) * 6,
+        vy: (Math.random() - 0.5) * 6 - 2,
+        life: 1,
+        type: skinInfo.particle,
+        size: Math.random() * 6 + 4
+      });
+    }
+  }
+
+  function updateParticles() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    for (let i = particles.length - 1; i >= 0; i--) {
+      let p = particles[i];
+      p.x += p.vx;
+      p.y += p.vy;
+      p.life -= 0.03;
+
+      if (p.life <= 0) {
+        particles.splice(i, 1);
+        continue;
+      }
+
+      ctx.save();
+      ctx.globalAlpha = p.life;
+
+      if (p.type === 'color') {
+        ctx.fillStyle = `hsl(${Math.random() * 360}, 100%, 50%)`;
+      } else if (p.type === 'star') {
+        ctx.fillStyle = '#00e5ff';
+      } else if (p.type === 'fire') {
+        ctx.fillStyle = '#ff3d00';
+      } else if (p.type === 'snow') {
+        ctx.fillStyle = '#e0f7fa';
+      } else {
+        ctx.fillStyle = '#ffeb3b';
+      }
+
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+    requestAnimationFrame(updateParticles);
+  }
+  requestAnimationFrame(updateParticles);
+
+  /* ==========================================================================
+     4. SISTEMA DE SKINS (FUNDO + PIRULITO + PARTÍCULAS)
+     ========================================================================== */
+  function applySkin(skinKey) {
+    if (!SKINS_DATA[skinKey]) return;
+    gameState.currentSkin = skinKey;
+
+    const skin = SKINS_DATA[skinKey];
+    const container = document.getElementById('game-container');
+    const lollipop = document.getElementById('lollipop-target');
+
+    // A. ALTERA O FUNDO
+    container.className = skin.theme;
+
+    // B. ALTERA O PIRULITO
+    lollipop.className = 'lollipop ' + skin.lollipop;
+
+    // C. ALTERA AS PARTÍCULAS (Gera troca dinâmica no loop)
+    renderSkinsUI();
+    saveGame();
+  }
+
+  function renderSkinsUI() {
+    const skinContainer = document.getElementById('skin-container');
+    skinContainer.innerHTML = '';
+
+    Object.keys(SKINS_DATA).forEach(key => {
+      const skin = SKINS_DATA[key];
+      const card = document.createElement('div');
+      card.className = `skin-card ${gameState.currentSkin === key ? 'active' : ''}`;
+      card.onclick = () => applySkin(key);
+
+      card.innerHTML = `
+        <div class="skin-preview ${skin.lollipop}"></div>
+        <div style="font-size:0.85rem; font-weight:bold;">${skin.name}</div>
+      `;
+      skinContainer.appendChild(card);
+    });
+  }
+
+  /* ==========================================================================
+     5. ANÚNCIO (SISTEMA DE MOCK + DURAÇÃO DE EXATAMENTE 30s)
+     ========================================================================== */
+  function watchAdClick() {
+    window.GoogleAdsIntegration.showRewardAdMock(() => {
+      startBoost(2, 30); // Multiplicador 2x, EXATAMENTE 30 segundos
+    });
+  }
+
+  function startBoost(multiplier, durationSeconds) {
+    gameState.boostMultiplier = multiplier;
+    gameState.boostEndTime = Date.now() + (durationSeconds * 1000);
+  }
+
+  function checkBoostState() {
+    const banner = document.getElementById('boost-status');
+    const now = Date.now();
+
+    if (now < gameState.boostEndTime) {
+      const secondsLeft = Math.ceil((gameState.boostEndTime - now) / 1000);
+      banner.style.display = 'inline-block';
+      banner.innerText = `⚡ Boost ativo: ${secondsLeft}s`;
+    } else {
+      if (gameState.boostMultiplier > 1) {
+        gameState.boostMultiplier = 1;
+        banner.style.display = 'inline-block';
+        banner.innerText = '⚡ Boost encerrado.';
+        setTimeout(() => {
+          if (Date.now() >= gameState.boostEndTime) {
+            banner.style.display = 'none';
+          }
+        }, 2000);
+      }
+    }
+  }
+
+  /* ==========================================================================
+     6. ROLETA (ORGANIZAÇÃO VISUAL)
+     ========================================================================== */
+  function spinRoulette() {
+    const now = Date.now();
+    const cooldown = 24 * 60 * 60 * 1000; // 24h
+
+    if (now - gameState.lastSpinTime < cooldown) {
+      alert("A roleta estará disponível novamente em breve!");
+      return;
+    }
+
+    const prizeIndex = Math.floor(Math.random() * ROULETTE_PRIZES.length);
+    const prize = ROULETTE_PRIZES[prizeIndex];
+
+    document.getElementById('roulette-prize-name').innerText = prize.title;
+    document.getElementById('roulette-prize-sub').innerText = prize.sub;
+
+    if (prize.boost) {
+      startBoost(prize.boost, prize.duration);
+    } else if (prize.instant) {
+      gameState.doces += prize.instant;
+      gameState.totalDoces += prize.instant;
+    }
+
+    gameState.lastSpinTime = now;
+    saveGame();
+    updateRouletteCooldown();
+  }
+
+  function updateRouletteCooldown() {
+    const now = Date.now();
+    const cooldown = 24 * 60 * 60 * 1000;
+    const btn = document.getElementById('btn-spin-roulette');
+    const cdText = document.getElementById('roulette-cooldown');
+
+    if (now - gameState.lastSpinTime < cooldown) {
+      btn.disabled = true;
+      btn.style.opacity = '0.5';
+      const remaining = Math.ceil((cooldown - (now - gameState.lastSpinTime)) / 1000 / 60);
+      cdText.innerText = `Disponível em ~${remaining} min`;
+    } else {
+      btn.disabled = false;
+      btn.style.opacity = '1';
+      cdText.innerText = 'Pronto para girar!';
+    }
+  }
+
+  /* ==========================================================================
+     7. LÓGICA DO GAMEPLAY (CLIQUE, SHOP, GAME LOOP)
+     ========================================================================== */
+  const lollipopEl = document.getElementById('lollipop-target');
+  lollipopEl.addEventListener('click', (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    const clickValue = 1 * gameState.boostMultiplier;
+    gameState.doces += clickValue;
+    gameState.totalDoces += clickValue;
+    gameState.clicks++;
+
+    spawnParticles(x, y);
+    updateUI();
+  });
+
+  function calculateDPS() {
+    let dps = 0;
+    Object.keys(gameState.upgrades).forEach(key => {
+      const up = gameState.upgrades[key];
+      dps += up.count * up.dps;
+    });
+    return dps * gameState.boostMultiplier;
+  }
+
+  function buyUpgrade(key) {
+    const up = gameState.upgrades[key];
+    const cost = Math.floor(up.baseCost * Math.pow(1.15, up.count));
+
+    if (gameState.doces >= cost) {
+      gameState.doces -= cost;
+      up.count++;
+      renderShopUI();
+      updateUI();
+      saveGame();
+    }
+  }
+
+  function renderShopUI() {
+    const list = document.getElementById('upgrades-list');
+    list.innerHTML = '';
+
+    Object.keys(gameState.upgrades).forEach(key => {
+      const up = gameState.upgrades[key];
+      const cost = Math.floor(up.baseCost * Math.pow(1.15, up.count));
+
+      const div = document.createElement('div');
+      div.className = 'shop-item';
+      div.innerHTML = `
+        <div>
+          <div style="font-weight:bold;">${up.name} (${up.count})</div>
+          <div style="font-size:0.8rem; color:#aaa;">+${up.dps} doces/s</div>
+        </div>
+        <button class="btn-action" onclick="buyUpgrade('${key}')" ${gameState.doces < cost ? 'style="opacity:0.5;"' : ''}>
+          ${cost} 🍭
+        </button>
+      `;
+      list.appendChild(div);
+    });
+  }
+
+  function switchTab(tabName) {
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+    event.currentTarget.classList.add('active');
+    document.getElementById(`tab-${tabName}`).classList.add('active');
+  }
+
+  function updateUI() {
+    document.getElementById('doces-count').innerText = Math.floor(gameState.doces);
+    document.getElementById('dps-count').innerText = calculateDPS().toFixed(1);
+    document.getElementById('stat-total-doces').innerText = Math.floor(gameState.totalDoces);
+    document.getElementById('stat-total-clicks').innerText = gameState.clicks;
+    
+    const playSeconds = Math.floor((Date.now() - gameState.startTime) / 1000);
+    document.getElementById('stat-play-time').innerText = `${playSeconds}s`;
+  }
+
+  /* LOOP PRINCIPAL DO JOGO */
+  setInterval(() => {
+    const dps = calculateDPS();
+    gameState.doces += dps / 10;
+    gameState.totalDoces += dps / 10;
+
+    checkBoostState();
+    updateRouletteCooldown();
+    updateUI();
+  }, 100);
+
+  /* AUTO-SAVE */
+  function saveGame() {
+    localStorage.setItem('lollipop_game_save', JSON.stringify(gameState));
+  }
+
+  function loadGame() {
+    const saved = localStorage.getItem('lollipop_game_save');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        Object.assign(gameState, parsed);
+      } catch (e) {}
+    }
+  }
+
+  function resetGame() {
+    if (confirm("Deseja realmente resetar todo o seu progresso?")) {
+      localStorage.removeItem('lollipop_game_save');
+      location.reload();
+    }
+  }
+
+  /* INICIALIZAÇÃO */
+  loadGame();
+  initAudioUnlock();
+  applySkin(gameState.currentSkin || 'classic');
+  renderShopUI();
+  updateUI();
+</script>
 </body>
 </html>
