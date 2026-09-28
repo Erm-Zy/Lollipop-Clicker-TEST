@@ -22,7 +22,7 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   display: flex;
   flex-direction: column;
-  transition: background-image 0.5s ease, background-color 0.5s ease;
+  transition: background 0.5s ease;
   background-size: cover !important;
   background-position: center !important;
   background-repeat: no-repeat !important;
@@ -30,24 +30,40 @@ body {
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
-body, body.theme-purple {
+/* TEMAS DE SKINS DE FUNDO */
+body, body.theme-classic {
   background-color: #120a1f;
-  background-image: url('assets/images/bg-purple.png');
+  background-image: url('assets/images/bg-purple.png'), linear-gradient(135deg, #120a1f, #2a0845);
 }
 
-body.theme-pink {
-  background-color: #4a0e2e;
-  background-image: linear-gradient(135deg, #4a0e2e, #880e4f);
+body.theme-neon {
+  background-color: #03131a;
+  background-image: linear-gradient(135deg, #021e28, #053b4c, #1a0826);
 }
 
-body.theme-space {
-  background-color: #050515;
-  background-image: linear-gradient(135deg, #050515, #121030);
+body.theme-rainbow {
+  background-color: #2b0838;
+  background-image: linear-gradient(135deg, #3d082b, #120a38, #052b38, #2a3805);
 }
 
 body.theme-gold {
   background-color: #2c1d02;
-  background-image: linear-gradient(135deg, #2c1d02, #573a08);
+  background-image: linear-gradient(135deg, #2c1d02, #573a08, #1c1000);
+}
+
+body.theme-cosmic {
+  background-color: #050515;
+  background-image: linear-gradient(135deg, #050515, #121030, #250838);
+}
+
+body.theme-fire {
+  background-color: #2b0500;
+  background-image: linear-gradient(135deg, #2b0500, #571200, #380208);
+}
+
+body.theme-ice {
+  background-color: #021a2b;
+  background-image: linear-gradient(135deg, #021a2b, #083a57, #022b38);
 }
 
 .hidden,
@@ -161,6 +177,7 @@ body.theme-gold {
   background: radial-gradient(circle, rgba(255, 64, 129, 0.4) 0%, rgba(0,0,0,0) 70%);
   border-radius: 50%;
   animation: pulse 2s infinite ease-in-out;
+  transition: background 0.3s ease;
 }
 
 @keyframes pulse {
@@ -320,7 +337,6 @@ body.theme-gold {
   margin-top: 12px;
   font-size: 0.85rem;
 }
-
 .nav-tabs {
   display: flex;
   gap: 8px;
@@ -380,6 +396,7 @@ body.theme-gold {
   padding: 10px;
   margin-bottom: 4px;
 }
+
 .flavor-title {
   font-size: 0.8rem;
   font-weight: bold;
@@ -533,48 +550,57 @@ body.theme-gold {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  padding: 10px;
+  gap: 12px;
+  padding: 14px 10px;
   background: rgba(255, 255, 255, 0.05);
   border-radius: 16px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   text-align: center;
+  box-sizing: border-box;
+  max-width: 100%;
 }
 
 .wheel-title {
   font-size: 0.95rem;
   font-weight: bold;
   color: #ffd54f;
+  margin-bottom: 2px;
 }
 
 .wheel-wrapper {
   position: relative;
-  width: 220px;
-  height: 220px;
-  margin: 5px auto;
+  width: 210px;
+  height: 210px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .wheel-pointer {
   position: absolute;
-  top: -10px;
+  top: -12px;
   left: 50%;
   transform: translateX(-50%);
-  font-size: 24px;
+  font-size: 22px;
   color: #ffeb3b;
   z-index: 10;
-  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6));
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8));
 }
 
 #wheelCanvas {
-  width: 220px;
-  height: 220px;
+  width: 210px;
+  height: 210px;
   border-radius: 50%;
-  box-shadow: 0 0 15px rgba(0,0,0,0.6), 0 0 0 5px #ff4081;
+  box-shadow: 0 0 15px rgba(0,0,0,0.6), 0 0 0 4px #ff4081;
+  display: block;
 }
 
 .wheel-timer {
-  font-size: 0.75rem;
-  color: #aaa;
+  font-size: 0.78rem;
+  color: #bbb;
+  font-weight: bold;
+  margin-top: 4px;
 }
 
 .prestige-container {
@@ -673,6 +699,14 @@ body.theme-gold {
   animation: pulseGreen 1.5s infinite;
 }
 
+.btn-ad.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: #555 !important;
+  border-color: #777 !important;
+  box-shadow: none !important;
+}
+
 @keyframes pulseGreen {
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.02); }
@@ -717,43 +751,7 @@ body.theme-gold {
   text-shadow: 0 2px 4px rgba(0,0,0,0.8);
 }
 
-.click-text.crit {
-  color: #ff1744;
-  font-size: 1.8rem;
-  text-shadow: 0 0 10px #ff5252, 0 2px 4px rgba(0,0,0,0.8);
-}
-
 @keyframes floatUp {
   0% { opacity: 1; transform: translateY(0); }
   100% { opacity: 0; transform: translateY(-40px); }
-}
-
-.golden-lollipop {
-  position: absolute;
-  font-size: 3rem;
-  cursor: pointer;
-  z-index: 30;
-  animation: floatGolden 8s linear infinite;
-  filter: drop-shadow(0 0 10px #ffd700);
-}
-
-@keyframes floatGolden {
-  0% { top: -10%; left: 10%; transform: rotate(0deg); }
-  50% { left: 80%; }
-  100% { top: 110%; left: 30%; transform: rotate(360deg); }
-}
-
-.falling-candy {
-  position: absolute;
-  font-size: 2.2rem;
-  cursor: pointer;
-  z-index: 35;
-  user-select: none;
-  animation: fallDown 4s linear forwards;
-  filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));
-}
-
-@keyframes fallDown {
-  0% { top: -10%; opacity: 1; }
-  100% { top: 105%; opacity: 0; }
 }
