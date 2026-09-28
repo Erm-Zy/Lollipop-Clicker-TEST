@@ -53,9 +53,12 @@ const UPGRADES_DATA = {
 
 // --- 2. SABORES ---
 const FLAVORS_DATA = {
+  // Gratuitos
   morango: { name: 'Morango', desc: 'Sabor equilibrado (+1 por clique)', icon: '🍓', cost: 0, isFree: true, clickBonus: 1, ppsMult: 1 },
   limao: { name: 'Limão', desc: 'Maior produção (+20% PPS)', icon: '🍋', cost: 0, isFree: true, clickBonus: 0, ppsMult: 1.20 },
   blueberry: { name: 'Blueberry', desc: 'Maior clique (+3 por clique & +10% PPS)', icon: '🫐', cost: 0, isFree: true, clickBonus: 3, ppsMult: 1.10 },
+  
+  // Compráveis
   uva: { name: 'Uva', desc: '+25% PPS Global', icon: '🍇', cost: 5000, isFree: false, clickBonus: 0, ppsMult: 1.25 },
   laranja: { name: 'Laranja', desc: '+5 por clique & +15% PPS', icon: '🍊', cost: 25000, isFree: false, clickBonus: 5, ppsMult: 1.15 },
   melancia: { name: 'Melancia', desc: '+40% PPS Global', icon: '🍉', cost: 150000, isFree: false, clickBonus: 0, ppsMult: 1.40 },
@@ -66,15 +69,15 @@ const FLAVORS_DATA = {
   lendario: { name: 'Sabor Lendário', desc: 'Poder Supremo: 4.0x PPS & +100 por clique', icon: '⭐', cost: 1000000000, isFree: false, clickBonus: 100, ppsMult: 4.00 }
 };
 
-// --- 3. SKINS DO PIRULITO (3 COMPONENTES: FUNDO + PIRULITO + PARTÍCULAS) ---
+// --- 3. SKINS DO PIRULITO ---
 const SKINS_DATA = {
-  classic: { name: 'Clássico', emoji: '🍭', themeClass: 'theme-classic', glow: 'rgba(255, 64, 129, 0.4)', cost: 0, particleType: 'classic', color: '#ff4081' },
-  neon: { name: 'Neon', emoji: '💖', themeClass: 'theme-neon', glow: 'rgba(0, 255, 234, 0.7)', cost: 2500, particleType: 'neon', color: '#00ffea' },
-  rainbow: { name: 'Arco-Íris', emoji: '🌈', themeClass: 'theme-rainbow', glow: 'rgba(255, 235, 59, 0.7)', cost: 50000, particleType: 'rainbow', color: '#ffeb3b' },
-  gold: { name: 'Dourado', emoji: '👑', themeClass: 'theme-gold', glow: 'rgba(255, 215, 0, 0.8)', cost: 500000, particleType: 'gold', color: '#ffd700' },
-  cosmic: { name: 'Cósmico', emoji: '🌌', themeClass: 'theme-cosmic', glow: 'rgba(156, 39, 176, 0.8)', cost: 5000000, particleType: 'cosmic', color: '#ab47bc' },
-  fire: { name: 'Fogo', emoji: '🔥', themeClass: 'theme-fire', glow: 'rgba(255, 87, 34, 0.8)', cost: 50000000, particleType: 'fire', color: '#ff5722' },
-  ice: { name: 'Gelo', emoji: '🧊', themeClass: 'theme-ice', glow: 'rgba(33, 150, 243, 0.8)', cost: 500000000, particleType: 'ice', color: '#2196f3' }
+  classic: { name: 'Clássico', emoji: '🍭', glow: 'rgba(255, 64, 129, 0.4)', cost: 0, color: '#ff4081' },
+  neon: { name: 'Neon', emoji: '💖', glow: 'rgba(0, 255, 234, 0.7)', cost: 2500, color: '#00ffea' },
+  rainbow: { name: 'Arco-Íris', emoji: '🌈', glow: 'rgba(255, 235, 59, 0.7)', cost: 50000, color: '#ffeb3b' },
+  gold: { name: 'Dourado', emoji: '👑', glow: 'rgba(255, 215, 0, 0.8)', cost: 500000, color: '#ffd700' },
+  cosmic: { name: 'Cósmico', emoji: '🌌', glow: 'rgba(156, 39, 176, 0.8)', cost: 5000000, color: '#ab47bc' },
+  fire: { name: 'Fogo', emoji: '🔥', glow: 'rgba(255, 87, 34, 0.8)', cost: 50000000, color: '#ff5722' },
+  ice: { name: 'Gelo', emoji: '🧊', glow: 'rgba(33, 150, 243, 0.8)', cost: 500000000, color: '#2196f3' }
 };
 
 // --- 4. CONQUISTAS ---
@@ -102,12 +105,9 @@ const AREAS_DATA = [
 
 let currentAreaIndex = 0;
 
-// --- SISTEMA DE ÁUDIO (Música bgm1.ogg e Efeitos Sonoros) ---
-const bgmAudio = new Audio('assets/audio/bgm1.ogg');
-bgmAudio.loop = true;
-bgmAudio.volume = 0.4;
-
+// --- SISTEMA DE ÁUDIO WEB SYNTH (Música e Efeitos Sonoros) ---
 let audioCtx = null;
+
 function getAudioContext() {
   if (!audioCtx) {
     const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -159,21 +159,39 @@ function playSound(type) {
   }
 }
 
+// SIMULAÇÃO DE MÚSICA DE FUNDO
+let musicInterval = null;
 function updateMusicState() {
   if (gameState.settings.music) {
-    bgmAudio.play().catch(() => {});
+    if (!musicInterval) {
+      let noteIndex = 0;
+      const notes = [261.63, 329.63, 392.00, 523.25];
+      musicInterval = setInterval(() => {
+        if (!gameState.settings.music) return;
+        const ctx = getAudioContext();
+        if (!ctx) return;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.type = 'sine';
+        osc.frequency.value = notes[noteIndex % notes.length];
+        gain.gain.setValueAtTime(0.02, ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.4);
+        noteIndex++;
+      }, 1500);
+    }
   } else {
-    bgmAudio.pause();
+    if (musicInterval) {
+      clearInterval(musicInterval);
+      musicInterval = null;
+    }
   }
 }
 
-window.addEventListener('click', () => {
-  if (gameState.settings.music && bgmAudio.paused) {
-    bgmAudio.play().catch(() => {});
-  }
-}, { once: false });
-
-// --- EFEITOS DE CANVAS & PARTÍCULAS CUSTOMIZADAS ---
+// --- EFEITOS DE CANVAS & PARTÍCULAS ---
 const canvas = document.getElementById('fxCanvas');
 const ctx = canvas ? canvas.getContext('2d') : null;
 let particles = [];
@@ -190,24 +208,9 @@ resizeCanvas();
 function spawnParticle(x, y, text = null) {
   if (!ctx) return;
   const currentSkin = SKINS_DATA[gameState.activeSkin] || SKINS_DATA.classic;
-  const count = text ? 1 : 5;
+  const count = text ? 1 : 5; // Otimizado para celular
   
   for (let i = 0; i < count; i++) {
-    let pColor = currentSkin.color;
-    let pSymbol = null;
-
-    if (currentSkin.particleType === 'rainbow') {
-      pColor = `hsl(${Math.random() * 360}, 100%, 75%)`;
-    } else if (currentSkin.particleType === 'gold') {
-      pSymbol = '✨';
-    } else if (currentSkin.particleType === 'cosmic') {
-      pSymbol = '⭐';
-    } else if (currentSkin.particleType === 'fire') {
-      pSymbol = Math.random() > 0.5 ? '🔥' : '💥';
-    } else if (currentSkin.particleType === 'ice') {
-      pSymbol = '❄️';
-    }
-
     particles.push({
       x: x || window.innerWidth / 2,
       y: y || window.innerHeight / 2,
@@ -215,8 +218,7 @@ function spawnParticle(x, y, text = null) {
       vy: (Math.random() - 0.8) * 5,
       alpha: 1,
       size: Math.random() * 6 + 3,
-      color: pColor,
-      symbol: pSymbol,
+      color: currentSkin.color,
       text: text
     });
   }
@@ -237,9 +239,6 @@ function updateParticles() {
       ctx.font = 'bold 18px sans-serif';
       ctx.fillStyle = '#ffd54f';
       ctx.fillText(p.text, p.x, p.y);
-    } else if (p.symbol) {
-      ctx.font = '16px sans-serif';
-      ctx.fillText(p.symbol, p.x, p.y);
     } else {
       ctx.fillStyle = p.color;
       ctx.beginPath();
@@ -274,7 +273,7 @@ function getTotalUpgradesCount() {
   return count;
 }
 
-// --- CÁLCULOS PRINCIPAIS ---
+// --- CÁLCULOS PRINCIPAIS DE ECONOMIA ---
 function getClickPower() {
   let base = 1;
   const flavor = FLAVORS_DATA[gameState.activeFlavor] || FLAVORS_DATA.morango;
@@ -307,15 +306,18 @@ function getUpgradeCost(key) {
   const count = gameState.upgrades[key] || 0;
   return Math.floor(data.baseCost * Math.pow(data.costMult, count));
 }
-// --- ATUALIZAÇÃO DA UI ---
+
+// --- ATUALIZAÇÃO DA TELA (UI) ---
 function updateUI() {
   document.getElementById('scoreDisplay').innerText = formatNum(gameState.pirulitos);
   document.getElementById('ppsDisplay').innerText = `${formatNum(getPps())} pirulitos / seg`;
 
+  // Atualizar Recordes
   if (gameState.pirulitos > gameState.maxScore) gameState.maxScore = gameState.pirulitos;
   const currentPps = getPps();
   if (currentPps > gameState.maxPps) gameState.maxPps = currentPps;
 
+  // Upgrades
   for (let key in UPGRADES_DATA) {
     const card = document.getElementById(`upg-${key}`);
     if (card) {
@@ -331,11 +333,13 @@ function updateUI() {
     }
   }
 
+  // Prestígio
   document.getElementById('prestigeLevel').innerText = gameState.prestigeLevel;
   document.getElementById('prestigeBonus').innerText = `+${gameState.prestigeLevel * 15}%`;
   const potentialPrestige = Math.floor(Math.cbrt(gameState.totalEarned / 1000000));
   document.getElementById('prestigeGainText').innerText = `+${potentialPrestige} Prestígio`;
 
+  // Stats Completos
   document.getElementById('statCurrent').innerText = formatNum(gameState.pirulitos);
   document.getElementById('statTotalEarned').innerText = formatNum(gameState.totalEarned);
   document.getElementById('statPps').innerText = formatNum(getPps());
@@ -350,26 +354,24 @@ function updateUI() {
   document.getElementById('statMaxScore').innerText = formatNum(gameState.maxScore);
   document.getElementById('statMaxPps').innerText = formatNum(gameState.maxPps);
 
+  // Ad Boost Btn
   const adBtn = document.getElementById('adBoostBtn');
-  if (adBtn) {
-    if (Date.now() < gameState.boostEndTime) {
-      const remainingSecs = Math.ceil((gameState.boostEndTime - Date.now()) / 1000);
-      adBtn.innerText = `⚡ Boost ativo: ${remainingSecs}s`;
-      adBtn.classList.add('active-boost');
-    } else {
-      adBtn.innerText = '📺 Assistir Anúncio (2x Pirulitos por 30s)';
-      adBtn.classList.remove('active-boost');
-    }
+  if (Date.now() < gameState.boostEndTime) {
+    const remainingSecs = Math.ceil((gameState.boostEndTime - Date.now()) / 1000);
+    adBtn.innerText = `🔥 Bônus 2x Ativo! (${remainingSecs}s)`;
+    adBtn.classList.add('active-boost');
+  } else {
+    adBtn.innerText = '📺 Assistir Anúncio (2x Pirulitos por 4min)';
+    adBtn.classList.remove('active-boost');
   }
 
   checkAchievements();
   updateWheelTimerUI();
 }
 
-// --- RENDERIZAÇÃO DE SHOP, SABORES E SKINS ---
+// --- RENDERIZAÇÃO DE LOJA, SABORES E SKINS ---
 function renderUpgrades() {
-  const container = document.getElementById('upgradesList');
-  if (!container) return;
+  const container = document.getElementById('tab-upgrades');
   container.innerHTML = '';
   for (let key in UPGRADES_DATA) {
     const data = UPGRADES_DATA[key];
@@ -402,7 +404,6 @@ function buyUpgrade(key) {
 function renderFlavors() {
   const freeGrid = document.getElementById('freeFlavorGrid');
   const premiumGrid = document.getElementById('premiumFlavorGrid');
-  if (!freeGrid || !premiumGrid) return;
   freeGrid.innerHTML = '';
   premiumGrid.innerHTML = '';
 
@@ -450,7 +451,6 @@ function selectFlavor(key) {
 
 function renderSkins() {
   const grid = document.getElementById('skinGrid');
-  if (!grid) return;
   grid.innerHTML = '';
   for (let key in SKINS_DATA) {
     const data = SKINS_DATA[key];
@@ -494,9 +494,6 @@ function applySkinToMainLollipop() {
   const glowEl = document.getElementById('lollipopGlow');
   const skin = SKINS_DATA[gameState.activeSkin] || SKINS_DATA.classic;
 
-  document.body.className = '';
-  document.body.classList.add(skin.themeClass);
-
   if (lollipopEl) {
     lollipopEl.innerText = skin.emoji;
   }
@@ -538,7 +535,7 @@ function checkAchievements() {
   if (changed) renderAchievements();
 }
 
-// --- CLIQUE NO PIRULITO ---
+// --- CLIQUE NO PIRULITO PRINCIPAL ---
 const lollipopBtn = document.getElementById('lollipop');
 if (lollipopBtn) {
   lollipopBtn.addEventListener('click', (e) => {
@@ -549,6 +546,7 @@ if (lollipopBtn) {
 
     playSound('click');
 
+    // Efeito de Texto Flutuante
     const clickText = document.createElement('div');
     clickText.className = 'click-text';
     clickText.innerText = `+${formatNum(power)}`;
@@ -557,8 +555,10 @@ if (lollipopBtn) {
     document.body.appendChild(clickText);
     setTimeout(() => clickText.remove(), 800);
 
+    // Partículas com cor da Skin
     spawnParticle(e.clientX, e.clientY);
 
+    // Fechar menu se aberto ao clicar no jogo
     const bottomPanel = document.getElementById('bottomPanel');
     if (bottomPanel && bottomPanel.classList.contains('open')) {
       bottomPanel.classList.remove('open');
@@ -568,7 +568,7 @@ if (lollipopBtn) {
   });
 }
 
-// --- NAVEGAÇÃO DE ÁREAS ---
+// --- NAVEGAÇÃO ENTRE ÁREAS DO JOGO ---
 function updateAreaView() {
   AREAS_DATA.forEach((area, i) => {
     const el = document.getElementById(area.elementId);
@@ -580,8 +580,8 @@ function updateAreaView() {
       }
     }
   });
-  const titleEl = document.getElementById('areaTitle');
-  if (titleEl) titleEl.innerText = AREAS_DATA[currentAreaIndex].title;
+  const areaTitleEl = document.getElementById('areaTitle');
+  if (areaTitleEl) areaTitleEl.innerText = AREAS_DATA[currentAreaIndex].title;
 }
 
 const prevAreaBtn = document.getElementById('prevAreaBtn');
@@ -678,7 +678,7 @@ function endBoss(won) {
   updateUI();
 }
 
-// --- BOTTOM SHEET MENU ---
+// --- BOTÃO DE MENU E ABAS ---
 const menuToggleBtn = document.getElementById('menuToggleBtn');
 const bottomPanel = document.getElementById('bottomPanel');
 const closeMenuDrag = document.getElementById('closeMenuDrag');
@@ -704,27 +704,27 @@ document.querySelectorAll('.nav-tabs .tab-btn').forEach(btn => {
 
     btn.classList.add('active');
     const tabTarget = btn.getAttribute('data-tab');
-    const targetPane = document.getElementById(`tab-${tabTarget}`);
-    if (targetPane) targetPane.classList.add('active');
+    const pane = document.getElementById(`tab-${tabTarget}`);
+    if (pane) pane.classList.add('active');
     playSound('click');
   });
 });
 
-// --- ROLETA ---
+// --- ROLETA COM ANIMAÇÃO E COOLDOWN REAL ---
 const wheelCanvas = document.getElementById('wheelCanvas');
 const wheelCtx = wheelCanvas ? wheelCanvas.getContext('2d') : null;
 const spinBtn = document.getElementById('spinBtn');
 const wheelTimerEl = document.getElementById('wheelTimer');
 
-const WHEEL_COOLDOWN_MS = 5 * 60 * 1000;
+const WHEEL_COOLDOWN_MS = 5 * 60 * 1000; // 5 minutos de Cooldown
 let isSpinning = false;
 
 const wheelRewards = [
   { label: '5% Pirulitos', type: 'pct', val: 0.05, color: '#ff4081' },
   { label: '15% Pirulitos', type: 'pct', val: 0.15, color: '#ab47bc' },
-  { label: '2x Boost (30s)', type: 'boost', val: 30, color: '#42a5f5' },
+  { label: '2x Boost (4m)', type: 'boost', val: 4, color: '#42a5f5' },
   { label: '30% Pirulitos', type: 'pct', val: 0.30, color: '#26a69a' },
-  { label: 'Raro (+Clique)', type: 'click', val: 100, color: '#ffca28' },
+  { label: 'Raro (+100 Clique)', type: 'click', val: 100, color: '#ffca28' },
   { label: '50% Pirulitos', type: 'pct', val: 0.50, color: '#ff7043' }
 ];
 
@@ -745,11 +745,10 @@ function drawWheel(angleOffset = 0) {
 
     wheelCtx.save();
     wheelCtx.fillStyle = '#fff';
-    wheelCtx.font = 'bold 10px sans-serif';
-    wheelCtx.translate(110 + Math.cos(angle + arc / 2) * 60, 110 + Math.sin(angle + arc / 2) * 60);
+    wheelCtx.font = 'bold 11px sans-serif';
+    wheelCtx.translate(110 + Math.cos(angle + arc / 2) * 62, 110 + Math.sin(angle + arc / 2) * 62);
     wheelCtx.rotate(angle + arc / 2 + Math.PI / 2);
-    const labelText = wheelRewards[i].label;
-    wheelCtx.fillText(labelText, -wheelCtx.measureText(labelText).width / 2, 0);
+    wheelCtx.fillText(wheelRewards[i].label, -wheelCtx.measureText(wheelRewards[i].label).width / 2, 0);
     wheelCtx.restore();
   }
 }
@@ -794,9 +793,9 @@ if (spinBtn) {
           gameState.totalEarned += amount;
           prizeText = `+${formatNum(amount)} Pirulitos!`;
         } else if (reward.type === 'boost') {
-          gameState.boostEndTime = Date.now() + (reward.val * 1000);
+          gameState.boostEndTime = Date.now() + (reward.val * 60 * 1000);
           gameState.boostsObtained += 1;
-          prizeText = 'Bônus 2x de Produção por 30 segundos ativado!';
+          prizeText = 'Bônus 2x de Produção ativado!';
         } else if (reward.type === 'click') {
           const amount = Math.max(500, Math.floor((getPps() + 1) * 20));
           gameState.pirulitos += amount;
@@ -833,21 +832,46 @@ function updateWheelTimerUI() {
   }
 }
 
-// --- ANÚNCIO MOCK (IMEDIATO - 30 SEGUNDOS) ---
+// --- SISTEMA DE ANÚNCIO RECOMPENSADO (30 Segundos) ---
 const adBoostBtn = document.getElementById('adBoostBtn');
+const adModal = document.getElementById('adModal');
+const adTimerDisplay = document.getElementById('adTimerDisplay');
+const closeAdBtn = document.getElementById('closeAdBtn');
+let adTimerInterval = null;
+
 if (adBoostBtn) {
   adBoostBtn.addEventListener('click', () => {
-    alert("📺 Anúncio de teste concluído!\nVocê recebeu um boost de 2x por 30 segundos.");
-    gameState.boostEndTime = Date.now() + (30 * 1000);
-    gameState.boostsObtained += 1;
-    playSound('win');
-    updateUI();
+    if (adModal) adModal.classList.remove('hidden');
+    if (closeAdBtn) closeAdBtn.style.display = 'none';
+    let timeLeft = 30;
+    if (adTimerDisplay) adTimerDisplay.innerText = `${timeLeft}s`;
+
+    try {
+      (adsbygoogle = window.adsbygoogle || []).push({});
+    } catch (e) {}
+
+    adTimerInterval = setInterval(() => {
+      timeLeft--;
+      if (adTimerDisplay) adTimerDisplay.innerText = `${timeLeft}s`;
+      if (timeLeft <= 0) {
+        clearInterval(adTimerInterval);
+        if (adTimerDisplay) adTimerDisplay.innerText = '✅ Concluído!';
+        if (closeAdBtn) closeAdBtn.style.display = 'inline-block';
+      }
+    }, 1000);
   });
 }
 
-try {
-  (adsbygoogle = window.adsbygoogle || []).push({});
-} catch (e) {}
+if (closeAdBtn) {
+  closeAdBtn.addEventListener('click', () => {
+    if (adModal) adModal.classList.add('hidden');
+    gameState.boostEndTime = Date.now() + (4 * 60 * 1000);
+    gameState.boostsObtained += 1;
+    playSound('win');
+    alert('🎉 Anúncio assistido com sucesso! Bônus 2x ativado por 4 minutos.');
+    updateUI();
+  });
+}
 
 // --- PRESTÍGIO ---
 const prestigeBtn = document.getElementById('prestigeBtn');
@@ -869,7 +893,7 @@ if (prestigeBtn) {
   });
 }
 
-// --- CONFIGURAÇÕES ---
+// --- CONFIGURAÇÕES & RESET DE PROGRESSO ---
 const toggleMusicBtn = document.getElementById('toggleMusicBtn');
 const toggleSfxBtn = document.getElementById('toggleSfxBtn');
 const resetDataBtn = document.getElementById('resetDataBtn');
@@ -907,7 +931,7 @@ if (resetDataBtn) {
   });
 }
 
-// --- LOOP E SAVE ---
+// --- GAME LOOP E SALVAMENTO AUTOMÁTICO ---
 setInterval(() => {
   const pps = getPps();
   if (pps > 0) {
