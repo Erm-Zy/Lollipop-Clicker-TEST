@@ -1,0 +1,12 @@
+{
+  "name": "lollipop-clicker",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test --test-isolation=none tests/*.test.js",
+    "check": "node --check js/app.js && node --check js/gameplay.js && node --check js/storage.js && node --check js/data.js && node --check js/audio.js && node --check js/effects.js && node --check sw.js",
+    "serve": "python3 -m http.server 8000 --bind 127.0.0.1",
+    "test:browser": "python3 tests/browser_smoke.py"
+  }
+}
