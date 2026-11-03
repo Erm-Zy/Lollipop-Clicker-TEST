@@ -1,3 +1,4 @@
+import { configuredArtworkPaths } from "./assets.js";
 import { createRuntime } from "../core/runtime.js";
 import { getPps, getClickPower } from "../gameplay.js";
 import { FLAVORS_DATA } from "../data.js";
@@ -167,6 +168,21 @@ export async function bootPage(page) {
       .register(new URL("../../sw.js", import.meta.url), {
         scope: new URL("../../", import.meta.url).pathname,
       })
+      .catch(() => {});
+  }
+  const artworkPaths = configuredArtworkPaths();
+  if (
+    artworkPaths.length &&
+    "serviceWorker" in navigator &&
+    !globalThis.Capacitor?.isNativePlatform?.()
+  ) {
+    navigator.serviceWorker.ready
+      .then((registration) =>
+        registration.active?.postMessage({
+          type: "lollipop:cache-art",
+          paths: artworkPaths,
+        }),
+      )
       .catch(() => {});
   }
   if (runtime.loaded.warnings.length)

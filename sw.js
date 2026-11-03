@@ -1,5 +1,5 @@
 // A complete release cache keeps all real pages and their shared modules together.
-const CACHE_NAME = "lollipop-clicker-3.0.0:" + self.registration.scope;
+const CACHE_NAME = "lollipop-clicker-3.0.1-art:" + self.registration.scope;
 const ASSETS = [
   "./",
   "./index.html",
@@ -30,6 +30,7 @@ const ASSETS = [
   "./js/pages/statistics.js",
   "./js/storage.js",
   "./js/ui/art.js",
+  "./js/ui/assets.js",
   "./js/ui/shared.js",
   "./js/ui/shop.js",
   "./css/global.css",
@@ -79,10 +80,58 @@ self.addEventListener("fetch", (event) => {
     (asset) =>
       new URL(asset, self.registration.scope).pathname === url.pathname,
   );
-  if (!path) return;
+  if (!path) {
+    if (
+      url.href.startsWith(
+        new URL("./assets/images/", self.registration.scope).href,
+      ) &&
+      /\.(png|webp)$/.test(url.pathname)
+    ) {
+      event.respondWith(
+        caches.open(CACHE_NAME).then(async (cache) => {
+          const cached = await cache.match(event.request);
+          if (cached) return cached;
+          const response = await fetch(event.request);
+          if (response.ok) {
+            try {
+              await cache.put(event.request, response.clone());
+            } catch {
+              /* Cache cheio não deve esconder uma imagem recebida. */
+            }
+          }
+          return response;
+        }),
+      );
+    }
+    return;
+  }
   event.respondWith(
     caches
       .open(CACHE_NAME)
       .then(async (cache) => (await cache.match(path)) || fetch(event.request)),
+  );
+});
+
+// Warm only explicitly configured local images. Failed optional artwork never breaks install.
+self.addEventListener("message", (event) => {
+  if (
+    event.data?.type !== "lollipop:cache-art" ||
+    !Array.isArray(event.data.paths)
+  )
+    return;
+  const paths = event.data.paths.filter(
+    (path) =>
+      typeof path === "string" &&
+      /^assets\/images\/(?:[a-z0-9_-]+\/)*[a-z0-9_-]+\.(png|webp)$/.test(path),
+  );
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) =>
+      Promise.allSettled(
+        paths.map(async (path) => {
+          const url = new URL(path, self.registration.scope).href;
+          if (!(await cache.match(url))) await cache.add(url);
+        }),
+      ),
+    ),
   );
 });

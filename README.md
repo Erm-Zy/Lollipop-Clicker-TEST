@@ -104,3 +104,7 @@ O service worker instala **todos os documentos** e módulos de uma release em co
 ## Beta Android
 
 O suporte Android usa Capacitor7, com ID `com.ermzy.lollipopclicker`, assets embarcados e versão inicial `3.0.0-beta.1`. O site continua funcionando sem instalar dependências nativas. Veja [instalação, migração de saves, assinatura e build](docs/android/BETA.md). O workflow `.github/workflows/android-apk.yml` compila e guarda artifacts; não publica na Google Play.
+
+## Desenhos feitos à mão
+
+Artes futuras em PNG/WebP ficam em `assets/images/`, organizadas por pirulitos, máquinas, chefes, fundos, efeitos, interface e app. A ativação é opcional e centralizada em `js/ui/assets.js`; sem imagem configurada, os SVGs atuais continuam iguais. Veja o [guia para a artista](docs/ART_GUIDE.md) e as [instruções de desenvolvimento e política da branch dev](AGENTS.md).

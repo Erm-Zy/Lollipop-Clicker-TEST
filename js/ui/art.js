@@ -1,3 +1,5 @@
+import { ARTWORK, lollipopArtwork, withArtwork } from "./assets.js";
+
 // Original vector illustrations shared by every page. IDs stay unique per render.
 let illustrationId = 0;
 const uid = () => `candy-art-${++illustrationId}`;
@@ -26,7 +28,7 @@ const skinColors = {
 const star = (x, y, size, color = "#fff0b5") =>
   `<path d="M${x} ${y - size}l${size * 0.3} ${size * 0.7} ${size * 0.7} ${size * 0.3}-${size * 0.7} ${size * 0.3}-${size * 0.3} ${size * 0.7}-${size * 0.3}-${size * 0.7}-${size * 0.7}-${size * 0.3} ${size * 0.7}-${size * 0.3}Z" fill="${color}"/>`;
 
-export function lollipopSVG(
+function defaultLollipopSVG(
   flavor = "morango",
   skin = "classic",
   small = false,
@@ -98,7 +100,7 @@ function gear(cx, cy, fill = "#f5d8a7") {
   return `<g class="gear"><path d="M${cx - 4} ${cy - 14}h8l2 5 5 2 5 4v7l-5 2-2 5-5 3h-8l-2-5-5-2-4-5v-7l5-2 2-5Z" fill="${fill}" stroke="#5b3b62" stroke-width="2"/><circle cx="${cx}" cy="${cy + 2}" r="5" fill="#6a4b72"/></g>`;
 }
 
-export function buildingSVG(key = "maquina", level = 0) {
+function defaultBuildingSVG(key = "maquina", level = 0) {
   const idx = Math.max(0, buildingKeys.indexOf(key));
   const [light, shade, accent] = machinePalettes[idx];
   let machine;
@@ -125,7 +127,7 @@ function cloud(x, y, scale = 1, color = "#f9d3e1") {
   return `<g class="candy-cloud" transform="translate(${x} ${y}) scale(${scale})"><path d="M0 22c-8-21 19-31 30-18 6-30 48-31 55-3 24-13 49 8 38 27H4Z" fill="${color}" opacity=".84"/></g>`;
 }
 
-export function worldSVG(stage = 0) {
+function defaultWorldSVG(stage = 0) {
   const id = uid();
   const tier = Math.max(0, Math.min(4, Math.floor(stage)));
   return `<svg class="world-illustration" viewBox="0 0 640 650" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
@@ -152,7 +154,7 @@ export function worldSVG(stage = 0) {
   </svg>`;
 }
 
-export function bossSVG(level = 0) {
+function defaultBossSVG(level = 0) {
   const kind = Math.max(0, Math.floor(level)) % 3;
   const id = uid();
   const colors = [
@@ -195,4 +197,31 @@ export function collectionSVG(key = "classic", category = "skin") {
     return `<svg class="collection-illustration" viewBox="0 0 180 130" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="4" y="4" width="172" height="122" rx="19" fill="${colors[1]}"/><circle cx="136" cy="36" r="17" fill="#ffe2ad"/>${cloud(22, 24, 0.48, colors[2])}<path d="M4 94q42-45 88-9t84-12v34q0 19-19 19H23q-19 0-19-19Z" fill="${colors[0]}"/>${candyTree(49, 76, 0.4, colors[2])}<path d="M100 94q-31 16-4 32h22q-31-22-6-32" fill="#ffe1be"/></svg>`;
   }
   return `<svg class="collection-illustration" viewBox="0 0 180 130" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="90" cy="67" r="43" fill="${colors[1]}" opacity=".3"/>${star(90, 61, 24, colors[0])}${star(43, 35, 9, colors[2])}${star(139, 95, 11, colors[0])}${star(139, 34, 6, colors[2])}<g fill="${colors[0]}"><circle cx="46" cy="96" r="5"/><circle cx="119" cy="16" r="4"/><circle cx="24" cy="68" r="3"/></g></svg>`;
+}
+
+// Adapters leave the generated SVG byte-for-byte unchanged until an image is configured.
+export function lollipopSVG(
+  flavor = "morango",
+  skin = "classic",
+  small = false,
+) {
+  return withArtwork(
+    defaultLollipopSVG(flavor, skin, small),
+    lollipopArtwork(flavor, skin),
+  );
+}
+export function buildingSVG(key = "maquina", level = 0) {
+  return withArtwork(defaultBuildingSVG(key, level), ARTWORK.buildings[key]);
+}
+export function bossSVG(level = 0) {
+  return withArtwork(
+    defaultBossSVG(level),
+    ARTWORK.bosses[Math.max(0, Math.floor(level)) % 3],
+  );
+}
+export function worldSVG(stage = 0) {
+  return withArtwork(
+    defaultWorldSVG(stage),
+    ARTWORK.worlds[Math.max(0, Math.min(4, Math.floor(stage)))],
+  );
 }
