@@ -54,7 +54,7 @@ if (Capacitor.isNativePlatform()) {
   );
   setTimeout(() => SplashScreen.hide().catch(() => {}), 12000);
   // Each touch pointer counts once, including simultaneous fingers. Compatibility clicks are suppressed.
-  const touched = new WeakMap();
+  const touched = new WeakSet();
   document.addEventListener(
     "pointerdown",
     (event) => {
@@ -65,7 +65,7 @@ if (Capacitor.isNativePlatform()) {
         return;
       }
       event.preventDefault();
-      touched.set(button, performance.now());
+      touched.add(button);
       button.dispatchEvent(
         new MouseEvent("click", {
           bubbles: true,
@@ -85,7 +85,7 @@ if (Capacitor.isNativePlatform()) {
         button &&
         event.isTrusted &&
         event.detail > 0 &&
-        performance.now() - (touched.get(button) ?? -10000) < 1000
+        touched.has(button)
       ) {
         event.preventDefault();
         event.stopImmediatePropagation();
