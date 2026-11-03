@@ -1,0 +1,3 @@
+Teste de integração GitHub / ChatGPT.
+Commit de verificação na branch main.
+Este arquivo pode ser removido após a confirmação.
