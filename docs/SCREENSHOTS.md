@@ -19,3 +19,13 @@ Capturas de Chromium em 1440 × 900 e 390 × 844, usando o save de teste da vers
 ![Arena no desktop](screenshots/desktop-arena.png)
 
 ![Arena no celular](screenshots/mobile-arena.png)
+
+## Atualização de qualidade de vida
+
+As capturas acima registram a interface anterior a este polimento. As novas capturas abaixo usam Chromium em 390 × 844, com a mesma fixture migrada, movimento reduzido e notificações transitórias ocultas:
+
+- [Loja normal](screenshots/qol/mobile-shop-normal.png)
+- [Loja compacta](screenshots/qol/mobile-shop-compact.png)
+- [Coleção e comparação de sabores](screenshots/qol/mobile-collection-comparison.png)
+
+Veja os [resultados e limites desta atualização](QOL_UPDATE.md). A barra fixa aparece na posição da viewport nas capturas de página inteira; o teste verifica que o fim do conteúdo pode ser rolado acima dela.

@@ -64,6 +64,7 @@ js/core/runtime.js          Único relógio, escritor, lifecycle, áudio e event
 js/ui/shared.js             Navegação, HUD, avisos e bootstrap compartilhado
 js/ui/art.js                Pirulitos, máquinas, cenários e chefes SVG originais
 js/ui/shop.js               Componente reutilizável de compra e lotes
+js/ui/qol.js                Prévias e estimativas de interface sem mutar progresso
 js/pages/*.js               Somente o controlador do documento visitado
 js/audio.js / effects.js    Som e partículas sob demanda
 sw.js / manifest.json       Aplicação estática instalável e páginas offline
@@ -108,3 +109,7 @@ O suporte Android usa Capacitor7, com ID `com.ermzy.lollipopclicker`, assets emb
 ## Desenhos feitos à mão
 
 Artes futuras em PNG/WebP ficam em `assets/images/`, organizadas por pirulitos, máquinas, chefes, fundos, efeitos, interface e app. A ativação é opcional e centralizada em `js/ui/assets.js`; sem imagem configurada, os SVGs atuais continuam iguais. Veja o [guia para a artista](docs/ART_GUIDE.md) e as [instruções de desenvolvimento e política da branch dev](AGENTS.md).
+
+## Qualidade de vida no celular
+
+A oficina oferece vista normal ou compacta, mantendo ×1/×10/×100/MAX e mostrando disponibilidade e estimativas passivas quando confiáveis. Na Coleção, consulte todos os bônus e compare um sabor sem comprar ou equipar; na Arena, confira a recompensa antes de lutar. A preferência `lollipopUI.shopView` fica separada do progresso. [Mudanças, testes e limites](docs/QOL_UPDATE.md) · [Capturas](docs/SCREENSHOTS.md).

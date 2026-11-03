@@ -6,6 +6,8 @@ mountShop(
   runtime,
   document.getElementById("upgradesList"),
   document.getElementById("buyControls"),
+  undefined,
+  document.getElementById("shopViewControls"),
 );
 runtime.subscribe((state, info) => {
   setText(
