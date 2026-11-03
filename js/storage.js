@@ -8,12 +8,14 @@ import {
   WHEEL_REWARDS,
   WHEEL_DURATION_MS,
   BOSS_DURATION_MS,
+  SUGAR_EVENT_DURATION_MS,
 } from "./data.js";
 import { createState, advance, getPrestigeTarget } from "./gameplay.js";
 
 export const SAVE_KEY = "lollipopSave";
 export const BACKUP_KEY = "lollipopSave.backup";
 export const LEGACY_BACKUP_KEY = "lollipopSave.legacy-v1";
+export const V2_BACKUP_KEY = "lollipopSave.legacy-v2";
 export const RECOVERY_KEY = "lollipopSave.recovery";
 
 const STATE_FIELDS = new Set([
@@ -78,6 +80,7 @@ export function validateState(raw, now = Date.now()) {
     "bossesKilled",
     "wheelSpins",
     "boostsObtained",
+    "sugarEventsClaimed",
   ]) {
     state[key] = count(raw[key]);
   }
@@ -106,7 +109,7 @@ export function validateState(raw, now = Date.now()) {
   if (state.unlockedSkins.includes(raw.activeSkin))
     state.activeSkin = raw.activeSkin;
   // Legacy skins bundled the three visuals. Preserve their appearance on migration.
-  const legacy = number(raw.version) < SAVE_VERSION;
+  const legacy = number(raw.version) < 2;
   const theme = legacy ? state.activeSkin : raw.activeTheme;
   const particles = legacy ? state.activeSkin : raw.activeParticles;
   if (state.unlockedSkins.includes(theme)) state.activeTheme = theme;
@@ -116,11 +119,27 @@ export function validateState(raw, now = Date.now()) {
   for (const key of Object.keys(state.settings)) {
     if (typeof settings[key] === "boolean") state.settings[key] = settings[key];
   }
-  for (const key of ["lastWheelTime", "boostEndTime", "lastBoostTime"])
+  for (const key of [
+    "lastWheelTime",
+    "boostEndTime",
+    "lastBoostTime",
+    "bossCooldownUntil",
+  ])
     state[key] = timestamp(raw[key]);
   // Old versions had no timestamp: never fabricate offline earnings for them.
   state.lastTick = timestamp(raw.lastTick, timestamp(raw.savedAt, now));
   state.savedAt = timestamp(raw.savedAt, state.lastTick);
+  state.nextEventAt = timestamp(raw.nextEventAt, state.nextEventAt);
+  if (record(raw.sugarEvent)) {
+    const id = timestamp(raw.sugarEvent.id);
+    const endsAt = timestamp(raw.sugarEvent.endsAt);
+    if (
+      id > 0 &&
+      endsAt - id === SUGAR_EVENT_DURATION_MS &&
+      id <= Math.max(now, state.lastTick)
+    )
+      state.sugarEvent = { id, endsAt };
+  }
   state.prestigeClaimed = legacy
     ? state.prestigeLevel > 0
       ? getPrestigeTarget(state)
@@ -202,6 +221,7 @@ export function loadGame(storage, now = Date.now()) {
     canSave: true,
     warnings: [],
     offlineEarned: 0,
+    offlineElapsed: 0,
   };
   let raw;
   try {
@@ -220,8 +240,10 @@ export function loadGame(storage, now = Date.now()) {
     result.state = validateState(parsed, now);
     if (number(parsed.version) < SAVE_VERSION) {
       try {
-        if (storage.getItem(LEGACY_BACKUP_KEY) === null)
-          storage.setItem(LEGACY_BACKUP_KEY, raw);
+        const backupKey =
+          number(parsed.version) < 2 ? LEGACY_BACKUP_KEY : V2_BACKUP_KEY;
+        if (storage.getItem(backupKey) === null)
+          storage.setItem(backupKey, raw);
       } catch {
         result.canSave = false;
         result.warnings.push(
@@ -253,6 +275,7 @@ export function loadGame(storage, now = Date.now()) {
   }
   const progress = advance(result.state, now, { offline: true });
   result.offlineEarned = progress.earned;
+  result.offlineElapsed = progress.elapsed;
   return result;
 }
 

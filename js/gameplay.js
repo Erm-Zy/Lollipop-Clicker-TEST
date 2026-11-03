@@ -11,6 +11,9 @@ import {
   BOOST_DURATION_MS,
   BOOST_COOLDOWN_MS,
   BOSS_DURATION_MS,
+  BOSS_COOLDOWN_MS,
+  SUGAR_EVENT_INTERVAL_MS,
+  SUGAR_EVENT_DURATION_MS,
   OFFLINE_CAP_MS,
 } from "./data.js";
 
@@ -33,6 +36,10 @@ export function createState(now = Date.now()) {
     unlockedSkins: ["classic"],
     unlockedAchievements: [],
     bossesKilled: 0,
+    bossCooldownUntil: 0,
+    nextEventAt: now + SUGAR_EVENT_INTERVAL_MS,
+    sugarEvent: null,
+    sugarEventsClaimed: 0,
     wheelSpins: 0,
     lastWheelTime: 0,
     pendingWheel: null,
@@ -47,7 +54,13 @@ export function createState(now = Date.now()) {
     maxPps: 0,
     lastTick: now,
     savedAt: now,
-    settings: { music: true, sfx: true, particles: true, reducedMotion: false },
+    settings: {
+      music: true,
+      sfx: true,
+      particles: true,
+      animations: true,
+      reducedMotion: false,
+    },
   };
 }
 
@@ -155,7 +168,25 @@ export function advance(state, now = Date.now(), { offline = false } = {}) {
   if (!offline) state.timePlayed += elapsed / 1000;
   state.lastTick = effectiveNow;
   const bossExpired = Boolean(state.boss && effectiveNow >= state.boss.endsAt);
-  if (bossExpired) state.boss = null;
+  if (bossExpired) {
+    state.bossCooldownUntil = Math.max(
+      state.bossCooldownUntil,
+      state.boss.endsAt + BOSS_COOLDOWN_MS,
+    );
+    state.boss = null;
+  }
+  if (state.sugarEvent && effectiveNow >= state.sugarEvent.endsAt)
+    state.sugarEvent = null;
+  if (!state.sugarEvent && effectiveNow >= state.nextEventAt) {
+    const startedAt = state.nextEventAt;
+    // Late/offline callbacks skip missed events rather than creating a backlog.
+    if (!offline && effectiveNow < startedAt + SUGAR_EVENT_DURATION_MS)
+      state.sugarEvent = {
+        id: startedAt,
+        endsAt: startedAt + SUGAR_EVENT_DURATION_MS,
+      };
+    state.nextEventAt = effectiveNow + SUGAR_EVENT_INTERVAL_MS;
+  }
   state.maxPps = Math.max(state.maxPps, getPps(state, effectiveNow));
   return { earned, elapsed, bossExpired, wheelReward };
 }
@@ -167,14 +198,46 @@ export function click(state, now = Date.now()) {
   return amount;
 }
 
-export function buyUpgrade(state, key, now = Date.now()) {
+/** Sum the exact rounded unit prices; a geometric-sum floor is not equivalent. */
+export function getBulkQuote(state, key, quantity = 1) {
+  const data = Object.hasOwn(UPGRADES_DATA, key) ? UPGRADES_DATA[key] : null;
+  if (!data || ![1, 10, 100, "max"].includes(quantity))
+    return { quantity: 0, cost: Infinity };
+  const limit = quantity === "max" ? 2000 : quantity;
+  let cost = 0;
+  let count = 0;
+  for (; count < limit; count++) {
+    const unit = Math.floor(
+      data.baseCost * Math.pow(data.costMult, state.upgrades[key] + count),
+    );
+    if (!Number.isFinite(unit) || unit > MAX_VALUE || cost > MAX_VALUE - unit)
+      break;
+    if (quantity === "max" && cost + unit > state.pirulitos) break;
+    cost += unit;
+  }
+  if (quantity !== "max" && count !== quantity)
+    return { quantity, cost: Infinity };
+  return { quantity: count, cost };
+}
+
+/** A single atomic debit prevents repeated input from partially buying a fixed lot. */
+export function buyBulk(state, key, quantity = 1, now = Date.now()) {
   advance(state, now);
-  const cost = getUpgradeCost(state, key);
-  if (!Number.isFinite(cost) || state.pirulitos < cost) return false;
-  state.pirulitos -= cost;
-  state.upgrades[key] += 1;
+  const quote = getBulkQuote(state, key, quantity);
+  if (
+    !quote.quantity ||
+    !Number.isFinite(quote.cost) ||
+    state.pirulitos < quote.cost
+  )
+    return false;
+  state.pirulitos = Math.max(0, state.pirulitos - quote.cost);
+  state.upgrades[key] += quote.quantity;
   state.maxPps = Math.max(state.maxPps, getPps(state, now));
-  return true;
+  return quote;
+}
+
+export function buyUpgrade(state, key, now = Date.now()) {
+  return Boolean(buyBulk(state, key, 1, now));
 }
 
 export function selectFlavor(state, key, now = Date.now()) {
@@ -261,13 +324,15 @@ export function prestige(state, now = Date.now()) {
   state.wheelClickBonus = 0;
   state.boostEndTime = 0;
   state.boss = null;
+  state.sugarEvent = null;
+  state.nextEventAt = state.lastTick + SUGAR_EVENT_INTERVAL_MS;
   return gain;
 }
 
 export function startBoss(state, now = Date.now()) {
   advance(state, now);
   now = state.lastTick;
-  if (state.boss) return false;
+  if (state.boss || now < state.bossCooldownUntil) return false;
   const maxHp = getBossMaxHp(state);
   state.boss = { maxHp, hp: maxHp, endsAt: now + BOSS_DURATION_MS };
   return state.boss;
@@ -282,6 +347,7 @@ export function hitBoss(state, now = Date.now()) {
   const maxHp = state.boss.maxHp;
   state.boss = null;
   state.bossesKilled += 1;
+  state.bossCooldownUntil = state.lastTick + BOSS_COOLDOWN_MS;
   const reward = addCurrency(state, cap(Math.floor(maxHp * 15)));
   return { damage, won: true, reward };
 }
@@ -299,4 +365,37 @@ export function checkAchievements(state, now = Date.now()) {
     }
   }
   return unlocked;
+}
+
+/** Optional world event: only a live, explicit click grants its one-time reward. */
+export function claimSugarEvent(state, now = Date.now()) {
+  advance(state, now);
+  if (!state.sugarEvent || state.lastTick >= state.sugarEvent.endsAt)
+    return false;
+  state.sugarEvent = null;
+  state.sugarEventsClaimed += 1;
+  return addCurrency(state, Math.max(25, getPps(state, Infinity) * 30));
+}
+
+/** Data for game-style achievement meters; original unlock requirements are unchanged. */
+export function getAchievementProgress(state, id, now = Date.now()) {
+  const progress = {
+    c1: [state.totalClicks, 1, "Cliques"],
+    c100: [state.totalClicks, 100, "Cliques"],
+    c1000: [state.totalClicks, 1000, "Cliques"],
+    viciado: [state.totalEarned, 10000, "Produção"],
+    fabrica_doces: [getPps(state, now), 500, "Produção"],
+    magnata: [getPps(state, now), 1000000, "Produção"],
+    sabores_3: [state.unlockedFlavors.length, 4, "Coleção"],
+    sabores_todos: [state.unlockedFlavors.length, 8, "Coleção"],
+    fashionista: [state.unlockedSkins.length, 3, "Coleção"],
+    roleta_1: [state.wheelSpins, 1, "Aventura"],
+    upgrades_10: [getTotalUpgradesCount(state), 10, "Produção"],
+    boss_1: [state.bossesKilled, 1, "Aventura"],
+    tempo_10m: [state.timePlayed, 600, "Aventura"],
+  };
+  if (!Object.hasOwn(progress, id))
+    return { current: 0, target: 1, category: "Outras" };
+  const [current, target, category] = progress[id];
+  return { current, target, category };
 }
