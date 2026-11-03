@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#281643" />
+    <meta
+      name="description"
+      content="Lollipop Clicker: um mundo vivo feito de açúcar, magia e muitos cliques."
+    />
+    <title>Conquistas · Lollipop Clicker</title>
+    <link rel="icon" href="../icon-192.png" type="image/png" />
+    <link rel="manifest" href="../manifest.json" />
+    <link rel="stylesheet" href="../css/global.css" />
+    <link rel="stylesheet" href="../css/game.css" />
+    <link rel="stylesheet" href="../css/navigation.css" />
+    <link rel="stylesheet" href="../css/animations.css" />
+    <link rel="stylesheet" href="../css/pages.css" />
+    <link rel="stylesheet" href="../css/responsive.css" />
+  </head>
+  <body data-page="achievements">
+    <a class="skip-link" href="#pageContent">Pular para o conteúdo</a>
+    <header id="gameHeader"></header>
+    <main id="pageContent" class="page-scene">
+      <div class="page-heading">
+        <a class="back-link" href="../index.html">← Voltar ao mundo</a>
+        <p class="eyebrow">ÁLBUM DO AVENTUREIRO</p>
+        <h1 class="page-title">Pequenas grandes conquistas</h1>
+        <p class="page-lead">
+          Cada clique conta uma história. Complete seu álbum e celebre cada
+          descoberta deste mundo doce.
+        </p>
+      </div>
+      <section class="achievement-album" aria-labelledby="albumTitle">
+        <div class="album-heading">
+          <h2 id="albumTitle">Seu álbum de feitos</h2>
+          <p id="achievementSummary" class="collection-counter">
+            0 de 13 conquistas desbloqueadas
+          </p>
+        </div>
+        <div
+          id="achievementFilters"
+          class="inventory-tabs"
+          role="group"
+          aria-label="Categorias de conquistas"
+        ></div>
+        <div id="achievementsList" class="achievement-grid"></div>
+        <p class="page-note">
+          As conquistas são permanentes: continuam com você mesmo depois de
+          renascer com prestígio.
+        </p>
+      </section>
+    </main>
+    <nav id="bottomNav" aria-label="Navegação do jogo"></nav>
+    <canvas id="fxCanvas" aria-hidden="true"></canvas>
+    <div id="toast" role="status" aria-live="polite" hidden></div>
+    <noscript
+      >Ative o JavaScript para continuar sua aventura de doces.</noscript
+    >
+    <script type="module" src="../js/pages/achievements.js"></script>
+  </body>
+</html>

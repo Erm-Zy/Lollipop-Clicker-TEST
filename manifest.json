@@ -1,11 +1,11 @@
 {
-  "name": "Lollipop Clicker 2.0",
+  "name": "Lollipop Clicker 3.0",
   "short_name": "Lollipop",
-  "description": "Sua pequena fábrica de grandes delícias. Jogue, colecione e evolua!",
+  "description": "Um mundo vivo de doces. Clique, construa engenhocas e explore o vale!",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#14121c",
-  "theme_color": "#14121c",
+  "background_color": "#352044",
+  "theme_color": "#382044",
   "icons": [
     {
       "src": "icon-192.png",

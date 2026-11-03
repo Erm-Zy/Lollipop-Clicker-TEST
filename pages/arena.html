@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#291440" />
+    <meta
+      name="description"
+      content="Desafie os guardiões do reino dos doces em batalhas de clique contra o relógio."
+    />
+    <title>Arena · Lollipop Clicker</title>
+    <link rel="icon" href="../icon-192.png" />
+    <link rel="manifest" href="../manifest.json" />
+    <link rel="stylesheet" href="../css/global.css" />
+    <link rel="stylesheet" href="../css/game.css" />
+    <link rel="stylesheet" href="../css/navigation.css" />
+    <link rel="stylesheet" href="../css/animations.css" />
+    <link rel="stylesheet" href="../css/pages.css" />
+    <link rel="stylesheet" href="../css/responsive.css" />
+  </head>
+  <body data-page="arena">
+    <a class="skip-link" href="#mainContent">Pular para a arena</a>
+    <header id="gameHeader"></header>
+    <main id="mainContent" class="page-scene arena-page">
+      <div class="page-heading">
+        <div>
+          <span class="eyebrow">ALÉM DAS COLINAS DE AÇÚCAR</span>
+          <h1 class="page-title">Arena dos guardiões</h1>
+          <p class="page-lead">
+            Um pirulito na mão. Trinta segundos no relógio. Mostre a força do
+            seu clique!
+          </p>
+        </div>
+        <a class="game-button secondary" href="../index.html"
+          >Voltar ao mundo</a
+        >
+      </div>
+      <section class="arena-stage" aria-label="Combate contra o guardião">
+        <div class="arena-stars" aria-hidden="true">✦ · ✧ · ✦</div>
+        <div class="combat-info">
+          <span id="bossLevel" class="eyebrow">GUARDIÃO 1</span>
+          <h2 id="bossName">Geleião do Pomar</h2>
+          <p id="bossStory" class="arena-story">
+            Um guardião curioso bloqueou a trilha dos doces.
+          </p>
+        </div>
+        <button
+          id="bossAvatar"
+          type="button"
+          class="boss-art"
+          aria-label="Atacar o guardião"
+          disabled
+        ></button>
+        <div class="boss-health">
+          <div
+            class="boss-hp-track"
+            role="meter"
+            aria-label="Vida do guardião"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            aria-valuenow="100"
+          >
+            <span id="bossHpBar"></span>
+          </div>
+          <p id="bossHpText">100 / 100 HP</p>
+        </div>
+        <div class="combat-info battle-readout">
+          <strong id="bossTimer">30 segundos para vencer</strong
+          ><span id="bossDamage">Seu ataque: 2</span
+          ><span id="bossReward">Recompensa: 1.500 doces</span>
+        </div>
+        <div class="battle-actions">
+          <button id="startBossBtn" class="game-button" type="button">
+            Desafiar guardião
+          </button>
+          <p id="bossHint">
+            Toque no guardião ou use Espaço e Enter para atacar. Só uma vitória
+            dentro do prazo rende a recompensa.
+          </p>
+        </div>
+        <div
+          id="battleResult"
+          class="battle-result"
+          role="status"
+          aria-live="polite"
+          hidden
+        ></div>
+      </section>
+      <p class="arena-story arena-footer">
+        Sua fábrica continua produzindo durante o combate. Cada vitória revela
+        um guardião mais resistente; os desafios têm uma recarga de 30 segundos.
+      </p>
+    </main>
+    <nav id="bottomNav" aria-label="Navegação do jogo"></nav>
+    <canvas id="fxCanvas" aria-hidden="true"></canvas>
+    <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+    <script type="module" src="../js/pages/arena.js"></script>
+  </body>
+</html>

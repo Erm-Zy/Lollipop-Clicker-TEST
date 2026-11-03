@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#291440" />
+    <meta
+      name="description"
+      content="Transforme seu legado de doces em estrelas de prestígio e bônus permanentes."
+    />
+    <title>Prestígio · Lollipop Clicker</title>
+    <link rel="icon" href="../icon-192.png" />
+    <link rel="manifest" href="../manifest.json" />
+    <link rel="stylesheet" href="../css/global.css" />
+    <link rel="stylesheet" href="../css/game.css" />
+    <link rel="stylesheet" href="../css/navigation.css" />
+    <link rel="stylesheet" href="../css/animations.css" />
+    <link rel="stylesheet" href="../css/pages.css" />
+    <link rel="stylesheet" href="../css/responsive.css" />
+  </head>
+  <body data-page="prestige">
+    <a class="skip-link" href="#mainContent">Pular para o santuário</a>
+    <header id="gameHeader"></header>
+    <main id="mainContent" class="page-scene prestige-page">
+      <div class="page-heading">
+        <div>
+          <span class="eyebrow">ONDE OS SONHOS VIRAM ESTRELAS</span>
+          <h1 class="page-title">Santuário do açúcar</h1>
+          <p class="page-lead">
+            Toda grande aventura merece um novo começo. O seu legado torna o
+            próximo ainda mais doce.
+          </p>
+        </div>
+        <a class="game-button secondary" href="../index.html"
+          >Voltar ao mundo</a
+        >
+      </div>
+      <section class="prestige-shrine" aria-label="Renascer com prestígio">
+        <div class="prestige-orb" aria-hidden="true">
+          <svg viewBox="0 0 240 220" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <radialGradient id="starGlow">
+                <stop stop-color="#fff5b0" />
+                <stop offset="1" stop-color="#ee9b44" />
+              </radialGradient>
+            </defs>
+            <ellipse
+              cx="120"
+              cy="191"
+              rx="79"
+              ry="16"
+              fill="#1e1039"
+              opacity=".4"
+            />
+            <path
+              d="M52 172h136l-11 26H63Z"
+              fill="#a47bc8"
+              stroke="#542e79"
+              stroke-width="5"
+            />
+            <path
+              d="M79 155h82l12 18H67Z"
+              fill="#d8a7e9"
+              stroke="#542e79"
+              stroke-width="5"
+            />
+            <circle
+              cx="120"
+              cy="89"
+              r="65"
+              fill="#71539a"
+              stroke="#c7a0ee"
+              stroke-width="4"
+            />
+            <circle
+              cx="120"
+              cy="89"
+              r="52"
+              fill="#4a316b"
+              stroke="#f5cc86"
+              stroke-width="2"
+              stroke-dasharray="4 7"
+            />
+            <path
+              d="m120 45 13 28 31 4-23 22 6 31-27-15-27 15 6-31-23-22 31-4Z"
+              fill="url(#starGlow)"
+              stroke="#f9e4b4"
+              stroke-width="3"
+            />
+            <path d="m120 55 8 22 23 4-27 2Z" fill="#fff5d5" opacity=".8" />
+            <path
+              d="m36 54 4 8 8 4-8 4-4 8-4-8-8-4 8-4m166 39 4 8 8 4-8 4-4 8-4-8-8-4 8-4"
+              fill="#fbeab5"
+            />
+          </svg>
+        </div>
+        <span class="eyebrow">SEU LEGADO PERMANENTE</span>
+        <h2>Estrelas que ficam com você</h2>
+        <p class="prestige-summary">
+          Prestígio atual: <strong id="prestigeLevel">0</strong> · Bônus de
+          produção e clique: <strong id="prestigeBonus">+0%</strong>
+        </p>
+        <p class="prestige-gain" id="prestigeGainText">
+          +0 níveis de prestígio
+        </p>
+        <div
+          class="prestige-progress"
+          role="progressbar"
+          aria-label="Produção até o próximo nível"
+          aria-valuemin="0"
+          aria-valuemax="100"
+          aria-valuenow="0"
+        >
+          <span id="prestigeProgressFill"></span>
+        </div>
+        <p id="prestigeRequirement">
+          O primeiro nível precisa de 1 milhão de doces produzidos no total.
+        </p>
+        <button id="prestigeBtn" type="button" class="game-button" disabled>
+          Renascer com prestígio
+        </button>
+        <p id="prestigePending" class="inventory-hint" hidden>
+          Aguarde o giro da roleta terminar antes de renascer.
+        </p>
+      </section>
+      <div class="prestige-rules">
+        <section class="journal-sheet">
+          <h2>Um novo começo</h2>
+          <p>
+            O saldo, as máquinas, o combate ativo e os bônus temporários
+            recomeçam do zero. O bônus raro de clique da roleta também termina.
+          </p>
+        </section>
+        <section class="journal-sheet">
+          <h2>Um legado para sempre</h2>
+          <p>
+            Você mantém sabores, visuais, conquistas, estatísticas e níveis de
+            prestígio. Cada nível concede +15% à produção e ao clique. Cooldowns
+            continuam correndo.
+          </p>
+        </section>
+      </div>
+      <p class="inventory-footnote">
+        O mesmo histórico só pode render prestígio uma vez. Os novos níveis
+        exigem mais produção: o primeiro em 1 milhão, o segundo em 8 milhões, o
+        terceiro em 27 milhões.
+      </p>
+    </main>
+    <nav id="bottomNav" aria-label="Navegação do jogo"></nav>
+    <canvas id="fxCanvas" aria-hidden="true"></canvas>
+    <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+    <script type="module" src="../js/pages/prestige.js"></script>
+  </body>
+</html>

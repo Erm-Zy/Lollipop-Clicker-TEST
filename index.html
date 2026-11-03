@@ -6,769 +6,139 @@
       name="viewport"
       content="width=device-width, initial-scale=1, viewport-fit=cover"
     />
-    <meta name="theme-color" content="#15131d" />
+    <title>Lollipop Clicker 3.0 · Um mundo de doces</title>
     <meta
       name="description"
-      content="Uma pequena fábrica, infinitas possibilidades. Clique, produza e construa seu império de pirulitos."
+      content="Clique, construa e descubra um mundo feito de doces. Uma aventura incremental brasileira, leve e cheia de sabor."
     />
-    <title>Lollipop Clicker · Sua fábrica de doces</title>
-    <link rel="icon" href="icon-192.png" type="image/png" />
+    <meta name="theme-color" content="#382044" />
+    <link rel="icon" href="icon-192.png" />
     <link rel="manifest" href="manifest.json" />
-    <link rel="stylesheet" href="css/main.css" />
-    <link rel="stylesheet" href="css/components.css" />
+    <link rel="stylesheet" href="css/global.css" />
+    <link rel="stylesheet" href="css/game.css" />
+    <link rel="stylesheet" href="css/navigation.css" />
+    <link rel="stylesheet" href="css/animations.css" />
+    <link rel="stylesheet" href="css/pages.css" />
     <link rel="stylesheet" href="css/responsive.css" />
   </head>
-  <body class="theme-classic">
-    <a class="skip-link" href="#mainContent">Pular para o jogo</a>
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      class="icon-definitions"
-      aria-hidden="true"
-    >
-      <defs>
-        <symbol id="i-grid" viewBox="0 0 24 24">
-          <rect x="3" y="3" width="7" height="7" rx="2" />
-          <rect x="14" y="3" width="7" height="7" rx="2" />
-          <rect x="3" y="14" width="7" height="7" rx="2" />
-          <rect x="14" y="14" width="7" height="7" rx="2" />
-        </symbol>
-        <symbol id="i-bolt" viewBox="0 0 24 24">
-          <path d="m13 2-9 12h7l-1 8 10-13h-8z" />
-        </symbol>
-        <symbol id="i-flavor" viewBox="0 0 24 24">
-          <path d="M12 6c5-4 10 0 8 6l-4 8c-2 3-6 3-8 0l-4-8C2 6 7 2 12 6Z" />
-          <path d="m12 6 2-4M8 10h.01M15 10h.01M11 15h.01" />
-        </symbol>
-        <symbol id="i-palette" viewBox="0 0 24 24">
-          <path d="M21 11a9 9 0 1 0-9 10h1c3 0 2-3 2-4s1-2 3-2 3-2 3-4Z" />
-          <path d="M7 10h.01M10 6h.01M15 7h.01M6 14h.01" />
-        </symbol>
-        <symbol id="i-wheel" viewBox="0 0 24 24">
-          <circle cx="12" cy="12" r="9" />
-          <circle cx="12" cy="12" r="2" />
-          <path
-            d="M12 3v7m0 4v7M3 12h7m4 0h7M6 6l5 5m2 2 5 5M6 18l5-5m2-2 5-5"
-          />
-        </symbol>
-        <symbol id="i-crown" viewBox="0 0 24 24">
-          <path d="m3 6 5 4 4-7 4 7 5-4-3 13H6Z" />
-          <path d="M6 22h12" />
-        </symbol>
-        <symbol id="i-cup" viewBox="0 0 24 24">
-          <path
-            d="M7 3h10v7a5 5 0 0 1-10 0Zm5 12v6m-4 0h8M7 5H3v3c0 3 2 4 5 4m9-7h4v3c0 3-2 4-5 4"
-          />
-        </symbol>
-        <symbol id="i-chart" viewBox="0 0 24 24">
-          <path d="M3 3v18h18M7 16v-5m5 5V7m5 9V4" />
-        </symbol>
-        <symbol id="i-settings" viewBox="0 0 24 24">
-          <path
-            d="m10 3-1 3-3 1-3 3v4l3 3 3 1 1 3h4l1-3 3-1 3-3v-4l-3-3-3-1-1-3Z"
-          />
-          <circle cx="12" cy="12" r="3" />
-        </symbol>
-        <symbol id="i-sparkle" viewBox="0 0 24 24">
-          <path d="m12 3 2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5Z" />
-        </symbol>
-        <symbol id="i-arrow" viewBox="0 0 24 24">
-          <path d="M5 12h14m-5-5 5 5-5 5" />
-        </symbol>
-        <symbol id="i-check" viewBox="0 0 24 24">
-          <path d="m5 12 4 4L19 6" />
-        </symbol>
-      </defs>
-    </svg>
-    <canvas id="fxCanvas" aria-hidden="true"></canvas>
-    <div class="app-shell">
-      <aside class="sidebar" aria-label="Menu principal">
-        <a class="brand" href="./" aria-label="Lollipop Clicker, início"
-          ><span class="brand-mark" aria-hidden="true">🍭</span
-          ><span>Lollipop<span class="brand-sub">CLICKER</span></span></a
-        >
-        <span class="nav-label">SEU IMPÉRIO DOCE</span>
-        <nav class="nav-tabs" aria-label="Seções do jogo">
-          <button
-            class="tab-btn active"
-            data-tab="upgrades"
-            aria-label="Fábrica"
-            title="Fábrica"
-            aria-controls="tab-upgrades"
-            aria-pressed="true"
-          >
-            <svg class="icon"><use href="#i-grid" /></svg><span>Fábrica</span
-            ><span class="nav-active-dot"></span>
-          </button>
-          <button
-            class="tab-btn"
-            data-tab="flavors"
-            aria-label="Sabores"
-            title="Sabores"
-            aria-controls="tab-flavors"
-            aria-pressed="false"
-          >
-            <svg class="icon"><use href="#i-flavor" /></svg><span>Sabores</span>
-          </button>
-          <button
-            class="tab-btn"
-            data-tab="skins"
-            aria-label="Personalizar"
-            title="Personalizar"
-            aria-controls="tab-skins"
-            aria-pressed="false"
-          >
-            <svg class="icon"><use href="#i-palette" /></svg
-            ><span>Personalizar</span>
-          </button>
-          <button
-            class="tab-btn"
-            data-tab="roulette"
-            aria-label="Roleta da sorte"
-            title="Roleta da sorte"
-            aria-controls="tab-roulette"
-            aria-pressed="false"
-          >
-            <svg class="icon"><use href="#i-wheel" /></svg
-            ><span>Roleta da sorte</span
+  <body data-page="home">
+    <header id="gameHeader"></header>
+    <main id="mainContent" class="home-scene">
+      <div class="game-layout">
+        <section class="clicker-zone" aria-label="Produzir pirulitos">
+          <div class="zone-ribbon">O DOCE COMEÇO DE UM GRANDE IMPÉRIO</div>
+          <div class="candy-counter">
+            <span class="counter-label">seus pirulitos</span>
+            <h1 id="scoreDisplay" class="score-value">0</h1>
+            <div class="rate-line">
+              <span id="ppsDisplay">0 /s</span><span>✦</span
+              ><span id="clickPowerDisplay">+2 por toque</span>
+            </div>
+          </div>
+          <div class="lollipop-stage">
+            <span class="sugar-spark spark-a" aria-hidden="true">✧</span
+            ><span class="sugar-spark spark-b" aria-hidden="true">✦</span
+            ><span class="sugar-spark spark-c" aria-hidden="true">✧</span>
+            <button
+              id="lollipop"
+              class="lollipop-button"
+              aria-label="Produzir pirulitos: clique ou pressione espaço"
+            ></button
+            ><span class="lollipop-shadow" aria-hidden="true"></span>
+          </div>
+          <p class="tap-hint">Só mais um clique…</p>
+          <a class="flavor-badge" href="pages/collection.html"
+            ><span class="flavor-dot" aria-hidden="true"></span
             ><span
-              class="nav-new-dot"
-              id="wheelStatus"
-              aria-label="Roleta disponível"
-            ></span>
-          </button>
-          <button
-            class="tab-btn"
-            data-tab="prestige"
-            aria-label="Prestígio"
-            title="Prestígio"
-            aria-controls="tab-prestige"
-            aria-pressed="false"
+              ><small>RECEITA DA VEZ</small><b id="flavorName">Morango</b></span
+            ><span aria-hidden="true">↗</span></a
           >
-            <svg class="icon"><use href="#i-crown" /></svg
-            ><span>Prestígio</span>
+          <button id="adBoostBtn" class="boost-button game-button" data-action>
+            <span aria-hidden="true">ϟ</span
+            ><span
+              ><b id="boostTitle">Chuva de açúcar!</b
+              ><small id="boostDescription"
+                >2× por 30 segundos · grátis</small
+              ></span
+            ><span id="boostAction">ATIVAR</span>
           </button>
-          <button
-            class="tab-btn"
-            data-tab="achievements"
-            aria-label="Conquistas"
-            title="Conquistas"
-            aria-controls="tab-achievements"
-            aria-pressed="false"
+          <a href="pages/rewards.html" class="reward-link"
+            >Uma pitada de sorte? Visite a roleta →</a
           >
-            <svg class="icon"><use href="#i-cup" /></svg><span>Conquistas</span>
-          </button>
-          <button
-            class="tab-btn"
-            data-tab="stats"
-            aria-label="Estatísticas"
-            title="Estatísticas"
-            aria-controls="tab-stats"
-            aria-pressed="false"
-          >
-            <svg class="icon"><use href="#i-chart" /></svg
-            ><span>Estatísticas</span>
-          </button>
-          <button
-            class="tab-btn"
-            data-tab="settings"
-            aria-label="Configurações"
-            title="Configurações"
-            aria-controls="tab-settings"
-            aria-pressed="false"
-          >
-            <svg class="icon"><use href="#i-settings" /></svg
-            ><span>Configurações</span>
-          </button>
-        </nav>
-        <div class="sidebar-bottom">
-          <div class="made-with">
-            <span aria-hidden="true">✦</span> Um clique de cada vez.
-          </div>
-          <div class="version">LOLLIPOP CLICKER <span>2.0</span></div>
-        </div>
-      </aside>
-
-      <main id="mainContent" class="main-content">
-        <header class="page-header">
-          <div>
-            <p class="eyebrow">PEQUENA FÁBRICA. GRANDES SONHOS.</p>
-            <h1>A vida é mais doce aqui<span>.</span></h1>
-          </div>
-          <div class="save-badge">
-            <span class="status-dot"></span
-            ><span id="saveStatus">Salvamento automático</span>
-          </div>
-        </header>
-        <section class="overview" aria-label="Resumo da produção">
-          <div class="overview-card balance">
-            <span class="overview-icon" aria-hidden="true">🍭</span>
-            <div>
-              <span class="eyebrow">SEUS PIRULITOS</span
-              ><strong id="scoreDisplay">0</strong>
-            </div>
-            <span class="metric-label">prontos para investir</span>
-          </div>
-          <div class="overview-card">
-            <span class="overview-icon mint"
-              ><svg class="icon"><use href="#i-bolt" /></svg
-            ></span>
-            <div>
-              <span class="eyebrow">PRODUÇÃO AUTOMÁTICA</span
-              ><strong id="ppsDisplay">0 <small>/ seg</small></strong>
-            </div>
-            <span class="metric-label">a fábrica nunca para</span>
-          </div>
-          <div class="overview-card">
-            <span class="overview-icon lavender"
-              ><svg class="icon"><use href="#i-sparkle" /></svg
-            ></span>
-            <div>
-              <span class="eyebrow">PODER DO CLIQUE</span
-              ><strong id="clickPowerDisplay">2 <small>/ clique</small></strong>
-            </div>
-            <span class="metric-label">um toque de magia</span>
-          </div>
         </section>
-
-        <div class="workspace-grid">
-          <section class="factory-panel panel" aria-label="Área de jogo">
-            <div class="factory-header">
-              <div>
-                <span class="eyebrow">FEITO COM UM POUCO DE MAGIA</span>
-                <h2 id="areaTitle">Sua fábrica de pirulitos</h2>
-              </div>
-              <span class="live-badge"
-                ><span class="status-dot"></span> AO VIVO</span
-              >
-            </div>
-            <nav class="area-nav" aria-label="Áreas do jogo">
-              <button
-                class="area-btn active"
-                data-area="clicker"
-                aria-controls="areaClicker"
-                aria-pressed="true"
-              >
-                🍭 Fábrica</button
-              ><button
-                class="area-btn"
-                data-area="boss"
-                aria-controls="areaBoss"
-                aria-pressed="false"
-              >
-                ⚔️ Arena</button
-              ><button
-                class="area-btn"
-                data-area="soon"
-                aria-controls="areaSoon"
-                aria-pressed="false"
-              >
-                ✦ Dimensão
-              </button>
-            </nav>
-
-            <div class="game-stage">
-              <section
-                id="areaClicker"
-                class="area-view"
-                aria-label="Produzir pirulitos"
-              >
-                <span class="stage-spark spark-one" aria-hidden="true">✧</span
-                ><span class="stage-spark spark-two" aria-hidden="true">✦</span
-                ><span class="stage-spark spark-three" aria-hidden="true"
-                  >+</span
-                ><span class="stage-dot dot-one" aria-hidden="true"></span
-                ><span class="stage-dot dot-two" aria-hidden="true"></span>
-                <div
-                  class="lollipop-glow"
-                  id="lollipopGlow"
-                  aria-hidden="true"
-                ></div>
-                <span class="orbit orbit-one" aria-hidden="true"></span
-                ><span class="orbit orbit-two" aria-hidden="true"></span>
-                <button
-                  id="lollipop"
-                  class="lollipop"
-                  aria-label="Produzir pirulitos: clique ou pressione espaço"
-                >
-                  <svg
-                    id="lollipopArt"
-                    class="lollipop-art"
-                    width="260"
-                    height="330"
-                    viewBox="0 0 260 330"
-                    aria-hidden="true"
-                  >
-                    <defs>
-                      <radialGradient id="candyPink" cx="32%" cy="25%" r="80%">
-                        <stop stop-color="#ffb0cf" />
-                        <stop offset=".45" stop-color="#ff6ca2" />
-                        <stop offset="1" stop-color="#cf3c79" />
-                      </radialGradient>
-                      <linearGradient id="stick" x1="0" x2="1">
-                        <stop stop-color="#c9b2cb" />
-                        <stop offset=".4" stop-color="#fff5f6" />
-                        <stop offset="1" stop-color="#e9d7df" />
-                      </linearGradient>
-                      <linearGradient id="cream" x1="0" y1="0" x2="1" y2="1">
-                        <stop stop-color="#fff8ed" />
-                        <stop offset="1" stop-color="#ffcbdb" />
-                      </linearGradient>
-                      <clipPath id="candyClip">
-                        <circle cx="130" cy="113" r="98" />
-                      </clipPath>
-                    </defs>
-                    <g transform="rotate(-17 130 150)">
-                      <rect
-                        x="121"
-                        y="160"
-                        width="18"
-                        height="157"
-                        rx="9"
-                        fill="url(#stick)"
-                      />
-                      <circle cx="130" cy="116" r="101" fill="#9c275a" />
-                      <circle cx="130" cy="111" r="100" fill="#ff8fba" />
-                      <circle cx="130" cy="111" r="96" fill="url(#candyPink)" />
-                      <g clip-path="url(#candyClip)">
-                        <path
-                          d="M130 113c-8-3-13 3-11 10 3 12 22 12 29 2 13-20-5-41-26-36-33 8-34 48-4 63 43 21 85-20 69-63-21-55-93-52-118-5-35 67 25 132 94 109 82-28 82-128 12-168-93-53-190 33-159 126"
-                          fill="none"
-                          stroke="url(#cream)"
-                          stroke-width="19"
-                          stroke-linecap="round"
-                        />
-                      </g>
-                      <path
-                        d="M65 70c12-18 29-28 49-29"
-                        stroke="#fff"
-                        stroke-width="8"
-                        stroke-linecap="round"
-                        opacity=".42"
-                        fill="none"
-                      />
-                      <path
-                        d="M190 157c-9 16-22 26-40 31"
-                        stroke="#a42b63"
-                        stroke-width="5"
-                        stroke-linecap="round"
-                        opacity=".2"
-                        fill="none"
-                      />
-                      <path d="m115 217 13-9 16 8-14 13Z" fill="#b67ee0" />
-                      <path
-                        d="m128 211-26-6 4 27 23-11m3-10 23-12 3 27-25-5"
-                        fill="#dab1f5"
-                      />
-                      <circle cx="130" cy="217" r="7" fill="#c58ae9" />
-                    </g></svg
-                  ><span id="skinEmoji" class="skin-emoji" hidden>🍭</span>
-                </button>
-                <div class="click-instruction">
-                  <strong>Clique. Produza. Repita.</strong
-                  ><span>Seu império doce começa com um toque.</span>
-                </div>
-              </section>
-              <section
-                id="areaBoss"
-                class="area-view hidden"
-                aria-label="Arena de chefes"
-                hidden
-              >
-                <div class="boss-arena-box">
-                  <span class="eyebrow">UM DESAFIO AÇUCARADO</span
-                  ><button
-                    id="bossAvatar"
-                    class="boss-avatar-idle"
-                    aria-label="Atacar chefe"
-                  >
-                    👾
-                  </button>
-                  <h3 id="bossName">Monstro Doce</h3>
-                  <div
-                    class="boss-hp-container"
-                    role="meter"
-                    aria-label="Vida do chefe"
-                    aria-valuemin="0"
-                    aria-valuemax="100"
-                    aria-valuenow="100"
-                  >
-                    <div id="bossHpBar" class="boss-hp-bar"></div>
-                  </div>
-                  <p id="bossHpText" class="boss-hp-text">100 / 100 HP</p>
-                  <p id="bossTimer" class="boss-timer">
-                    30 segundos para vencer
-                  </p>
-                  <p id="bossReward" class="boss-reward">
-                    Recompensa: 1.500 🍭
-                  </p>
-                  <button id="startBossBtn" class="action-btn btn-primary">
-                    Desafiar chefe <span aria-hidden="true">↗</span>
-                  </button>
-                  <p class="boss-hint">
-                    Toque no monstro antes que o tempo acabe.<br />Vitórias
-                    liberam desafios e recompensas maiores.
-                  </p>
-                </div>
-              </section>
-              <section
-                id="areaSoon"
-                class="area-view hidden"
-                aria-label="Nova dimensão"
-                hidden
-              >
-                <div class="coming-soon-box">
-                  <div class="coming-icon" aria-hidden="true">🪐</div>
-                  <span class="badge-soon">EM DESENVOLVIMENTO</span>
-                  <h3>Um universo de possibilidades.</h3>
-                  <p>
-                    Novas dimensões e minijogos estão no forno.<br />Enquanto
-                    isso, seu império continua crescendo.
-                  </p>
-                </div>
-              </section>
-            </div>
-
-            <div class="flavor-strip">
-              <span class="flavor-strip-icon" aria-hidden="true">🍓</span>
-              <div>
-                <span class="eyebrow">SABOR ATIVO</span
-                ><strong id="flavorSummary">Morango</strong
-                ><span id="flavorBonus">+1 pirulito por clique</span>
-              </div>
-              <button class="text-btn" data-open-tab="flavors">
-                Trocar <svg class="icon"><use href="#i-arrow" /></svg>
-              </button>
-            </div>
-            <div class="factory-footer">
-              <span
-                ><svg class="icon"><use href="#i-crown" /></svg> Prestígio
-                <b id="prestigeSummary">0</b></span
-              ><span id="boostStatus">Cada clique conta ✦</span>
-            </div>
-          </section>
-
-          <aside class="shop-panel panel" aria-label="Gerenciar sua fábrica">
-            <div class="shop-header">
-              <div>
-                <span class="eyebrow">CONSTRUA SEU IMPÉRIO</span>
-                <h2 id="panelTitle">Melhorias da fábrica</h2>
-              </div>
-              <span class="shop-header-icon"
-                ><svg class="icon"><use href="#i-bolt" /></svg
-              ></span>
-            </div>
-            <p class="panel-description" id="panelDescription">
-              Pequenos investimentos. Doces resultados.
-            </p>
-            <div class="tab-content">
-              <section
-                id="tab-upgrades"
-                class="tab-pane active"
-                aria-label="Melhorias"
-              >
-                <button id="adBoostBtn" class="boost-card">
-                  <span class="boost-icon"
-                    ><svg class="icon"><use href="#i-bolt" /></svg></span
-                  ><span
-                    ><strong id="boostTitle">Uma dose extra de açúcar</strong
-                    ><small id="boostDescription"
-                      >2× produção e cliques por 30 segundos</small
-                    ></span
-                  ><span id="boostAction" class="boost-action">ATIVAR ↗</span>
-                </button>
-                <div class="list-label">
-                  <span>LINHA DE PRODUÇÃO</span><span>COMPRAR 1</span>
-                </div>
-                <div id="upgradesList" class="upgrades-list"></div>
-                <p class="shop-tip">
-                  ✦ As melhorias produzem mesmo quando você não está clicando.
-                </p>
-              </section>
-              <section
-                id="tab-flavors"
-                class="tab-pane"
-                aria-label="Coleção de sabores"
-                hidden
-              >
-                <p class="section-caption">
-                  Os bônus do sabor equipado valem para toda a fábrica.
-                </p>
-                <h3 class="list-label">SEUS PRIMEIROS SABORES</h3>
-                <div id="freeFlavorGrid" class="flavor-grid"></div>
-                <h3 class="list-label">SABORES ESPECIAIS</h3>
-                <div id="premiumFlavorGrid" class="flavor-grid"></div>
-              </section>
-              <section
-                id="tab-skins"
-                class="tab-pane"
-                aria-label="Personalização"
-                hidden
-              >
-                <p class="section-caption">
-                  Combine seu estilo. Cada categoria é independente e os visuais
-                  desbloqueados são seus para sempre.
-                </p>
-                <div
-                  class="category-tabs"
-                  role="group"
-                  aria-label="Categoria de personalização"
-                >
-                  <button
-                    class="category-btn active"
-                    data-category="skin"
-                    aria-pressed="true"
-                  >
-                    Pirulito</button
-                  ><button
-                    class="category-btn"
-                    data-category="theme"
-                    aria-pressed="false"
-                  >
-                    Fundo</button
-                  ><button
-                    class="category-btn"
-                    data-category="particles"
-                    aria-pressed="false"
-                  >
-                    Partículas
-                  </button>
-                </div>
-                <div id="skinGrid" class="skin-grid"></div>
-              </section>
-              <section
-                id="tab-roulette"
-                class="tab-pane"
-                aria-label="Roleta da sorte"
-                hidden
-              >
-                <div class="wheel-container">
-                  <span class="eyebrow">UM POUQUINHO DE SORTE</span>
-                  <div class="wheel-wrapper">
-                    <span class="wheel-pointer" aria-hidden="true">▼</span
-                    ><canvas
-                      id="wheelCanvas"
-                      width="300"
-                      height="300"
-                      role="img"
-                      aria-label="Roleta com seis recompensas de pirulitos, boost e poder de clique"
-                    ></canvas
-                    ><span class="wheel-center" aria-hidden="true">✦</span>
-                  </div>
-                  <button id="spinBtn" class="action-btn btn-primary">
-                    Girar grátis <span aria-hidden="true">↗</span>
-                  </button>
-                  <p id="wheelTimer" class="wheel-timer">
-                    Seu próximo prêmio espera por você.
-                  </p>
-                  <p class="section-caption">
-                    Um giro a cada 5 minutos. Todos os prêmios têm a mesma
-                    chance. O prêmio raro adiciona +100 ao clique até o próximo
-                    prestígio.
-                  </p>
-                  <div
-                    id="wheelResult"
-                    class="result-card"
-                    role="status"
-                    hidden
-                  ></div>
-                </div>
-              </section>
-              <section
-                id="tab-prestige"
-                class="tab-pane"
-                aria-label="Prestígio"
-                hidden
-              >
-                <div class="prestige-container">
-                  <div class="prestige-emblem" aria-hidden="true">♛</div>
-                  <h3>Um novo começo.<br />Ainda mais doce.</h3>
-                  <p class="section-caption">
-                    Reinicie o saldo e as melhorias para ganhar +15% de produção
-                    e poder de clique por nível. Sua coleção e suas conquistas
-                    continuam com você.
-                  </p>
-                  <div class="prestige-stat-box">
-                    <span>Nível atual <b id="prestigeLevel">0</b></span
-                    ><span>Bônus permanente <b id="prestigeBonus">+0%</b></span>
-                  </div>
-                  <div class="prestige-reward-box">
-                    <span>VOCÊ RECEBERÁ</span
-                    ><strong id="prestigeGainText">+0 prestígio</strong
-                    ><small id="prestigeRequirement"
-                      >O primeiro nível requer 1 milhão de pirulitos
-                      produzidos.</small
-                    >
-                  </div>
-                  <button id="prestigeBtn" class="action-btn btn-primary">
-                    Renascer com prestígio <span aria-hidden="true">↗</span>
-                  </button>
-                </div>
-              </section>
-              <section
-                id="tab-achievements"
-                class="tab-pane"
-                aria-label="Conquistas"
-                hidden
-              >
-                <div class="collection-heading">
-                  <span>Pequenas vitórias, grandes histórias.</span
-                  ><b id="achievementCount">0 / 13</b>
-                </div>
-                <div id="achievementsList" class="achievements-list"></div>
-              </section>
-              <section
-                id="tab-stats"
-                class="tab-pane"
-                aria-label="Estatísticas"
-                hidden
-              >
-                <div id="statsList" class="stats-list">
-                  <div class="stat-row">
-                    <span>Seu saldo</span><b id="statCurrent">0</b>
-                  </div>
-                  <div class="stat-row">
-                    <span>Total produzido</span><b id="statTotalEarned">0</b>
-                  </div>
-                  <div class="stat-row">
-                    <span>Produção por segundo</span><b id="statPps">0</b>
-                  </div>
-                  <div class="stat-row">
-                    <span>Poder de clique</span><b id="statClickPower">0</b>
-                  </div>
-                  <div class="stat-row">
-                    <span>Cliques totais</span><b id="statTotalClicks">0</b>
-                  </div>
-                  <div class="stat-row">
-                    <span>Tempo jogado</span><b id="statTimePlayed">0s</b>
-                  </div>
-                  <div class="stat-row">
-                    <span>Giros da sorte</span><b id="statWheelSpins">0</b>
-                  </div>
-                  <div class="stat-row">
-                    <span>Boosts ativados</span><b id="statBoostsObtained">0</b>
-                  </div>
-                  <div class="stat-row">
-                    <span>Sabores desbloqueados</span
-                    ><b id="statFlavorsUnlocked">3</b>
-                  </div>
-                  <div class="stat-row">
-                    <span>Visuais desbloqueados</span
-                    ><b id="statSkinsUnlocked">1</b>
-                  </div>
-                  <div class="stat-row">
-                    <span>Melhorias compradas</span
-                    ><b id="statUpgradesBought">0</b>
-                  </div>
-                  <div class="stat-row">
-                    <span>Maior saldo</span><b id="statMaxScore">0</b>
-                  </div>
-                  <div class="stat-row">
-                    <span>Maior produção / s</span><b id="statMaxPps">0</b>
-                  </div>
-                  <div class="stat-row">
-                    <span>Chefes derrotados</span><b id="statBossesKilled">0</b>
-                  </div>
-                </div>
-              </section>
-              <section
-                id="tab-settings"
-                class="tab-pane"
-                aria-label="Configurações"
-                hidden
-              >
-                <h3 class="list-label">DO SEU JEITO</h3>
-                <div class="setting-row">
-                  <div>
-                    <strong>Música de fundo</strong
-                    ><small>A trilha da sua fábrica</small>
-                  </div>
-                  <button
-                    id="toggleMusicBtn"
-                    class="toggle-btn"
-                    aria-pressed="true"
-                  >
-                    ON
-                  </button>
-                </div>
-                <div class="setting-row">
-                  <div>
-                    <strong>Efeitos sonoros</strong
-                    ><small>Um som a cada conquista</small>
-                  </div>
-                  <button
-                    id="toggleSfxBtn"
-                    class="toggle-btn"
-                    aria-pressed="true"
-                  >
-                    ON
-                  </button>
-                </div>
-                <div class="setting-row">
-                  <div>
-                    <strong>Partículas</strong
-                    ><small>Desative para um jogo mais leve</small>
-                  </div>
-                  <button
-                    id="toggleParticlesBtn"
-                    class="toggle-btn"
-                    aria-pressed="true"
-                  >
-                    ON
-                  </button>
-                </div>
-                <h3 class="list-label">SEU PROGRESSO</h3>
-                <p class="section-caption">
-                  Salvo automaticamente neste navegador. Exporte uma cópia para
-                  guardar ou jogar em outro dispositivo.
-                </p>
-                <button id="exportSaveBtn" class="action-btn btn-secondary">
-                  Exportar progresso ↓</button
-                ><button id="importSaveBtn" class="action-btn btn-secondary">
-                  Importar progresso ↑</button
-                ><button id="restoreBackupBtn" class="action-btn btn-secondary">
-                  Restaurar backup local ↶</button
-                ><input
-                  id="importSaveInput"
-                  type="file"
-                  accept="application/json,.json"
-                  hidden
-                /><button id="resetDataBtn" class="action-btn btn-danger">
-                  Apagar todo o progresso
-                </button>
-                <p class="section-caption">
-                  O progresso só é apagado depois de sua confirmação.
-                </p>
-              </section>
-            </div>
-          </aside>
-        </div>
-        <section class="milestone-card" aria-label="Próxima conquista">
-          <span class="milestone-icon"
-            ><svg class="icon"><use href="#i-cup" /></svg
-          ></span>
-          <div>
-            <span class="eyebrow">O PRÓXIMO PEQUENO GRANDE PASSO</span
-            ><strong id="nextAchievement">Primeiro Pirulito</strong>
-            <p id="achievementProgress">
-              Faça seu primeiro clique e comece sua coleção.
-            </p>
+        <section class="world-zone" aria-label="Seu mundo de produção">
+          <div class="world-heading">
+            <span class="chapter-label" id="worldChapter">CAPÍTULO 01</span>
+            <h2 id="worldTitle">Colina de Açúcar</h2>
+            <p id="worldProgress">Seu primeiro ateliê está esperando.</p>
           </div>
-          <button class="text-btn" data-open-tab="achievements">
-            Ver conquistas <svg class="icon"><use href="#i-arrow" /></svg>
+          <div
+            class="world-scene"
+            id="worldScene"
+            aria-label="Paisagem ilustrada do mundo dos doces"
+          ></div>
+          <div class="conveyor" aria-hidden="true">
+            <i></i><i></i><i></i><i></i><i></i><i></i>
+          </div>
+          <div class="production-sign">
+            <span>SUAS LINHAS DE PRODUÇÃO</span
+            ><b id="buildingCount">0 máquinas</b>
+          </div>
+          <div class="building-lots" id="buildingLots"></div>
+          <button
+            id="sugarEvent"
+            class="sugar-event"
+            hidden
+            aria-label="Coletar cristal de açúcar dourado"
+          >
+            <span aria-hidden="true">✦</span><strong>Açúcar dourado!</strong
+            ><small>Toque antes que desapareça</small>
           </button>
+          <p id="worldLog" class="world-log" role="status">
+            Tudo começa com um pirulito e uma boa ideia.
+          </p>
+          <a class="world-milestone" href="pages/achievements.html"
+            ><span aria-hidden="true">✧</span
+            ><span
+              ><small>PRÓXIMA DESCOBERTA</small
+              ><b id="nextAchievement">Primeiro Pirulito</b></span
+            ><span aria-hidden="true">→</span></a
+          >
         </section>
-        <footer class="page-footer">
-          <span>Feito de açúcar, sonhos e muitos cliques.</span
-          ><span id="totalEarnedDisplay">0 pirulitos produzidos no total</span>
-        </footer>
-      </main>
-    </div>
+        <aside class="shop-zone" aria-label="Compra rápida de melhorias">
+          <div class="shop-heading">
+            <span class="chapter-label">BALCÃO DE ENGENHOCAS</span>
+            <h2>Mais açúcar. Menos trabalho.</h2>
+            <a href="pages/shop.html">Abrir loja completa ↗</a>
+          </div>
+          <div
+            class="buy-controls"
+            id="buyControls"
+            role="group"
+            aria-label="Quantidade por compra"
+          >
+            <span>COMPRAR</span
+            ><button data-buy="1" class="active" aria-pressed="true">×1</button
+            ><button data-buy="10" aria-pressed="false">×10</button
+            ><button data-buy="100" aria-pressed="false">×100</button
+            ><button data-buy="max" aria-pressed="false">MAX</button>
+          </div>
+          <div id="upgradesList" class="upgrades-list"></div>
+          <p class="shop-footnote">
+            Cada engenhoca trabalha por você.<br />Mesmo quando a aventura faz
+            uma pausa.
+          </p>
+        </aside>
+      </div>
+      <a class="world-glimpse" href="pages/shop.html"
+        ><span id="mobileWorldName">Colina de Açúcar</span
+        ><span>Expandir meu mundo →</span></a
+      >
+    </main>
+    <nav id="bottomNav" aria-label="Navegação rápida"></nav>
     <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
-    <noscript
-      ><p class="noscript">
-        Ative o JavaScript para jogar Lollipop Clicker.
-      </p></noscript
-    >
-    <script type="module" src="js/app.js"></script>
+    <canvas id="fxCanvas" aria-hidden="true"></canvas>
+    <noscript>Ative o JavaScript para explorar o mundo dos doces.</noscript>
+    <script type="module" src="js/pages/home.js"></script>
   </body>
 </html>

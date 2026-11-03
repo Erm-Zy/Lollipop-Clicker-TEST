@@ -1,0 +1,132 @@
+@keyframes candy-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+@keyframes gear-turn {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes machine-steam {
+  0% {
+    opacity: 0;
+    transform: translateY(3px);
+  }
+  30% {
+    opacity: 0.6;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+@keyframes candy-twinkle {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+@keyframes reward-pulse {
+  0%,
+  100% {
+    transform: scale(1) rotate(-6deg);
+  }
+  50% {
+    transform: scale(1.08) rotate(6deg);
+  }
+}
+@keyframes boss-hit {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-6px) rotate(-3deg);
+  }
+  75% {
+    transform: translateX(6px) rotate(3deg);
+  }
+}
+@keyframes purchase-pop {
+  0% {
+    transform: scale(0.97);
+  }
+  60% {
+    transform: scale(1.025);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+.lollipop-stage .decor-candy,
+.world-cloud {
+  animation: candy-bob 8s ease-in-out infinite;
+}
+.running .gear {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: gear-turn 9s linear infinite;
+}
+.running .steam {
+  animation: machine-steam 3s ease-in-out infinite;
+}
+.running .steam:nth-child(2n) {
+  animation-delay: 1s;
+}
+.sugar-event > span {
+  animation: reward-pulse 2.5s ease-in-out infinite;
+}
+.boss-art.hit,
+.boss-art.attacking {
+  animation: boss-hit 0.18s linear;
+}
+.purchased {
+  animation: purchase-pop 0.3s ease-out;
+}
+body[data-motion="false"] *,
+body[data-motion="false"] *::before,
+body[data-motion="false"] *::after {
+  animation: none !important;
+  transition-duration: 0.01ms !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .lollipop-button:hover {
+    transform: none;
+  }
+}
+body[data-motion="off"] *,
+body[data-motion="off"] *::before,
+body[data-motion="off"] *::after {
+  animation: none !important;
+  transition-duration: 0.01ms !important;
+}
+@keyframes cloud-drift {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  50% {
+    translate: 6px 0;
+  }
+}
+.running .candy-cloud {
+  animation: cloud-drift 12s ease-in-out infinite;
+}

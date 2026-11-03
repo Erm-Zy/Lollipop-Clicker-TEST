@@ -330,12 +330,15 @@ export const ACHIEVEMENTS_DATA = [
   },
 ];
 
-export const SAVE_VERSION = 2;
+export const SAVE_VERSION = 3;
 export const WHEEL_COOLDOWN_MS = 5 * 60 * 1000;
 export const BOOST_DURATION_MS = 30 * 1000;
 export const BOOST_COOLDOWN_MS = 5 * 60 * 1000;
 export const WHEEL_DURATION_MS = 3200;
 export const BOSS_DURATION_MS = 30 * 1000;
+export const BOSS_COOLDOWN_MS = 30 * 1000;
+export const SUGAR_EVENT_INTERVAL_MS = 60 * 1000;
+export const SUGAR_EVENT_DURATION_MS = 12 * 1000;
 export const OFFLINE_CAP_MS = 8 * 60 * 60 * 1000;
 // Keep arithmetic finite while allowing progress far beyond the original content.
 export const MAX_VALUE = 1e100;

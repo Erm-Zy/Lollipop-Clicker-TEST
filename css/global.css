@@ -1,0 +1,334 @@
+:root {
+  color-scheme: dark;
+  --ink: #321840;
+  --ink-deep: #21122e;
+  --violet: #563067;
+  --pink: #f777a4;
+  --berry: #cf3d79;
+  --mint: #a9edce;
+  --cream: #fff1cc;
+  --paper: #fff4dd;
+  --gold: #ffd276;
+  --muted: #d1b9db;
+  --line: #9b5f8c;
+  --accent: #fa82aa;
+  --candy-flavor: #f982ab;
+  --shadow: #160b28;
+  font-family: "Trebuchet MS", "Segoe UI", system-ui, sans-serif;
+  font-synthesis: none;
+}
+* {
+  box-sizing: border-box;
+}
+html {
+  min-width: 280px;
+  scroll-behavior: smooth;
+}
+body {
+  margin: 0;
+  min-height: 100dvh;
+  color: var(--cream);
+  background:
+    radial-gradient(ellipse at 30% 5%, #633560 0, transparent 55%), #291935;
+  font-size: 15px;
+  line-height: 1.5;
+  overflow-x: clip;
+}
+body[data-theme="neon"] {
+  --accent: #72ebc6;
+  --violet: #234b59;
+  --ink: #173745;
+  --ink-deep: #102737;
+  --candy-flavor: #72ebc6;
+  background-color: #142f39;
+}
+body[data-theme="rainbow"] {
+  --accent: #e5a6f8;
+  --violet: #6d4482;
+  --ink: #432456;
+  --ink-deep: #2c193e;
+  background-color: #382445;
+}
+body[data-theme="gold"] {
+  --accent: #ffd276;
+  --violet: #73513a;
+  --ink: #49312c;
+  --ink-deep: #302020;
+  background-color: #3e2c2a;
+}
+body[data-theme="cosmic"] {
+  --accent: #b9a0ff;
+  --violet: #483b78;
+  --ink: #292049;
+  --ink-deep: #181632;
+  background-color: #1c183d;
+}
+body[data-theme="fire"] {
+  --accent: #ffad83;
+  --violet: #7a3848;
+  --ink: #502537;
+  --ink-deep: #331c2e;
+  background-color: #41232e;
+}
+body[data-theme="ice"] {
+  --accent: #a0e8ff;
+  --violet: #36566d;
+  --ink: #233a52;
+  --ink-deep: #172d44;
+  background-color: #203b4a;
+}
+body[data-readonly="true"] .save-indicator {
+  color: #ffe49a;
+}
+a {
+  color: inherit;
+}
+button,
+input,
+select {
+  font: inherit;
+}
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+button {
+  cursor: pointer;
+  touch-action: manipulation;
+  color: inherit;
+}
+button:disabled {
+  cursor: not-allowed;
+}
+button,
+input,
+select {
+  max-width: 100%;
+}
+button:focus-visible,
+a:focus-visible,
+summary:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 3px solid var(--mint);
+  outline-offset: 4px;
+}
+button > *,
+a > svg {
+  pointer-events: none;
+}
+[hidden],
+.hidden {
+  display: none !important;
+}
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+h1,
+h2,
+h3,
+.game-heading,
+.page-title {
+  font-family: "Arial Rounded MT Bold", "Trebuchet MS", system-ui, sans-serif;
+  line-height: 1.15;
+  font-weight: 900;
+}
+svg {
+  max-width: 100%;
+}
+img {
+  max-width: 100%;
+}
+small {
+  font-size: 12px;
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+.skip-link {
+  position: fixed;
+  z-index: 200;
+  left: 16px;
+  top: -100px;
+  padding: 12px 20px;
+  color: var(--ink);
+  background: var(--mint);
+  border-radius: 12px;
+}
+.skip-link:focus {
+  top: 12px;
+}
+.eyebrow,
+.overline {
+  display: block;
+  color: #eebce4;
+  text-transform: uppercase;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+}
+.game-button,
+.boost-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 45px;
+  padding: 10px 21px;
+  color: #422344;
+  background: linear-gradient(#ffdea0, #ffc968);
+  border: 2px solid #fff0bd;
+  border-radius: 14px;
+  box-shadow:
+    0 4px 0 #ae713c,
+    0 6px 12px #150d242a;
+  font-weight: 900;
+  text-decoration: none;
+  text-align: center;
+  transition:
+    transform 0.12s,
+    filter 0.12s,
+    box-shadow 0.12s;
+}
+.game-button:not(:disabled):hover,
+.boost-button:not(:disabled):hover {
+  transform: translateY(-2px);
+  filter: brightness(1.06);
+}
+.game-button:not(:disabled):active,
+.boost-button:not(:disabled):active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 #ae713c;
+}
+.game-button:disabled,
+.boost-button:disabled {
+  opacity: 0.55;
+  box-shadow: 0 3px 0 #715270;
+}
+.game-button.secondary {
+  color: var(--cream);
+  background: #68416e;
+  border-color: #a270a0;
+  box-shadow: 0 4px 0 #38223f;
+}
+.game-button.danger {
+  color: #fff1df;
+  background: #a74160;
+  border-color: #d47b8b;
+  box-shadow: 0 4px 0 #6c2845;
+}
+.text-link {
+  color: var(--gold);
+  text-underline-offset: 4px;
+  font-weight: 700;
+}
+.save-indicator {
+  color: #a4d9b7;
+  font-size: 10px;
+  line-height: 1.4;
+}
+.save-indicator::before {
+  content: "●";
+  color: var(--mint);
+  font-size: 8px;
+  margin-right: 6px;
+}
+.toast {
+  position: fixed;
+  z-index: 150;
+  bottom: 24px;
+  left: 50%;
+  transform: translate(-50%, 20px);
+  max-width: min(90vw, 540px);
+  padding: 14px 23px;
+  color: var(--cream);
+  background: #47274e;
+  border: 2px solid #c18bad;
+  border-radius: 17px;
+  box-shadow:
+    0 5px 0 #24112f,
+    0 10px 24px #12091b50;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 700;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 0.2s,
+    transform 0.2s;
+}
+.toast.visible,
+.toast[data-visible="true"] {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+#fxCanvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 80;
+}
+.notice-banner,
+.readonly-notice {
+  padding: 12px 20px;
+  background: #724e38;
+  border-bottom: 2px solid #d6ab61;
+  color: #fff3ca;
+  text-align: center;
+  font-size: 13px;
+}
+.game-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 22px;
+  color: #c9accb;
+  font-size: 11px;
+}
+.noscript {
+  padding: 20px;
+  background: #713048;
+  color: var(--cream);
+  text-align: center;
+}
+/* Runtime notices use the hidden attribute so no animation class is required. */
+#toast:not([hidden]) {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+#toast {
+  position: fixed;
+  z-index: 150;
+  bottom: 24px;
+  left: 50%;
+  max-width: min(90vw, 540px);
+  padding: 14px 23px;
+  color: var(--cream);
+  background: #47274e;
+  border: 2px solid #c18bad;
+  border-radius: 17px;
+  box-shadow:
+    0 5px 0 #24112f,
+    0 10px 24px #12091b50;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 700;
+}
+.chapter-label {
+  color: #d2a0bd;
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  font-weight: 900;
+}
