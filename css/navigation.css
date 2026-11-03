@@ -1,0 +1,230 @@
+.game-header {
+  position: relative;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  min-height: 82px;
+  padding: 12px 23px;
+  background: linear-gradient(180deg, #432744, #332039);
+  border-bottom: 3px solid #c783a2;
+  box-shadow:
+    0 3px 0 #24182f,
+    inset 0 -5px 0 #512d4c;
+}
+.brand {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: #fff0ce;
+  text-decoration: none;
+  font-size: 25px;
+  font-weight: 1000;
+  letter-spacing: -1px;
+  line-height: 0.95;
+  text-shadow: 0 3px 0 #7f3b63;
+}
+.brand svg {
+  width: 43px;
+  height: 49px;
+  transform: rotate(-12deg);
+}
+.brand small,
+.brand-sub {
+  display: block;
+  margin-top: 5px;
+  color: #f7abcc;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 4px;
+  text-shadow: none;
+}
+.brand .version {
+  display: inline-block;
+  margin-left: 5px;
+  color: var(--mint);
+  font-size: 10px;
+  vertical-align: top;
+  letter-spacing: 0;
+  text-shadow: none;
+}
+.desktop-nav {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+}
+.desktop-nav a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 3px;
+  min-height: 54px;
+  min-width: 59px;
+  padding: 5px 9px;
+  color: #dec4da;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  text-decoration: none;
+  font-size: 10px;
+  font-weight: 800;
+  transition:
+    background 0.15s,
+    transform 0.15s;
+}
+.desktop-nav a svg,
+.nav-icon {
+  width: 21px;
+  height: 21px;
+}
+.desktop-nav a:hover {
+  color: #fff1d0;
+  background: #603451;
+  transform: translateY(-1px);
+}
+.desktop-nav a.active,
+.desktop-nav a[aria-current="page"] {
+  color: #ffdf9b;
+  background: #74415e;
+  border-color: #af6c89;
+  box-shadow: inset 0 -3px 0 #4c2d47;
+}
+.header-wallet {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 15px;
+  min-width: 125px;
+  background: #20172d;
+  border: 1px solid #6f4b6b;
+  border-radius: 25px;
+}
+.header-wallet svg {
+  width: 23px;
+  height: 28px;
+}
+.header-wallet strong {
+  font-size: 18px;
+  line-height: 1;
+  color: var(--cream);
+  font-variant-numeric: tabular-nums;
+}
+.header-wallet small {
+  color: #d3b1cf;
+  font-size: 9px;
+  display: block;
+}
+.header-meta {
+  text-align: right;
+  min-width: 135px;
+}
+.header-meta .save-indicator {
+  max-width: 160px;
+}
+.bottom-nav {
+  display: none;
+}
+.more-menu {
+  position: relative;
+}
+.more-menu summary {
+  cursor: pointer;
+  list-style: none;
+}
+.more-menu summary::-webkit-details-marker {
+  display: none;
+}
+.more-menu > div,
+.more-links {
+  position: absolute;
+  z-index: 90;
+  top: calc(100% + 9px);
+  right: 0;
+  min-width: 200px;
+  padding: 9px;
+  background: #422747;
+  border: 2px solid #b1789b;
+  border-radius: 15px;
+  box-shadow: 0 7px 0 #24162d;
+}
+.more-menu a {
+  display: block;
+  padding: 11px 14px;
+  border-radius: 8px;
+  text-decoration: none;
+  color: #ffebd3;
+  font-weight: 700;
+  font-size: 13px;
+}
+.more-menu a:hover {
+  background: #70425f;
+}
+.brand-candy {
+  display: inline-flex;
+  position: relative;
+  align-items: center;
+  justify-content: center;
+  width: 37px;
+  height: 37px;
+  color: transparent;
+  border: 3px solid #ffe6ae;
+  border-radius: 50%;
+  background: repeating-conic-gradient(#f993b9 0 35deg, #fff1d3 35deg 70deg);
+  box-shadow: 0 2px 0 #9b4d76;
+  transform: rotate(-18deg);
+  margin-right: 4px;
+}
+.brand-candy::after {
+  content: "";
+  position: absolute;
+  width: 5px;
+  height: 20px;
+  border-radius: 3px;
+  background: #fff0d4;
+  top: 30px;
+  left: 13px;
+  transform: rotate(-13deg);
+  transform-origin: top;
+  box-shadow: 1px 0 0 #bda3b5;
+}
+.brand small {
+  letter-spacing: 2px;
+  font-size: 8px;
+}
+.header-wallet b {
+  color: var(--cream);
+  font-size: 18px;
+  font-variant-numeric: tabular-nums;
+}
+.header-wallet .wallet-mark {
+  color: var(--gold);
+  font-size: 19px;
+}
+.header-wallet small {
+  font-size: 9px;
+}
+.world-status {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  min-height: 26px;
+  padding: 5px 23px;
+  background: #2c1c35;
+  border-bottom: 1px solid #704464;
+  font-size: 10px;
+  line-height: 1.3;
+  color: #d5afca;
+}
+.ownership-notice {
+  padding: 12px 20px;
+  background: #73533b;
+  border-bottom: 2px solid #e3bd83;
+  color: #fff0cc;
+  text-align: center;
+  font-size: 13px;
+}

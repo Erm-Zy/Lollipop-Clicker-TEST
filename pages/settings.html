@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#382044" />
+    <title>Ajustes · Lollipop Clicker</title>
+    <link rel="icon" href="../icon-192.png" />
+    <link rel="manifest" href="../manifest.json" />
+    <link rel="stylesheet" href="../css/global.css" />
+    <link rel="stylesheet" href="../css/game.css" />
+    <link rel="stylesheet" href="../css/navigation.css" />
+    <link rel="stylesheet" href="../css/animations.css" />
+    <link rel="stylesheet" href="../css/pages.css" />
+    <link rel="stylesheet" href="../css/responsive.css" />
+  </head>
+  <body data-page="settings">
+    <header id="gameHeader"></header>
+    <main id="mainContent" class="page-scene settings-scene">
+      <div class="page-heading">
+        <span class="chapter-label">O CANTINHO DO VIAJANTE</span>
+        <h1 class="page-title">Do seu jeitinho</h1>
+        <p class="page-lead">Ajuste sua aventura. Cuide das suas memórias.</p>
+      </div>
+      <div class="settings-layout">
+        <section class="settings-sheet" aria-label="Áudio e movimento">
+          <div class="setting-row">
+            <div>
+              <h2>Música do vale</h2>
+              <p>A trilha original da sua aventura.</p>
+            </div>
+            <button
+              id="toggleMusicBtn"
+              class="game-button secondary toggle-button"
+              aria-pressed="true"
+            >
+              Ligado
+            </button>
+          </div>
+          <div class="setting-row">
+            <div>
+              <h2>Efeitos sonoros</h2>
+              <p>Cliques, compras e pequenas vitórias.</p>
+            </div>
+            <button
+              id="toggleSfxBtn"
+              class="game-button secondary toggle-button"
+              aria-pressed="true"
+            >
+              Ligado
+            </button>
+          </div>
+          <div class="setting-row">
+            <div>
+              <h2>Partículas de açúcar</h2>
+              <p>Efeitos visuais a cada toque. Desative para economizar.</p>
+            </div>
+            <button
+              id="toggleParticlesBtn"
+              class="game-button secondary toggle-button"
+              aria-pressed="true"
+            >
+              Ligado
+            </button>
+          </div>
+          <div class="setting-row">
+            <div>
+              <h2>Mundo em movimento</h2>
+              <p>Nuvens, engrenagens e habitantes do vale.</p>
+            </div>
+            <button
+              id="toggleAnimationsBtn"
+              class="game-button secondary toggle-button"
+              aria-pressed="true"
+            >
+              Ligado
+            </button>
+          </div>
+          <p class="page-note">
+            A preferência de movimento reduzido do dispositivo também é
+            respeitada.
+          </p>
+        </section>
+        <section
+          class="settings-sheet save-sheet"
+          aria-label="Gerenciar progresso"
+        >
+          <h2>Seu mundo em boas mãos</h2>
+          <p id="storageState"></p>
+          <button id="exportSaveBtn" class="game-button">
+            Exportar meu progresso ↓</button
+          ><button id="importSaveBtn" class="game-button secondary">
+            Importar um mundo salvo ↑</button
+          ><input
+            id="importSaveInput"
+            type="file"
+            accept="application/json,.json"
+            hidden
+          /><button id="restoreBackupBtn" class="game-button secondary">
+            Restaurar backup local ↶
+          </button>
+          <p class="page-note">
+            Saves das versões anteriores são migrados com backup. Nenhuma
+            memória é apagada sem sua confirmação.
+          </p>
+          <hr />
+          <button id="resetDataBtn" class="game-button danger">
+            Começar do zero</button
+          ><small>Requer duas confirmações. Exporte um backup primeiro.</small>
+        </section>
+      </div>
+    </main>
+    <nav id="bottomNav" aria-label="Navegação rápida"></nav>
+    <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+    <canvas id="fxCanvas" aria-hidden="true"></canvas>
+    <script type="module" src="../js/pages/settings.js"></script>
+  </body>
+</html>

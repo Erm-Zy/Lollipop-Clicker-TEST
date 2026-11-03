@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#382044" />
+    <title>Roleta · Lollipop Clicker</title>
+    <link rel="icon" href="../icon-192.png" />
+    <link rel="manifest" href="../manifest.json" />
+    <link rel="stylesheet" href="../css/global.css" />
+    <link rel="stylesheet" href="../css/game.css" />
+    <link rel="stylesheet" href="../css/navigation.css" />
+    <link rel="stylesheet" href="../css/animations.css" />
+    <link rel="stylesheet" href="../css/pages.css" />
+    <link rel="stylesheet" href="../css/responsive.css" />
+  </head>
+  <body data-page="rewards">
+    <header id="gameHeader"></header>
+    <main id="mainContent" class="page-scene rewards-scene">
+      <div class="page-heading">
+        <span class="chapter-label">A TENDA DOS DESEJOS</span>
+        <h1 class="page-title">Uma pitada de sorte</h1>
+        <p class="page-lead">
+          O próximo giro pode dar um sabor especial à sua aventura.
+        </p>
+      </div>
+      <div class="rewards-layout">
+        <section class="wheel-tent" aria-label="Roleta de recompensas">
+          <div class="wheel-wrapper">
+            <span class="wheel-pointer" aria-hidden="true">▼</span
+            ><canvas
+              id="wheelCanvas"
+              width="360"
+              height="360"
+              role="img"
+              aria-label="Seis fatias de recompensas: 5, 15, 30 ou 50 por cento do saldo, bônus2 vezes ou100 por clique"
+            ></canvas>
+          </div>
+          <button id="spinBtn" class="game-button">
+            Girar a sorte · grátis
+          </button>
+          <p id="wheelTimer" role="status">Preparando sua roleta…</p>
+          <p id="wheelResult" class="prize-result" role="status" hidden></p>
+        </section>
+        <aside class="reward-story">
+          <h2>Um giro. Seis possibilidades.</h2>
+          <ul id="rewardLegend" class="reward-legend"></ul>
+          <p>
+            Todos os prêmios têm a mesma chance. Um giro a cada 5 minutos. O
+            valor percentual usa seu saldo no início do giro.
+          </p>
+          <p>
+            O poder extra de clique dura até o próximo prestígio. O resultado é
+            guardado antes da animação: pode sair e voltar sem perder seu
+            prêmio.
+          </p>
+          <div class="boost-shrine">
+            <span class="shrine-spark" aria-hidden="true">ϟ</span>
+            <h3>Chuva de açúcar</h3>
+            <p id="boostDescription">Produção e toques2× por30 segundos.</p>
+            <button id="adBoostBtn" class="game-button secondary">
+              Ativar bônus grátis</button
+            ><small
+              >Sem anúncios. Uma ajudinha do vale, a cada 5 minutos.</small
+            >
+          </div>
+        </aside>
+      </div>
+    </main>
+    <nav id="bottomNav" aria-label="Navegação rápida"></nav>
+    <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+    <canvas id="fxCanvas" aria-hidden="true"></canvas>
+    <script type="module" src="../js/pages/rewards.js"></script>
+  </body>
+</html>

@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#281643" />
+    <meta
+      name="description"
+      content="Lollipop Clicker: um mundo vivo feito de açúcar, magia e muitos cliques."
+    />
+    <title>Diário · Lollipop Clicker</title>
+    <link rel="icon" href="../icon-192.png" type="image/png" />
+    <link rel="manifest" href="../manifest.json" />
+    <link rel="stylesheet" href="../css/global.css" />
+    <link rel="stylesheet" href="../css/game.css" />
+    <link rel="stylesheet" href="../css/navigation.css" />
+    <link rel="stylesheet" href="../css/animations.css" />
+    <link rel="stylesheet" href="../css/pages.css" />
+    <link rel="stylesheet" href="../css/responsive.css" />
+  </head>
+  <body data-page="statistics">
+    <a class="skip-link" href="#pageContent">Pular para o conteúdo</a>
+    <header id="gameHeader"></header>
+    <main id="pageContent" class="page-scene">
+      <div class="page-heading">
+        <a class="back-link" href="../index.html">← Voltar ao mundo</a>
+        <p class="eyebrow">DIÁRIO DA AVENTURA</p>
+        <h1 class="page-title">Histórias escritas em açúcar</h1>
+        <p class="page-lead">
+          Do primeiro pirulito ao maior império. Aqui ficam os feitos de quem
+          nunca deixou de clicar.
+        </p>
+      </div>
+      <section class="journal-sheet" aria-labelledby="journalTitle">
+        <div class="journal-heading">
+          <svg
+            class="journal-emblem"
+            width="72"
+            height="72"
+            viewBox="0 0 72 72"
+            aria-hidden="true"
+          >
+            <path
+              d="M15 8h39a5 5 0 0 1 5 5v48H20a8 8 0 0 1-8-8V13a5 5 0 0 1 3-5Z"
+              fill="#e5b3ce"
+              stroke="#834d79"
+              stroke-width="3"
+            />
+            <path
+              d="M20 9v52M28 24h22M28 33h22M28 42h15"
+              stroke="#a6668e"
+              stroke-width="3"
+              stroke-linecap="round"
+            />
+            <path d="m43 52 5 3 5-3v14l-5-3-5 3Z" fill="#c86c99" />
+          </svg>
+          <div>
+            <h2 id="journalTitle">O grande livro da fábrica</h2>
+            <p>Os números por trás da sua jornada.</p>
+          </div>
+        </div>
+        <dl class="journal-entries">
+          <div class="journal-entry stat-row">
+            <dt>Pirulitos na sacola</dt>
+            <dd id="statCurrent">0</dd>
+          </div>
+          <div class="journal-entry stat-row">
+            <dt>Pirulitos produzidos na história</dt>
+            <dd id="statTotalEarned">0</dd>
+          </div>
+          <div class="journal-entry stat-row">
+            <dt>Produção por segundo</dt>
+            <dd id="statPps">0</dd>
+          </div>
+          <div class="journal-entry stat-row">
+            <dt>Poder de cada clique</dt>
+            <dd id="statClickPower">0</dd>
+          </div>
+          <div class="journal-entry stat-row">
+            <dt>Cliques nesta aventura</dt>
+            <dd id="statTotalClicks">0</dd>
+          </div>
+          <div class="journal-entry stat-row">
+            <dt>Tempo explorando o mundo</dt>
+            <dd id="statTimePlayed">0</dd>
+          </div>
+          <div class="journal-entry stat-row">
+            <dt>Giros da roleta</dt>
+            <dd id="statWheelSpins">0</dd>
+          </div>
+          <div class="journal-entry stat-row">
+            <dt>Doses de açúcar ativadas</dt>
+            <dd id="statBoostsObtained">0</dd>
+          </div>
+          <div class="journal-entry stat-row">
+            <dt>Sabores descobertos</dt>
+            <dd id="statFlavorsUnlocked">0</dd>
+          </div>
+          <div class="journal-entry stat-row">
+            <dt>Coleções visuais encontradas</dt>
+            <dd id="statSkinsUnlocked">0</dd>
+          </div>
+          <div class="journal-entry stat-row">
+            <dt>Máquinas e melhorias</dt>
+            <dd id="statUpgradesBought">0</dd>
+          </div>
+          <div class="journal-entry stat-row">
+            <dt>Maior tesouro de pirulitos</dt>
+            <dd id="statMaxScore">0</dd>
+          </div>
+          <div class="journal-entry stat-row">
+            <dt>Recorde de produção por segundo</dt>
+            <dd id="statMaxPps">0</dd>
+          </div>
+          <div class="journal-entry stat-row">
+            <dt>Monstros doces derrotados</dt>
+            <dd id="statBossesKilled">0</dd>
+          </div>
+          <div class="journal-entry stat-row">
+            <dt>Níveis de prestígio</dt>
+            <dd id="statPrestige">0</dd>
+          </div>
+        </dl>
+        <p class="page-note">
+          O tempo de jogo conta sua presença ativa. Sua fábrica também produz
+          enquanto você está fora, por até 8 horas.
+        </p>
+        <a class="game-button" href="../index.html"
+          >Continuar minha história →</a
+        >
+      </section>
+    </main>
+    <nav id="bottomNav" aria-label="Navegação do jogo"></nav>
+    <canvas id="fxCanvas" aria-hidden="true"></canvas>
+    <div id="toast" role="status" aria-live="polite" hidden></div>
+    <noscript
+      >Ative o JavaScript para continuar sua aventura de doces.</noscript
+    >
+    <script type="module" src="../js/pages/statistics.js"></script>
+  </body>
+</html>

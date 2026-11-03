@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#382044" />
+    <title>Loja · Lollipop Clicker</title>
+    <link rel="icon" href="../icon-192.png" />
+    <link rel="manifest" href="../manifest.json" />
+    <link rel="stylesheet" href="../css/global.css" />
+    <link rel="stylesheet" href="../css/game.css" />
+    <link rel="stylesheet" href="../css/navigation.css" />
+    <link rel="stylesheet" href="../css/animations.css" />
+    <link rel="stylesheet" href="../css/pages.css" />
+    <link rel="stylesheet" href="../css/responsive.css" />
+  </head>
+  <body data-page="shop">
+    <header id="gameHeader"></header>
+    <main id="mainContent" class="page-scene shop-scene">
+      <div class="page-heading">
+        <span class="chapter-label">A OFICINA DO VALE</span>
+        <h1 class="page-title">Engenhocas & maravilhas</h1>
+        <p class="page-lead">
+          Um parafuso aqui, uma pitada de açúcar ali. Deixe a produção com elas.
+        </p>
+      </div>
+      <div class="shop-summary">
+        <strong id="shopOwned">0 engenhocas trabalhando</strong
+        ><span id="shopProduction">0 pirulitos por segundo</span>
+      </div>
+      <div
+        class="buy-controls"
+        id="buyControls"
+        role="group"
+        aria-label="Quantidade por compra"
+      >
+        <span>COMPRAR</span
+        ><button data-buy="1" class="active" aria-pressed="true">×1</button
+        ><button data-buy="10" aria-pressed="false">×10</button
+        ><button data-buy="100" aria-pressed="false">×100</button
+        ><button data-buy="max" aria-pressed="false">MAX</button>
+      </div>
+      <p class="page-note">
+        Lotes de 10 e 100 são comprados por inteiro. MAX leva tudo o que couber
+        no seu saldo. Cada unidade mantém seu preço individual.
+      </p>
+      <div id="upgradesList" class="full-shop upgrades-list"></div>
+      <a class="game-button secondary" href="../index.html"
+        >← Voltar ao meu mundo</a
+      >
+    </main>
+    <nav id="bottomNav" aria-label="Navegação rápida"></nav>
+    <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+    <canvas id="fxCanvas" aria-hidden="true"></canvas>
+    <script type="module" src="../js/pages/shop.js"></script>
+  </body>
+</html>
