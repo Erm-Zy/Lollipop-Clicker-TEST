@@ -100,3 +100,7 @@ A fixture `tests/fixtures/v2-save.json` representa o schema real anterior, inclu
 ## Atualização do PWA
 
 O service worker instala **todos os documentos** e módulos de uma release em conjunto. O cache usa versão e escopo do projeto; não mistura arquivos individuais entre releases nem remove caches de jogos em outros subdiretórios. Ao alterar o shell, incremente `CACHE_NAME`. A atualização aguarda o fechamento das abas antigas; feche todas as abas e reabra para receber a nova versão. Saves não ficam no cache do service worker.
+
+## Beta Android
+
+O suporte Android usa Capacitor7, com ID `com.ermzy.lollipopclicker`, assets embarcados e versão inicial `3.0.0-beta.1`. O site continua funcionando sem instalar dependências nativas. Veja [instalação, migração de saves, assinatura e build](docs/android/BETA.md). O workflow `.github/workflows/android-apk.yml` compila e guarda artifacts; não publica na Google Play.

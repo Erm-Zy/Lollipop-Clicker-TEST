@@ -425,6 +425,16 @@ export async function createRuntime() {
     },
     { signal: abortListeners.signal },
   );
+  document.addEventListener("lollipop:native-pause", pause, {
+    signal: abortListeners.signal,
+  });
+  document.addEventListener(
+    "lollipop:native-resume",
+    () => {
+      if (paused) resume();
+    },
+    { signal: abortListeners.signal },
+  );
   window.addEventListener("pagehide", pause, { signal: abortListeners.signal });
   window.addEventListener(
     "pageshow",
