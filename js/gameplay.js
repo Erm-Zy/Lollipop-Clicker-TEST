@@ -1,46 +1,95 @@
 import {
-  UPGRADES_DATA, FLAVORS_DATA, SKINS_DATA, ACHIEVEMENTS_DATA, WHEEL_REWARDS,
-  SAVE_VERSION, MAX_VALUE, WHEEL_COOLDOWN_MS, WHEEL_DURATION_MS,
-  BOOST_DURATION_MS, BOOST_COOLDOWN_MS, BOSS_DURATION_MS, OFFLINE_CAP_MS
-} from './data.js';
+  UPGRADES_DATA,
+  FLAVORS_DATA,
+  SKINS_DATA,
+  ACHIEVEMENTS_DATA,
+  WHEEL_REWARDS,
+  SAVE_VERSION,
+  MAX_VALUE,
+  WHEEL_COOLDOWN_MS,
+  WHEEL_DURATION_MS,
+  BOOST_DURATION_MS,
+  BOOST_COOLDOWN_MS,
+  BOSS_DURATION_MS,
+  OFFLINE_CAP_MS,
+} from "./data.js";
 
 export function createState(now = Date.now()) {
   return {
-    version: SAVE_VERSION, pirulitos: 0, totalEarned: 0, totalClicks: 0,
-    prestigeLevel: 0, prestigeClaimed: 0, activeFlavor: 'morango', activeSkin: 'classic',
-    activeTheme: 'classic', activeParticles: 'classic',
-    upgrades: Object.fromEntries(Object.keys(UPGRADES_DATA).map(key => [key, 0])),
-    unlockedFlavors: ['morango', 'limao', 'blueberry'], unlockedSkins: ['classic'],
-    unlockedAchievements: [], bossesKilled: 0, wheelSpins: 0, lastWheelTime: 0,
-    pendingWheel: null, lastWheelReward: null, boostEndTime: 0, lastBoostTime: 0,
-    boostsObtained: 0, wheelClickBonus: 0, boss: null, timePlayed: 0,
-    maxScore: 0, maxPps: 0, lastTick: now, savedAt: now,
-    settings: { music: true, sfx: true, particles: true, reducedMotion: false }
+    version: SAVE_VERSION,
+    pirulitos: 0,
+    totalEarned: 0,
+    totalClicks: 0,
+    prestigeLevel: 0,
+    prestigeClaimed: 0,
+    activeFlavor: "morango",
+    activeSkin: "classic",
+    activeTheme: "classic",
+    activeParticles: "classic",
+    upgrades: Object.fromEntries(
+      Object.keys(UPGRADES_DATA).map((key) => [key, 0]),
+    ),
+    unlockedFlavors: ["morango", "limao", "blueberry"],
+    unlockedSkins: ["classic"],
+    unlockedAchievements: [],
+    bossesKilled: 0,
+    wheelSpins: 0,
+    lastWheelTime: 0,
+    pendingWheel: null,
+    lastWheelReward: null,
+    boostEndTime: 0,
+    lastBoostTime: 0,
+    boostsObtained: 0,
+    wheelClickBonus: 0,
+    boss: null,
+    timePlayed: 0,
+    maxScore: 0,
+    maxPps: 0,
+    lastTick: now,
+    savedAt: now,
+    settings: { music: true, sfx: true, particles: true, reducedMotion: false },
   };
 }
 
-const cap = value => Math.min(MAX_VALUE, Math.max(0, value));
-export const getTotalUpgradesCount = state => Object.values(state.upgrades).reduce((a, b) => a + b, 0);
-export const getPrestigeTarget = state => Math.floor(Math.cbrt(state.totalEarned / 1000000));
-export const getPrestigeGain = state => Math.max(0, getPrestigeTarget(state) - state.prestigeClaimed);
-export const getBossMaxHp = state => Math.min(MAX_VALUE, Math.floor(100 * Math.pow(1.6, state.bossesKilled)));
+const cap = (value) => Math.min(MAX_VALUE, Math.max(0, value));
+export const getTotalUpgradesCount = (state) =>
+  Object.values(state.upgrades).reduce((a, b) => a + b, 0);
+export const getPrestigeTarget = (state) =>
+  Math.floor(Math.cbrt(state.totalEarned / 1000000));
+export const getPrestigeGain = (state) =>
+  Math.max(0, getPrestigeTarget(state) - state.prestigeClaimed);
+export const getBossMaxHp = (state) =>
+  Math.min(MAX_VALUE, Math.floor(100 * Math.pow(1.6, state.bossesKilled)));
 
 export function getPps(state, now = Date.now()) {
   now = Math.max(now, state.lastTick);
-  const base = Object.entries(UPGRADES_DATA).reduce((sum, [key, data]) => sum + state.upgrades[key] * data.basePps, 0);
-  return cap(base * FLAVORS_DATA[state.activeFlavor].ppsMult * (1 + state.prestigeLevel * 0.15) * (now < state.boostEndTime ? 2 : 1));
+  const base = Object.entries(UPGRADES_DATA).reduce(
+    (sum, [key, data]) => sum + state.upgrades[key] * data.basePps,
+    0,
+  );
+  return cap(
+    base *
+      FLAVORS_DATA[state.activeFlavor].ppsMult *
+      (1 + state.prestigeLevel * 0.15) *
+      (now < state.boostEndTime ? 2 : 1),
+  );
 }
 
 export function getClickPower(state, now = Date.now()) {
   now = Math.max(now, state.lastTick);
-  return cap((1 + FLAVORS_DATA[state.activeFlavor].clickBonus + state.wheelClickBonus) *
-    (1 + state.prestigeLevel * 0.15) * (now < state.boostEndTime ? 2 : 1));
+  return cap(
+    (1 + FLAVORS_DATA[state.activeFlavor].clickBonus + state.wheelClickBonus) *
+      (1 + state.prestigeLevel * 0.15) *
+      (now < state.boostEndTime ? 2 : 1),
+  );
 }
 
 export function getUpgradeCost(state, key) {
   const data = Object.hasOwn(UPGRADES_DATA, key) ? UPGRADES_DATA[key] : null;
   if (!data) return Infinity;
-  const cost = Math.floor(data.baseCost * Math.pow(data.costMult, state.upgrades[key]));
+  const cost = Math.floor(
+    data.baseCost * Math.pow(data.costMult, state.upgrades[key]),
+  );
   return Number.isFinite(cost) && cost <= MAX_VALUE ? cost : Infinity;
 }
 
@@ -68,13 +117,20 @@ export function settleWheel(state, now = Date.now()) {
   // Clear the claim first. Saving the complete state makes settlement idempotent.
   state.pendingWheel = null;
   state.wheelSpins += 1;
-  const result = { index: pending.index, label: reward.label, type: reward.type, amount: 0, at: pending.endsAt };
-  if (reward.type === 'pct') result.amount = addCurrency(state, pending.amount);
-  if (reward.type === 'boost') {
-    state.boostEndTime = Math.max(pending.endsAt, state.boostEndTime) + BOOST_DURATION_MS;
+  const result = {
+    index: pending.index,
+    label: reward.label,
+    type: reward.type,
+    amount: 0,
+    at: pending.endsAt,
+  };
+  if (reward.type === "pct") result.amount = addCurrency(state, pending.amount);
+  if (reward.type === "boost") {
+    state.boostEndTime =
+      Math.max(pending.endsAt, state.boostEndTime) + BOOST_DURATION_MS;
     state.boostsObtained += 1;
   }
-  if (reward.type === 'click') {
+  if (reward.type === "click") {
     state.wheelClickBonus = cap(state.wheelClickBonus + reward.val);
     result.amount = reward.val;
   }
@@ -138,7 +194,11 @@ export function selectFlavor(state, key, now = Date.now()) {
 /** Purchasing a collection unlocks its three components; equipping stays independent. */
 export function selectCustomization(state, category, key, now = Date.now()) {
   advance(state, now);
-  const fields = { skin: 'activeSkin', theme: 'activeTheme', particles: 'activeParticles' };
+  const fields = {
+    skin: "activeSkin",
+    theme: "activeTheme",
+    particles: "activeParticles",
+  };
   const field = Object.hasOwn(fields, category) ? fields[category] : null;
   const data = Object.hasOwn(SKINS_DATA, key) ? SKINS_DATA[key] : null;
   if (!field || !data) return false;
@@ -154,7 +214,11 @@ export function selectCustomization(state, category, key, now = Date.now()) {
 export function startBoost(state, now = Date.now()) {
   advance(state, now);
   now = state.lastTick;
-  if ((state.lastBoostTime && now - state.lastBoostTime < BOOST_COOLDOWN_MS) || now < state.boostEndTime) return false;
+  if (
+    (state.lastBoostTime && now - state.lastBoostTime < BOOST_COOLDOWN_MS) ||
+    now < state.boostEndTime
+  )
+    return false;
   state.lastBoostTime = now;
   state.boostEndTime = now + BOOST_DURATION_MS;
   state.boostsObtained += 1;
@@ -164,15 +228,24 @@ export function startBoost(state, now = Date.now()) {
 export function startWheel(state, now = Date.now(), random = Math.random) {
   advance(state, now);
   now = state.lastTick;
-  if (state.pendingWheel || (state.lastWheelTime && now - state.lastWheelTime < WHEEL_COOLDOWN_MS)) return false;
+  if (
+    state.pendingWheel ||
+    (state.lastWheelTime && now - state.lastWheelTime < WHEEL_COOLDOWN_MS)
+  )
+    return false;
   const sample = random();
   if (!Number.isFinite(sample) || sample < 0 || sample >= 1) return false;
   const index = Math.floor(sample * WHEEL_REWARDS.length);
   const reward = WHEEL_REWARDS[index];
   state.lastWheelTime = now;
   state.pendingWheel = {
-    index, startedAt: now, endsAt: now + WHEEL_DURATION_MS,
-    amount: reward.type === 'pct' ? Math.max(100, Math.floor(state.pirulitos * reward.val)) : 0
+    index,
+    startedAt: now,
+    endsAt: now + WHEEL_DURATION_MS,
+    amount:
+      reward.type === "pct"
+        ? Math.max(100, Math.floor(state.pirulitos * reward.val))
+        : 0,
   };
   return state.pendingWheel;
 }
@@ -217,7 +290,10 @@ export function checkAchievements(state, now = Date.now()) {
   const unlocked = [];
   const pps = getPps(state, now);
   for (const achievement of ACHIEVEMENTS_DATA) {
-    if (!state.unlockedAchievements.includes(achievement.id) && achievement.req(state, pps)) {
+    if (
+      !state.unlockedAchievements.includes(achievement.id) &&
+      achievement.req(state, pps)
+    ) {
       state.unlockedAchievements.push(achievement.id);
       unlocked.push(achievement.id);
     }
