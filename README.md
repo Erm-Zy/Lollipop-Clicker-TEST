@@ -1,80 +1,102 @@
-# 🍭 Lollipop Clicker 2.0
+# Lollipop Clicker 3.0 — Um mundo vivo de doces
 
-Uma pequena fábrica, infinitas possibilidades. Atualização do jogo original em HTML, CSS e JavaScript puro: nova interface responsiva, progressão preservada e regras separadas da apresentação. Não há framework, build ou dependência de execução.
+Clique em um pirulito, invente engenhocas e transforme uma colina de açúcar em um reino. A versão 3.0 troca o painel da versão anterior por um jogo de fantasia com ilustrações SVG originais, produção visível, animações leves e páginas HTML independentes. Todo o conteúdo para jogadores é em português brasileiro.
+
+O jogo continua sendo uma aplicação estática de HTML, CSS e JavaScript puro: sem framework, etapa de build, dependência de execução ou servidor de contas.
 
 ## Jogar e desenvolver
-
-Sirva a pasta por HTTP; módulos ES e o service worker não funcionam ao abrir `index.html` por `file://`.
 
 ```sh
 npm run serve
 # abra http://127.0.0.1:8000
 ```
 
-Requer Python 3 para o servidor de desenvolvimento. O deploy continua sendo uma pasta estática, compatível com GitHub Pages e `.nojekyll`. O idioma do jogo é português. A interface funciona com mouse, toque e teclado; use Tab e Espaço/Enter, ou as setas na navegação. O jogo respeita `prefers-reduced-motion` e permite desativar partículas, música e efeitos separadamente.
+O servidor de desenvolvimento usa Python 3 e escuta somente no localhost. Sirva por HTTP; abrir arquivos diretamente por `file://` não permite módulos ES, persistência por origem ou service worker de maneira confiável.
 
-## Sistemas e regras
+Publique o conteúdo do repositório como uma pasta estática. Caminhos relativos e URLs derivadas de `import.meta.url` funcionam no subdiretório do GitHub Pages, inclusive ao entrar diretamente em `pages/arena.html`. `.nojekyll`, ícones, música e configurações de hospedagem existentes foram preservados.
 
-- **Produção:** oito melhorias originais, com os mesmos custos base, produção e crescimento de preço de 1,15×. A fórmula de preço continua `floor(custoBase × 1,15 ^ nível)`. Cliques e produção recebem os bônus do sabor ativo, prestígio e boost.
-- **Sabores:** os 11 sabores originais, incluindo três gratuitos, com seus preços e bônus preservados. Compras permanecem após prestígio.
-- **Personalização:** sete coleções originais. Comprar uma coleção desbloqueia pirulito, fundo e partículas; cada categoria pode ser equipada independentemente, sem pagar de novo.
-- **Conquistas:** as 13 originais e suas condições, com notificação sem interromper o jogo. Nenhuma conquista antiga é retirada.
-- **Prestígio:** o total de níveis disponíveis é `floor(cbrt(total histórico / 1.000.000))`. Apenas níveis ainda não resgatados são concedidos. Cada nível mantém +15% em produção e clique. Renascer zera saldo, melhorias, batalha e bônus transitórios, preservando coleção, conquistas, estatísticas e cooldowns. Um giro pendente deve terminar antes do renascimento.
-- **Roleta:** preserva o intervalo original de **5 minutos** (o antigo título “diária” era inconsistente). Os seis resultados têm chances iguais. Prêmios percentuais usam o saldo no início do giro, com mínimo de 100. O raro agora entrega o anunciado **+100 ao clique**, até o próximo prestígio. O resultado fica salvo antes da animação, o ponteiro indica esse resultado e recarregar não sorteia nem paga novamente.
-- **Bônus grátis:** o anúncio fictício foi convertido em um bônus de demonstração claramente identificado: produção e clique 2× por 30 segundos, com recarga de 5 minutos. Não há anúncio real, SDK publicitário ou alegação de visualização verificada. Bônus da roleta podem estender um boost existente.
-- **Arena:** 100 HP iniciais, crescimento de 1,6× por vitória, prazo real de 30 segundos e recompensa de 15× HP. A batalha é persistida e ataques após o prazo não concedem vitória. Não há produção automática causando dano ao chefe.
-- **Dimensão:** mantém o aviso original de conteúdo em desenvolvimento; não apresenta um minijogo inexistente como concluído.
-- **Áudio:** reutiliza `assets/audio/bmg1.ogg` e efeitos leves sintetizados por Web Audio, iniciados após interação. Música pausa quando a página fica oculta.
+## Um mundo para explorar
 
-A [auditoria inicial](docs/AUDIT.md) descreve os problemas do commit original e o inventário preservado. A referência a pirulitos dourados no README antigo não correspondia a um sistema implementado no código auditado.
+| Documento real | O que acontece nele |
+| --- | --- |
+| `index.html` | Pirulito interativo, saldo, clique, produção, bônus, mundo ilustrado e compra rápida |
+| `pages/shop.html` | Oito engenhocas originais, níveis, contribuição e lotes ×1/×10/×100/MAX |
+| `pages/collection.html` | Inventário de 11 sabores e sete coleções; pirulito, fundo e partículas independentes |
+| `pages/arena.html` | Três guardiões ilustrados alternados, dano por toque, prazo, vitória e recarga |
+| `pages/prestige.html` | Requisitos, medidor de progresso, ganho, bônus permanentes e confirmação |
+| `pages/achievements.html` | Álbum das 13 conquistas, categorias, progresso e estado de desbloqueio |
+| `pages/statistics.html` | Diário da aventura com as estatísticas de produção e progresso |
+| `pages/rewards.html` | Roleta persistente e bônus grátis de produção/clique |
+| `pages/settings.html` | Música, efeitos, partículas, movimento do mundo e recuperação de saves |
+
+Os locais são links reais, com URLs e histórico do navegador. Não são seções escondidas de um único HTML. No celular, Mundo, Loja, Coleção e Arena ficam na barra inferior; **Mais** abre os outros locais.
+
+O pirulito reage a mouse, toque e Espaço/Enter. As ilustrações mudam conforme o sabor e a aparência equipada. As máquinas têm identidade própria, engrenagens animadas e detalhes adicionais a partir de dez e cem unidades. O cenário avança em quatro capítulos conforme a coleção de máquinas cresce (0, 5, 25 e 100 unidades). Cristais de açúcar dourado aparecem em janelas curtas durante o jogo; precisam ser coletados, não são uma recompensa automática.
+
+## Regras e economia
+
+- **Catálogos preservados:** oito upgrades, onze sabores, sete coleções visuais e treze conquistas, com IDs, custos base, bônus e condições originais. Saves anteriores mantêm o conteúdo comprado.
+- **Preço:** cada unidade custa `floor(custoBase × 1,15 ^ quantidadePossuída)`. Um lote é a soma dos preços individuais, cada um arredondado separadamente. ×10 e ×100 exigem saldo para o lote inteiro. MAX compra exatamente o maior prefixo acessível. O débito e o aumento de quantidade acontecem juntos.
+- **Produção:** a soma das máquinas recebe o bônus do sabor ativo, do prestígio e de boost. Toda compra ou troca integra o ganho anterior antes de alterar a taxa. Cliques e automação usam as mesmas regras da versão 2.0.
+- **Ausência:** até oito horas de produção por intervalo offline, dividindo o cálculo no vencimento de boosts. Uma aba oculta também usa tempo decorrido. Tempo fora da página não conta como tempo jogado. Saves sem timestamp não recebem duração inventada.
+- **Prestígio:** `floor(cbrt(totalHistórico / 1.000.000))` é o total de níveis conquistáveis. Só níveis ainda não resgatados são concedidos. Cada nível dá +15% de produção e clique. Reinicia saldo, máquinas, batalha e bônus temporários; preserva sabores, cosméticos, conquistas, estatísticas e cooldowns. Um giro pendente precisa terminar primeiro.
+- **Arena:** HP inicial 100, multiplicado por 1,6 a cada vitória; trinta segundos reais para vencer. Apenas cliques dentro do prazo causam dano. Vitória concede 15× HP máximo. Há trinta segundos de descanso após vitória ou fim do prazo; o cooldown persiste em outras páginas e no reload.
+- **Roleta:** seis resultados igualmente prováveis, um giro grátis a cada cinco minutos, como na versão 2.0. Percentuais usam o saldo no início do giro, com mínimo de cem pirulitos. O raro acrescenta cem ao clique até o próximo prestígio. O resultado e o cooldown são salvos antes da animação, cujo ponteiro indica esse mesmo resultado. Navegar ou recarregar não permite sortear novamente ou receber duas vezes.
+- **Bônus grátis:** produção e cliques 2× por trinta segundos, com recarga de cinco minutos. É um bônus do jogo, sem anúncio fictício ou SDK publicitário. Boosts da roleta podem estender um bônus ativo.
+- **Açúcar dourado:** uma oportunidade a cada sessenta segundos, com janela de doze segundos. Coletar concede `max(25, PPS base × 30)`. Eventos expirados ou perdidos offline não acumulam nem pagam sozinhos.
+
+A área “Nova Dimensão” da versão 2.0 era somente um aviso de desenvolvimento. A versão 3.0 dá lugar a um mundo de produção que de fato evolui; nenhuma mecânica funcional foi retirada para simplificar a navegação.
 
 ## Arquitetura
 
 ```text
-index.html                 Estrutura semântica, navegação e SVG do pirulito
-css/main.css               Identidade visual e layout principal
-css/components.css         Cards, coleções, arena, roleta e configurações
-css/responsive.css         Celular, tablet e movimento reduzido
-js/data.js                 Catálogos originais e constantes de balanceamento
-js/gameplay.js             Estado e transições puras, cálculo e progressão
-js/storage.js              Validação, migração, backups e ganhos offline
-js/app.js                  Integração DOM, eventos, navegação e ciclo de vida
-js/audio.js                Música e efeitos sintetizados
-js/effects.js              Partículas limitadas e animação sob demanda
-assets/                    Áudio, imagem e diretórios existentes preservados
-sw.js + manifest.json      Instalação PWA e aplicação offline
-tests/                    Regressões de regras, persistência e navegador
+index.html / pages/*.html   Documentos independentes com estrutura específica
+css/global.css             Tipografia, paleta, temas e controles comuns
+css/navigation.css         Navegação do mundo e barra inferior
+css/game.css                Cena principal e compra rápida
+css/pages.css               Inventário, arena, santuário, álbum e diário
+css/animations.css          Movimento opcional e redução de movimento
+css/responsive.css          Layouts específicos para desktop/tablet/celular
+js/data.js                  Catálogos, constantes e versão do save
+js/gameplay.js              Regras puras, tempo, compras, eventos e progressão
+js/storage.js               Validação, migração, backups e recuperação
+js/core/runtime.js          Único relógio, escritor, lifecycle, áudio e eventos
+js/ui/shared.js             Navegação, HUD, avisos e bootstrap compartilhado
+js/ui/art.js                Pirulitos, máquinas, cenários e chefes SVG originais
+js/ui/shop.js               Componente reutilizável de compra e lotes
+js/pages/*.js               Somente o controlador do documento visitado
+js/audio.js / effects.js    Som e partículas sob demanda
+sw.js / manifest.json       Aplicação estática instalável e páginas offline
 ```
 
-As regras recebem um estado e um timestamp explícitos; não dependem do DOM. Toda ação integra a produção anterior antes de mudar multiplicadores ou comprar melhorias. A UI atualiza textos somente quando mudam, evita renderizar painéis ocultos e mantém os listeners principais registrados uma vez. O tick de interface ocorre a cada 200 ms, mas o ganho usa tempo decorrido, dividido na expiração de boosts. O canvas usa `requestAnimationFrame` apenas enquanto há partículas, com limite de 60 e resolução em pixels CSS.
+O runtime recebe regras sem DOM e coordena o estado de cada documento. Cada página cria apenas seu próprio controlador. Um tick de 200 ms atualiza o HUD visível; ele não define o valor da produção. Animações visuais usam CSS ou `requestAnimationFrame`, sem manter um loop de canvas vazio. Partículas têm limite de sessenta e resolução em pixels CSS. Desative partículas e movimento do mundo separadamente nos Ajustes; `prefers-reduced-motion` também é respeitado. A música original `assets/audio/bmg1.ogg` começa após interação e pausa em segundo plano; efeitos usam Web Audio com limpeza dos nós.
 
-## Saves e recuperação
+## Continuidade do save
 
-A chave principal continua **`lollipopSave`**. A versão 2 adiciona `version`, timestamps, personalização independente, níveis de prestígio já resgatados, resultados pendentes da roleta e estado da arena. Números, listas, IDs e objetos aninhados são validados; campos ausentes recebem defaults seguros.
+A chave principal permanece **`lollipopSave`**. O schema 3 adiciona recarga da arena, agenda do açúcar dourado e preferência de animação. A migração aceita o formato original sem versão e o schema 2 real. Ela não redefine itens equipados, histórico ou prestígio já conquistado.
 
-- Antes da primeira migração, o conteúdo bruto antigo é preservado em `lollipopSave.legacy-v1`. A aparência antiga é mantida nas três categorias. Níveis de prestígio e recompensas já obtidos continuam com o jogador.
-- Saves antigos sem timestamp não recebem ganhos offline inventados. Saves novos recebem até **8 horas** de produção por ausência, respeitando o tempo efetivo de boost. Tempo offline não conta como tempo jogado.
-- Autosave a cada 5 segundos, após transações importantes e ao ocultar/sair da página. Uma cópia da escrita anterior fica em `lollipopSave.backup`.
-- JSON inválido, formato desconhecido, versão futura, armazenamento bloqueado ou falta de espaço não apagam o save original. Se houver backup válido, ele pode ser carregado para consulta, com autosave bloqueado até recuperação explícita.
-- Em **Configurações**, exporte o progresso, importe um arquivo ou use **Restaurar backup local**. A restauração exige confirmação e preserva o conteúdo substituído em `lollipopSave.recovery`. Em modo de proteção, a exportação entrega o save bruto original para recuperação.
-- Apagar todo o progresso exige duas confirmações. Importação e reset também guardam backups do conteúdo anterior. Esses backups não são enviados a um servidor.
-- Uma mudança de save em outra aba bloqueia a aba antiga; recarregue para continuar usando o estado mais recente. Isso evita que abas desatualizadas sobrescrevam progresso e recompensas.
+- O primeiro save original é preservado em `lollipopSave.legacy-v1`; o primeiro schema 2 em `lollipopSave.legacy-v2`. São backups brutos imutáveis da migração.
+- `lollipopSave.backup` guarda a escrita completa anterior. Escritas são feitas a cada cinco segundos, ao ocultar/sair da página, antes de navegar e após transações importantes.
+- O runtime usa **Web Locks**, quando disponível, para permitir um único escritor entre os documentos e abas da origem. O fallback usa uma concessão curta em localStorage, conferida antes de ações e saves. A página antiga libera o controle em `pagehide`; ao voltar pelo histórico/BFCache, recarrega o estado atual antes de retomar.
+- Uma segunda aba fica em consulta. Pode navegar e exportar, mas não compra, clica ou recebe recompensas. Para assumir o jogo, feche a aba ativa e recarregue. Mudanças externas também impedem que um escritor desatualizado sobrescreva progresso.
+- JSON inválido, formato desconhecido, versão futura e erros de armazenamento não apagam dados. Se houver backup válido, ele pode ser consultado com autosave bloqueado. Use Ajustes para exportar o conteúdo bruto ou restaurar explicitamente um backup.
+- Importação e restauração exigem confirmação e preservam o conteúdo anterior em `lollipopSave.recovery`. Começar do zero exige duas confirmações.
+- Armazenamento completamente bloqueado permite jogar temporariamente e exportar o estado em memória; giros que exigem uma reserva persistida ficam indisponíveis.
 
-O progresso é local ao navegador/origem. Não há sincronização de conta, anti-cheat de servidor ou garantia contra edição manual do relógio/localStorage. Use exportação para mover progresso entre dispositivos ou fazer backup fora do navegador.
+O save continua local ao navegador/origem, sem conta online. Não há autoridade de servidor ou proteção contra edição manual do relógio e do localStorage. Exporte backups para trocar de aparelho. Não compartilhe o mesmo save simultaneamente com uma versão antiga aberta em outra aba.
 
-## Validação
+## Testes e revisão
 
 ```sh
-npm run check          # sintaxe dos módulos e service worker
-npm test               # 39 verificações de regras e armazenamento; Node 24+
-npm run serve          # em um terminal separado
-npm run test:browser   # integração real no Chromium
+npm run check          # sintaxe de todos os módulos e verificação dos HTMLs
+npm test               # regressões de regras, economia e armazenamento (Node24+)
+npm run test:browser   # Chromium real; mantenha o servidor aberto em outro terminal
 ```
 
-O teste de navegador requer o pacote Python `playwright` e um Chromium instalado (não são dependências do jogo). Por exemplo, instale Playwright no ambiente de testes com `python3 -m pip install playwright`. O executável padrão é `/usr/bin/chromium`; configure `CHROMIUM_PATH` para outro caminho, e `LOLLIPOP_BASE_URL` para outro servidor. Não precisa baixar os browsers do Playwright se já houver Chromium.
+O teste de navegador usa Python3, `playwright` e Chromium instalado. O jogo não depende dessas ferramentas. Configure `CHROMIUM_PATH` se o executável não for `/usr/bin/chromium`. Para repetir o teste em subdiretório, sirva a pasta que contém o repositório por HTTP e configure `LOLLIPOP_BASE_URL` com o caminho completo (por exemplo, `http://127.0.0.1:8001/Lollipop-Clicker-TEST/`). Veja também o cabeçalho de `tests/browser_smoke.py`. Capturas de Mundo, Loja e Arena em desktop e celular ficam em `test-results/v3/` (ignorado no Git).
 
-Os testes unitários cobrem compras, todos os seis prêmios, cooldown, reload, prestígio repetido, boss expirado, produção offline/boost, números inválidos, saves antigos/corrompidos/futuros, backups e falhas de armazenamento. O teste de navegador cobre navegação, cliques e teclado, compras, personalização, prestígio, arena, importação/exportação, proteção e restauração de save, várias abas, assets e modo offline; verifica layouts em 360, 390 e 768 px, além do desktop em 1440 px. Capturas locais ficam em `test-results/` (ignorado no Git).
+A fixture `tests/fixtures/v2-save.json` representa o schema real anterior, incluindo pirulito/fundo/partículas distintos e prestígio resgatado. Os testes cobrem esse save, todos os prêmios, preços de lotes, produção, deadlines, recuperação, múltiplas abas, navegação e histórico, páginas offline e caminhos sob um subdiretório de GitHub Pages. [Resultados e limites da validação](docs/VALIDATION.md). Veja também as [capturas de Mundo, Loja e Arena](docs/SCREENSHOTS.md). A [auditoria original](docs/AUDIT.md) registra os problemas encontrados antes da versão 2.0.
 
 ## Atualização do PWA
 
-O service worker armazena o shell completo, incluindo CSS, módulos, áudio e ícones. Cada versão usa um cache próprio e consistente; não mistura arquivos individuais de releases diferentes. Ao alterar qualquer asset do shell, **incremente `CACHE_NAME` em `sw.js`**. A atualização aguarda o fechamento das abas antigas para ativar; feche todas as abas do jogo e reabra após atualizar. Só caches com prefixo `lollipop-clicker-` são removidos. Nenhum cache contém o save do jogador.
+O service worker instala **todos os documentos** e módulos de uma release em conjunto. O cache usa versão e escopo do projeto; não mistura arquivos individuais entre releases nem remove caches de jogos em outros subdiretórios. Ao alterar o shell, incremente `CACHE_NAME`. A atualização aguarda o fechamento das abas antigas; feche todas as abas e reabra para receber a nova versão. Saves não ficam no cache do service worker.
