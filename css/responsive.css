@@ -1181,3 +1181,40 @@
       linear-gradient(var(--violet), var(--ink));
   }
 }
+
+/* Keep QoL controls readable and reachable at the narrowest supported widths. */
+@media (max-width: 640px) {
+  .shop-scene .buy-controls button { min-height: 44px; }
+  :is(#fullShop, .full-shop) .upgrade-row { grid-template-columns: 50px minmax(0, 1fr) auto; gap: 8px; }
+  :is(#fullShop, .full-shop) .building-art { width: 48px; height: 60px; }
+  :is(#fullShop, .full-shop) .upgrade-row > .owned { font-size: 22px; }
+  :is(#fullShop, .full-shop) .upgrade-info strong { font-size: 13px; line-height: 1.35; }
+  :is(#fullShop, .full-shop) .purchase-status,
+  :is(#fullShop, .full-shop) .purchase-estimate { font-size: 11px; }
+  :is(#fullShop, .full-shop)[data-shop-view="compact"] .upgrade-row { grid-template-columns: minmax(0, 1fr) auto; padding: 11px 13px; }
+  :is(#fullShop, .full-shop)[data-shop-view="compact"] .upgrade-info strong { font-size: 13px; }
+  .collection-page .item-desc { font-size: 11px; }
+  .collection-page .item-action,
+  .collection-page .item-preview { font-size: 11px; padding: 8px 6px; min-width: 0; }
+  .collection-page .item-name { font-size: 13px; }
+  .collection-page .flavor-bonuses { line-height: 1.6; }
+  .flavor-comparison { padding: 14px; }
+  .arena-page .battle-readout { gap: 8px; }
+  .arena-page #bossTimer,
+  .arena-page #bossHpText { font-size: 14px; }
+  .arena-page #bossReward { font-size: 14px; }
+  .arena-page #bossHint { font-size: 11px; }
+  .arena-page #startBossBtn { max-width: 100%; overflow-wrap: anywhere; }
+  .upgrade-row,
+  .item-tile,
+  .flavor-comparison,
+  #battleResult { scroll-margin-bottom: calc(95px + env(safe-area-inset-bottom, 0px)); }
+}
+@media (max-width: 340px) {
+  .collection-page .inventory-grid { grid-template-columns: minmax(0, 1fr); }
+  .collection-page .item-art { height: 85px; }
+  .shop-view-controls { gap: 6px; }
+  .shop-view-controls > span { font-size: 9px; letter-spacing: .3px; }
+  .comparison-values { gap: 7px; }
+  .comparison-values > div { padding: 9px; font-size: 12px; }
+}

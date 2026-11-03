@@ -19,7 +19,9 @@ export function time(ms) {
   return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`;
 }
 export function setText(id, value) {
-  const element = document.getElementById(id);
+  setNodeText(document.getElementById(id), value);
+}
+export function setNodeText(element, value) {
   if (element && element.textContent !== String(value))
     element.textContent = value;
 }
