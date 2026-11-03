@@ -1,0 +1,126 @@
+name: Android beta APK
+on:
+  push:
+    branches: [feat/android-beta]
+  pull_request:
+    paths:
+      [
+        "android/**",
+        "js/**",
+        "css/**",
+        "pages/**",
+        "assets/**",
+        "index.html",
+        "package*.json",
+        "capacitor.config.json",
+        "scripts/**",
+        ".github/workflows/android-apk.yml",
+      ]
+  workflow_dispatch:
+    inputs:
+      variant:
+        description: "debug para teste; release exige secrets de assinatura"
+        required: true
+        default: debug
+        type: choice
+        options: [debug, release]
+permissions:
+  contents: read
+jobs:
+  apk:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      ANDROID_VERSION_CODE: ${{ github.run_number }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24.11.0"
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      - uses: android-actions/setup-android@v3
+      - name: Install SDK
+        run: sdkmanager 'platforms;android-35' 'build-tools;35.0.0' 'build-tools;34.0.0' 'platform-tools'
+      - run: npm ci
+      - run: npm run check && npm test
+      - run: npm run android:sync && node scripts/check-android.mjs
+      - name: Restore optional persistent beta signing key
+        if: github.event_name != 'pull_request'
+        env:
+          KEY_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          STORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          if [ -n "$KEY_BASE64" ]; then
+            test -n "$STORE_PASSWORD" && test -n "$KEY_ALIAS" && test -n "$KEY_PASSWORD"
+            printf '%s' "$KEY_BASE64" | base64 --decode > "$RUNNER_TEMP/beta.jks"
+            echo "ANDROID_KEYSTORE_PATH=$RUNNER_TEMP/beta.jks" >> "$GITHUB_ENV"
+          fi
+      - name: Compile APK
+        env:
+          VARIANT: ${{ inputs.variant || 'debug' }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          export ANDROID_VERSION_CODE=$((3000000 + ANDROID_VERSION_CODE))
+          chmod +x android/gradlew
+          if [ "$VARIANT" = release ]; then
+            test -n "$ANDROID_KEYSTORE_PATH" || { echo 'Release exige os quatro secrets ANDROID_KEYSTORE_* / ANDROID_KEY_*.'; exit 1; }
+            (cd android && ./gradlew assembleRelease --no-daemon)
+          else
+            (cd android && ./gradlew assembleDebug --no-daemon)
+          fi
+      - name: Upload installable APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: lollipop-3.0.0-beta.1-${{ inputs.variant || 'debug' }}-${{ github.run_number }}
+          path: android/app/build/outputs/apk/**/*.apk
+          if-no-files-found: error
+          retention-days: 14
+      - name: Delete temporary signing file
+        if: always()
+        run: rm -f "$RUNNER_TEMP/beta.jks"
+
+  android-smoke:
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24.11.0"
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      - run: npm ci && npm run android:sync
+      - name: Enable emulator acceleration
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          arch: x86_64
+          target: google_apis
+          disable-animations: true
+          script: |
+            adb shell svc wifi disable
+            adb shell svc data disable
+            sdkmanager 'build-tools;34.0.0' 'platforms;android-35'
+            cd android && ./gradlew :app:connectedDebugAndroidTest --no-daemon
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: android-webview-test-report
+          path: android/app/build/reports/androidTests/
+          if-no-files-found: warn
