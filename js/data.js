@@ -1,0 +1,71 @@
+export const UPGRADES_DATA = {
+  maquina: { name: 'Máquina de Pirulitos', baseCost: 15, costMult: 1.15, basePps: 0.5, icon: '🍭', desc: '+0.5 pirulitos/s' },
+  calda: { name: 'Calda Açucarada', baseCost: 100, costMult: 1.15, basePps: 4, icon: '🍯', desc: '+4.0 pirulitos/s' },
+  fabrica: { name: 'Fábrica de Doces', baseCost: 1100, costMult: 1.15, basePps: 32, icon: '🏭', desc: '+32.0 pirulitos/s' },
+  misturador: { name: 'Misturador de Sabores', baseCost: 12000, costMult: 1.15, basePps: 260, icon: '🥣', desc: '+260.0 pirulitos/s' },
+  embaladora: { name: 'Embaladora Automática', baseCost: 130000, costMult: 1.15, basePps: 1400, icon: '📦', desc: '+1.4K pirulitos/s' },
+  laboratorio: { name: 'Laboratório de Açúcar', baseCost: 1400000, costMult: 1.15, basePps: 7800, icon: '🧪', desc: '+7.8K pirulitos/s' },
+  linha: { name: 'Linha de Produção', baseCost: 20000000, costMult: 1.15, basePps: 44000, icon: '⚙️', desc: '+44.0K pirulitos/s' },
+  superfabrica: { name: 'Super Fábrica de Pirulitos', baseCost: 330000000, costMult: 1.15, basePps: 260000, icon: '🏰', desc: '+260.0K pirulitos/s' }
+};
+
+// --- 2. SABORES ---
+export const FLAVORS_DATA = {
+  morango: { name: 'Morango', desc: 'Sabor equilibrado (+1 por clique)', icon: '🍓', cost: 0, isFree: true, clickBonus: 1, ppsMult: 1 },
+  limao: { name: 'Limão', desc: 'Maior produção (+20% PPS)', icon: '🍋', cost: 0, isFree: true, clickBonus: 0, ppsMult: 1.20 },
+  blueberry: { name: 'Blueberry', desc: 'Maior clique (+3 por clique & +10% PPS)', icon: '🫐', cost: 0, isFree: true, clickBonus: 3, ppsMult: 1.10 },
+  uva: { name: 'Uva', desc: '+25% PPS Global', icon: '🍇', cost: 5000, isFree: false, clickBonus: 0, ppsMult: 1.25 },
+  laranja: { name: 'Laranja', desc: '+5 por clique & +15% PPS', icon: '🍊', cost: 25000, isFree: false, clickBonus: 5, ppsMult: 1.15 },
+  melancia: { name: 'Melancia', desc: '+40% PPS Global', icon: '🍉', cost: 150000, isFree: false, clickBonus: 0, ppsMult: 1.40 },
+  abacaxi: { name: 'Abacaxi', desc: '+15 por clique extra', icon: '🍍', cost: 750000, isFree: false, clickBonus: 15, ppsMult: 1.10 },
+  chocolate: { name: 'Chocolate', desc: '+60% PPS Global & +10 clique', icon: '🍫', cost: 5000000, isFree: false, clickBonus: 10, ppsMult: 1.60 },
+  algodao: { name: 'Algodão-Doce', desc: '+100% PPS Global', icon: '🍬', cost: 30000000, isFree: false, clickBonus: 20, ppsMult: 2.00 },
+  arcoiris: { name: 'Arco-Íris', desc: 'Super Multiplicador 2.5x PPS', icon: '🌈', cost: 200000000, isFree: false, clickBonus: 50, ppsMult: 2.50 },
+  lendario: { name: 'Sabor Lendário', desc: 'Poder Supremo: 4.0x PPS & +100 por clique', icon: '⭐', cost: 1000000000, isFree: false, clickBonus: 100, ppsMult: 4.00 }
+};
+
+// --- 3. SKINS DO PIRULITO (3 COMPONENTES: FUNDO + PIRULITO + PARTÍCULAS) ---
+export const SKINS_DATA = {
+  classic: { name: 'Clássico', emoji: '🍭', themeClass: 'theme-classic', glow: 'rgba(255, 64, 129, 0.4)', cost: 0, particleType: 'classic', color: '#ff4081' },
+  neon: { name: 'Neon', emoji: '💖', themeClass: 'theme-neon', glow: 'rgba(0, 255, 234, 0.7)', cost: 2500, particleType: 'neon', color: '#00ffea' },
+  rainbow: { name: 'Arco-Íris', emoji: '🌈', themeClass: 'theme-rainbow', glow: 'rgba(255, 235, 59, 0.7)', cost: 50000, particleType: 'rainbow', color: '#ffeb3b' },
+  gold: { name: 'Dourado', emoji: '👑', themeClass: 'theme-gold', glow: 'rgba(255, 215, 0, 0.8)', cost: 500000, particleType: 'gold', color: '#ffd700' },
+  cosmic: { name: 'Cósmico', emoji: '🌌', themeClass: 'theme-cosmic', glow: 'rgba(156, 39, 176, 0.8)', cost: 5000000, particleType: 'cosmic', color: '#ab47bc' },
+  fire: { name: 'Fogo', emoji: '🔥', themeClass: 'theme-fire', glow: 'rgba(255, 87, 34, 0.8)', cost: 50000000, particleType: 'fire', color: '#ff5722' },
+  ice: { name: 'Gelo', emoji: '🧊', themeClass: 'theme-ice', glow: 'rgba(33, 150, 243, 0.8)', cost: 500000000, particleType: 'ice', color: '#2196f3' }
+};
+
+// --- 4. CONQUISTAS ---
+export const ACHIEVEMENTS_DATA = [
+  { id: 'c1', title: 'Primeiro Pirulito', desc: 'Faça 1 clique no pirulito', icon: '🍭', req: s => s.totalClicks >= 1 },
+  { id: 'c100', title: 'Dedo Açucarado', desc: 'Alcance 100 cliques totais', icon: '👆', req: s => s.totalClicks >= 100 },
+  { id: 'c1000', title: 'Maratona de Cliques', desc: 'Alcance 1.000 cliques totais', icon: '💥', req: s => s.totalClicks >= 1000 },
+  { id: 'viciado', title: 'Viciado em Açúcar', desc: 'Acumule 10.000 pirulitos no total', icon: '🍯', req: s => s.totalEarned >= 10000 },
+  { id: 'fabrica_doces', title: 'Fábrica de Doces', desc: 'Alcance 500 Pirulitos por segundo', icon: '🏭', req: (s, pps) => pps >= 500 },
+  { id: 'magnata', title: 'Magnata dos Pirulitos', desc: 'Alcance 1.000.000 Pirulitos por segundo', icon: '👑', req: (s, pps) => pps >= 1000000 },
+  { id: 'sabores_3', title: 'Provador de Doces', desc: 'Desbloqueie 4 sabores', icon: '🍓', req: s => s.unlockedFlavors.length >= 4 },
+  { id: 'sabores_todos', title: 'Colecionador de Sabores', desc: 'Desbloqueie 8 sabores', icon: '🌈', req: s => s.unlockedFlavors.length >= 8 },
+  { id: 'fashionista', title: 'Fashionista', desc: 'Desbloqueie 3 skins do pirulito', icon: '🎨', req: s => s.unlockedSkins.length >= 3 },
+  { id: 'roleta_1', title: 'Sorte Grande', desc: 'Gire a roleta da sorte pela 1ª vez', icon: '🎰', req: s => s.wheelSpins >= 1 },
+  { id: 'upgrades_10', title: 'Pequeno Investidor', desc: 'Compre 10 upgrades no total', icon: '⚙️', req: s => Object.values(s.upgrades).reduce((a, b) => a + b, 0) >= 10 },
+  { id: 'boss_1', title: 'Caçador de Monstros', desc: 'Derrote o primeiro Chefão', icon: '⚔️', req: s => s.bossesKilled >= 1 },
+  { id: 'tempo_10m', title: 'Açúcar no Sangue', desc: 'Jogue por pelo menos 10 minutos', icon: '⏱️', req: s => s.timePlayed >= 600 }
+];
+
+export const SAVE_VERSION = 2;
+export const WHEEL_COOLDOWN_MS = 5 * 60 * 1000;
+export const BOOST_DURATION_MS = 30 * 1000;
+export const BOOST_COOLDOWN_MS = 5 * 60 * 1000;
+export const WHEEL_DURATION_MS = 3200;
+export const BOSS_DURATION_MS = 30 * 1000;
+export const OFFLINE_CAP_MS = 8 * 60 * 60 * 1000;
+// Keep arithmetic finite while allowing progress far beyond the original content.
+export const MAX_VALUE = 1e100;
+export const WHEEL_REWARDS = [
+  { label: '5% pirulitos', short: '+5%', type: 'pct', val: 0.05, color: '#ed628e' },
+  { label: '15% pirulitos', short: '+15%', type: 'pct', val: 0.15, color: '#a786e8' },
+  { label: '2× por 30s', short: '2×', type: 'boost', val: 30, color: '#6dafe8' },
+  { label: '30% pirulitos', short: '+30%', type: 'pct', val: 0.30, color: '#58bfa6' },
+  { label: '+100 por clique nesta jornada', short: '+100', type: 'click', val: 100, color: '#e9ba5e' },
+  { label: '50% pirulitos', short: '+50%', type: 'pct', val: 0.50, color: '#e68b68' }
+];
