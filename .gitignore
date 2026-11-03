@@ -2,3 +2,11 @@ node_modules/
 __pycache__/
 test-results/
 .DS_Store
+
+www/
+android/local.properties
+android/**/build/
+android/.gradle/
+*.keystore
+*.jks
+android/app/src/main/res/drawable*/splash.png.tmp

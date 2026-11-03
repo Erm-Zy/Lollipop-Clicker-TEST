@@ -159,7 +159,10 @@ export async function bootPage(page) {
         "Sessão exportada. Você pode importar esse arquivo quando o armazenamento estiver disponível.",
       );
     });
-  if ("serviceWorker" in navigator) {
+  if (
+    "serviceWorker" in navigator &&
+    !globalThis.Capacitor?.isNativePlatform?.()
+  ) {
     navigator.serviceWorker
       .register(new URL("../../sw.js", import.meta.url), {
         scope: new URL("../../", import.meta.url).pathname,

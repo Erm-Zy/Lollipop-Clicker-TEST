@@ -1,0 +1,13 @@
+{
+  "appId": "com.ermzy.lollipopclicker",
+  "appName": "Lollipop Clicker",
+  "webDir": "www",
+  "android": { "allowMixedContent": false },
+  "plugins": {
+    "SplashScreen": {
+      "launchAutoHide": false,
+      "backgroundColor": "#382044",
+      "showSpinner": false
+    }
+  }
+}
