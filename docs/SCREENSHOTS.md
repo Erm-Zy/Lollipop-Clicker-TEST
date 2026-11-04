@@ -29,3 +29,14 @@ As capturas acima registram a interface anterior a este polimento. As novas capt
 - [Coleção e comparação de sabores](screenshots/qol/mobile-collection-comparison.png)
 
 Veja os [resultados e limites desta atualização](QOL_UPDATE.md). A barra fixa aparece na posição da viewport nas capturas de página inteira; o teste verifica que o fim do conteúdo pode ser rolado acima dela.
+
+## Música e refinamentos móveis
+
+Capturas mais recentes, em 390 × 844, com o catálogo real (somente a trilha original), movimento reduzido e notificações transitórias ocultas:
+
+- [Jukebox Açucarada nos Ajustes](screenshots/music/mobile-jukebox.png)
+- [Loja compacta, com introdução e linhas menores](screenshots/music/mobile-shop-compact.png)
+- [Coleção com filtros](screenshots/music/mobile-collection-filters.png)
+- [Comparação em painel inferior, sem salto para o topo](screenshots/music/mobile-comparison-sheet.png)
+
+Veja os [resultados e limites da validação musical](MUSIC_UPDATE.md) e o [guia para acrescentar faixas](MUSIC_GUIDE.md).

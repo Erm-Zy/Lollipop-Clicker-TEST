@@ -2,12 +2,14 @@ import { bootPage, format, setText, setNodeText } from "../ui/shared.js";
 import { FLAVORS_DATA, SKINS_DATA } from "../data.js";
 import { selectFlavor, selectCustomization } from "../gameplay.js";
 import { lollipopSVG, collectionSVG } from "../ui/art.js";
-import { flavorEffects, previewFlavor } from "../ui/qol.js";
+import { flavorEffects, previewFlavor, matchesCollectionFilter } from "../ui/qol.js";
 
 const runtime = await bootPage("collection");
 const grid = document.getElementById("inventoryGrid");
 const comparison = document.getElementById("flavorComparison");
 let category = "flavors";
+let filter = "all";
+let returnFocus = null;
 let signature = "";
 let previewId = null;
 let rows = [];
@@ -60,7 +62,11 @@ function render(state, info = {}) {
     }));
     if (focused) grid.querySelector(`[data-${focused.preview ? "preview" : "item"}="${focused.id}"]`)?.focus({ preventScroll: true });
   }
+  let visible = 0;
   for (const { card, id, action, shortfall, preview } of rows) {
+    const show = matchesCollectionFilter(id, catalog[id], owned, state.pirulitos, filter);
+    if (card.hidden === show) card.hidden = !show;
+    if (show) visible++;
     const locked = !owned.includes(id);
     const insufficient = locked && state.pirulitos < catalog[id].cost;
     action.disabled = !runtime.writable || insufficient || equipped === id;
@@ -72,8 +78,8 @@ function render(state, info = {}) {
       if (preview.getAttribute("aria-pressed") !== String(selected)) preview.setAttribute("aria-pressed", String(selected));
     }
   }
-  comparison.hidden = !flavors || !previewId;
-  if (!comparison.hidden) {
+  document.getElementById("inventoryEmpty").hidden = visible > 0;
+  if (flavors && previewId) {
     const values = previewFlavor(state, previewId, info.now ?? Date.now());
     setText("comparisonTitle", `Comparar: ${FLAVORS_DATA[previewId].name}`);
     setText("comparisonCurrent", `Equipado · ${FLAVORS_DATA[state.activeFlavor].name}`);
@@ -102,12 +108,12 @@ for (const button of document.querySelectorAll("[data-category]")) {
 grid.addEventListener("click", event => {
   const preview = event.target.closest("[data-preview]");
   if (preview) {
-    previewId = previewId === preview.dataset.preview ? null : preview.dataset.preview;
+    returnFocus = preview;
+    previewId = preview.dataset.preview;
     render(runtime.state);
-    if (previewId) {
-      comparison.focus({ preventScroll: true });
-      comparison.scrollIntoView({ block: "nearest", behavior: "instant" });
-    }
+    comparison.showModal();
+    document.body.classList.add("comparison-open");
+    comparison.focus({ preventScroll: true });
     return;
   }
   const button = event.target.closest("[data-item]");
@@ -122,11 +128,29 @@ grid.addEventListener("click", event => {
     ? `${item.name} equipado. ${flavors ? "Seus cosméticos foram mantidos." : "As outras categorias foram mantidas."}`
     : `${item.name} entrou para sua coleção e foi equipado!`);
 });
-document.getElementById("closeComparison").addEventListener("click", () => {
+for (const button of document.querySelectorAll("[data-filter]")) {
+  button.addEventListener("click", () => {
+    filter = button.dataset.filter;
+    for (const option of document.querySelectorAll("[data-filter]"))
+      option.setAttribute("aria-pressed", String(option === button));
+    render(runtime.state);
+  });
+}
+document.getElementById("closeComparison").addEventListener("click", () => comparison.close());
+comparison.addEventListener("close", () => {
   const id = previewId;
   previewId = null;
+  document.body.classList.remove("comparison-open");
   render(runtime.state);
-  grid.querySelector(`[data-preview="${id}"]`)?.focus();
+  const button = returnFocus?.isConnected ? returnFocus : grid.querySelector(`[data-preview="${id}"]`);
+  button?.focus({ preventScroll: true });
+  returnFocus = null;
+});
+comparison.addEventListener("click", event => {
+  if (event.target !== comparison) return;
+  const rect = comparison.getBoundingClientRect();
+  if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom)
+    comparison.close();
 });
 setText("categoryHint", hints.flavors);
 runtime.subscribe(render);

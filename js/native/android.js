@@ -10,6 +10,11 @@ if (Capacitor.isNativePlatform()) {
       ),
     );
   const back = ({ canGoBack }) => {
+    const dialog = document.querySelector("dialog[open]");
+    if (dialog) {
+      dialog.close();
+      return;
+    }
     const menu = document.querySelector("details[open]");
     if (menu) {
       menu.open = false;

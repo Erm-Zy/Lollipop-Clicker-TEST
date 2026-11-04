@@ -1,29 +1,17 @@
-// Existing soundtrack + lightweight synthesized effects. No network audio dependency.
-export function createAudio(settings) {
-  const music = new Audio(
-    new URL("../assets/audio/bmg1.ogg", import.meta.url).href,
-  );
-  music.loop = true;
-  music.volume = 0.25;
-  music.preload = "none";
+import { createMusicPlayer } from "./music/player.js";
+
+// Local soundtrack player + original lightweight synthesized effects.
+export function createAudio(settings, options = {}) {
+  const player = createMusicPlayer(settings, options);
   let context;
-  let unlocked = false;
   let suspended = false;
   let lastSound = 0;
-  function sync() {
-    if (unlocked && settings().music && !suspended)
-      music.play().catch(() => {});
-    else music.pause();
-  }
   return {
-    unlock() {
-      unlocked = true;
-      sync();
-    },
-    sync,
+    ...player,
     suspend(value) {
       suspended = value;
-      sync();
+      player.suspend(value);
+      if (value && context?.state === "running") context.suspend().catch(() => {});
     },
     play(type = "click") {
       if (!settings().sfx || suspended) return;
@@ -59,8 +47,8 @@ export function createAudio(settings) {
       }
     },
     dispose() {
-      music.pause();
-      context?.close();
+      player.dispose();
+      context?.close().catch(() => {});
     },
   };
 }

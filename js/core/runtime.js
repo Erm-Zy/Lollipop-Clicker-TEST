@@ -57,6 +57,8 @@ export async function createRuntime() {
   let abortListeners = new AbortController();
   const audio = createAudio(
     () => state?.settings || { music: false, sfx: false },
+    { getState: () => state, isOwner: holdsOwnership, storage,
+      notify, startSuspended: true },
   );
 
   function notify(message) {
@@ -77,6 +79,7 @@ export async function createRuntime() {
   }
 
   function emit(type, extra) {
+    audio.sync();
     const details = info(type, extra);
     for (const listener of listeners) listener(state, details);
     document.dispatchEvent(

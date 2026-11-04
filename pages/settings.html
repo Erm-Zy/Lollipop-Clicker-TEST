@@ -30,7 +30,8 @@
           <div class="setting-row">
             <div>
               <h2>Música do vale</h2>
-              <p>A trilha original da sua aventura.</p>
+              <p id="musicSummary">A trilha original da sua aventura.</p>
+              <a class="jukebox-link" href="#candyJukebox">Abrir Jukebox ↓</a>
             </div>
             <button
               id="toggleMusicBtn"
@@ -110,6 +111,32 @@
           <button id="resetDataBtn" class="game-button danger">
             Começar do zero</button
           ><small>Requer duas confirmações. Exporte um backup primeiro.</small>
+        </section>
+        <section id="candyJukebox" class="settings-sheet jukebox-sheet" aria-labelledby="jukeboxTitle">
+          <h2 id="jukeboxTitle">Jukebox Açucarada</h2>
+          <p>Uma pequena coleção de sons para acompanhar seu mundo.</p>
+          <div class="jukebox-controls">
+            <label for="musicMode">Modo da trilha
+              <select id="musicMode">
+                <option value="original">Original</option>
+                <option value="random">Aleatório</option>
+                <option value="world">Mundo dinâmico</option>
+                <option value="manual">Manual</option>
+              </select>
+            </label>
+            <label for="musicVolume">Volume da música · <output id="musicVolumeValue" for="musicVolume">25%</output>
+              <input id="musicVolume" type="range" min="0" max="100" step="1" value="25" />
+            </label>
+          </div>
+          <label class="music-battle-option"><input id="musicBattleOverrides" type="checkbox" /> Permitir temas de batalha no modo Manual</label>
+          <p id="nowPlaying" class="now-playing"></p>
+          <p id="musicStatus" role="status" aria-live="polite"></p>
+          <div class="jukebox-actions">
+            <button id="musicPlayBtn" type="button" class="game-button secondary">Reproduzir / retomar</button>
+            <button id="musicNextBtn" type="button" class="game-button secondary">Próxima faixa</button>
+          </div>
+          <ul id="jukeboxTracks" class="jukebox-tracks" aria-label="Biblioteca musical"></ul>
+          <p class="jukebox-note">Novas trilhas aparecem aqui quando forem adicionadas ao jogo. Descobertas musicais permanecem após o prestígio.</p>
         </section>
       </div>
     </main>

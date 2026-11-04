@@ -34,6 +34,7 @@ export function mountShop(runtime, container, controls, onBuy = () => {}, viewCo
   if (viewControls) {
     function selectView(view, persist = false) {
       container.dataset.shopView = view;
+      container.closest("main").dataset.shopView = view;
       for (const button of viewControls.querySelectorAll("[data-shop-view]")) {
         const active = button.dataset.shopView === view;
         button.setAttribute("aria-pressed", String(active));

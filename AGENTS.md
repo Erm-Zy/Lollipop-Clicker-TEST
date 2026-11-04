@@ -9,6 +9,8 @@ Jogo incremental independente em português brasileiro, feito com HTML, CSS e Ja
 - `js/storage.js`: validação, migração e backups de `lollipopSave`. `js/core/runtime.js`: relógio, ownership entre abas, autosave e lifecycle compartilhados.
 - `js/ui/art.js`: ilustrações SVG atuais. `js/ui/assets.js`: registro opcional de PNG/WebP locais e fallback. Leia `docs/ART_GUIDE.md` antes de integrar desenhos.
 - `js/ui/shared.js`: HUD/navegação/notificações. `css/`: paleta, temas, layout e animações atuais. Fundo, partículas e aparência são escolhas independentes; sabores dão bônus.
+- `js/world.js`: capítulos e identidade dos guardiões compartilhados com a cena e a música; não duplique os limites 0/5/25/100.
+- `js/music/`: catálogo local, preferências/descobertas e player de um único elemento. `js/audio.js` preserva os efeitos sintetizados; Jukebox nos Ajustes. Leia `docs/MUSIC_GUIDE.md` para adicionar faixas reais.
 - `assets/images/`: desenhos futuros; não renomeie imagens existentes. Ícones atuais também existem na raiz. Áudio em `assets/audio/`.
 - `sw.js`: cache offline da web. `scripts/android-web.mjs`: copia páginas/JS/CSS/assets para `www/`; `android/` usa esse diretório após `npm run android:sync`. Não edite os assets gerados para fazer uma mudança permanente.
 
@@ -20,12 +22,14 @@ Jogo incremental independente em português brasileiro, feito com HTML, CSS e Ja
 4. Preserve compatibilidade com navegador, Android, GitHub Pages em subdiretório e uso offline.
 5. Mantenha textos do jogador em pt-BR e não altere arquivos sem relação com a tarefa.
 6. Arte só é ativada quando configurada no registro. Preserve proporção e SVG de fallback; nunca crie requisições automáticas para nomes de arquivos imaginados.
-7. Verifique alterações com os testes existentes. Ao mudar módulos/arte do shell, ajuste o cache PWA quando necessário; não altere pacote/assinatura Android sem motivo.
+7. Nunca registre músicas inexistentes nem altere o schema de progresso por preferências musicais. Preserve o ownership da aba e o cache de áudio sob demanda.
+8. Verifique alterações com os testes existentes. Ao mudar módulos/arte do shell, ajuste o cache PWA quando necessário; não altere pacote/assinatura Android sem motivo.
 
 ## Validação
 
 - `npm run check` e `npm test` sempre.
 - `npm run serve` + `npm run test:browser` para mudanças de UI, navegação ou runtime (Python Playwright + Chromium; confira o cabeçalho do teste).
+- `python3 tests/music_browser.py` e `python3 tests/qol_browser.py` (servidor local aberto) para música, filtros, comparação e Loja. O teste musical usa mocks e decodificação Chromium real; não prova saída de som/aparelho Android.
 - `python3 tests/artwork_browser.py` (inicia um servidor localhost temporário) para o fallback de imagens opcionais.
 - `npm ci`, `npm run android:sync` e `node scripts/check-android.mjs` para conferir o pacote Android; com JDK21/SDK instalado, `cd android && ./gradlew :app:assembleDebug`.
 - Declare somente os testes que executou. Não confunda Chromium, compilação de APK e execução em aparelho/emulador.
