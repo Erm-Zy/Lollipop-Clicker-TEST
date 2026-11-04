@@ -1,7 +1,9 @@
+import { mountJukebox } from "../ui/jukebox.js";
 import { bootPage, setText } from "../ui/shared.js";
 import { createState } from "../gameplay.js";
 import { validateState } from "../storage.js";
 const runtime = await bootPage("settings");
+mountJukebox(runtime);
 const settings = [
   ["toggleMusicBtn", "music"],
   ["toggleSfxBtn", "sfx"],

@@ -1,3 +1,4 @@
+import { BOSS_STORIES, getBossIdentity } from "../world.js";
 import { bootPage, format, time, setText } from "../ui/shared.js";
 import {
   startBoss,
@@ -11,20 +12,6 @@ import { BOSS_DURATION_MS, MAX_VALUE } from "../data.js";
 const runtime = await bootPage("arena");
 const avatar = document.getElementById("bossAvatar");
 const start = document.getElementById("startBossBtn");
-const stories = [
-  [
-    "Geleião do Pomar",
-    "Ele se esconde entre as frutas e coleciona todo açúcar que encontra.",
-  ],
-  [
-    "Capitão Caramelo",
-    "Sua armadura de caramelo é dura. Seu orgulho é ainda mais duro.",
-  ],
-  [
-    "Dragão de Suspiro",
-    "Um sopro de glacê e uma montanha de doces guardada a sete chaves.",
-  ],
-];
 let shownLevel = -1;
 let previousBoss = null;
 let previousVictories = runtime.state.bossesKilled;
@@ -35,7 +22,7 @@ function render(state, info = {}) {
   const now = Math.max(info.now ?? Date.now(), state.lastTick);
   const boss = state.boss;
   const level = state.bossesKilled;
-  const [name, story] = stories[level % stories.length];
+  const { name, story } = BOSS_STORIES[getBossIdentity(state)];
   if (shownLevel !== level) {
     shownLevel = level;
     avatar.innerHTML = bossSVG(level);

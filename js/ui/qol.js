@@ -83,3 +83,11 @@ export function previewFlavor(state, id, now = Date.now()) {
     preview: { click: getClickPower(preview, now), pps: getPps(preview, now) },
   };
 }
+
+export function matchesCollectionFilter(id, item, owned, balance, filter) {
+  const unlocked = owned.includes(id);
+  if (filter === "unlocked") return unlocked;
+  if (filter === "locked") return !unlocked;
+  if (filter === "affordable") return !unlocked && Number.isFinite(item.cost) && balance >= item.cost;
+  return true;
+}

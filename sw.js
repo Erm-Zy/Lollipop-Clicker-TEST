@@ -1,5 +1,5 @@
 // A complete release cache keeps all real pages and their shared modules together.
-const CACHE_NAME = "lollipop-clicker-3.0.2-qol:" + self.registration.scope;
+const CACHE_NAME = "lollipop-clicker-3.0.3-music:" + self.registration.scope;
 const ASSETS = [
   "./",
   "./index.html",
@@ -15,6 +15,12 @@ const ASSETS = [
   "./pages/shop.html",
   "./pages/statistics.html",
   "./js/audio.js",
+  "./js/world.js",
+  "./js/music/catalog.js",
+  "./js/music/preferences.js",
+  "./js/music/selection.js",
+  "./js/music/player.js",
+  "./js/ui/jukebox.js",
   "./js/core/runtime.js",
   "./js/data.js",
   "./js/effects.js",
@@ -73,10 +79,15 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(event.request.url);
   if (
     event.request.method !== "GET" ||
-    url.origin !== self.location.origin ||
-    event.request.headers.has("range")
+    url.origin !== self.location.origin
   )
     return;
+  const audioRoot = new URL("./assets/audio/", self.registration.scope).href;
+  if (url.href.startsWith(audioRoot) && /\.(ogg|mp3|m4a|aac|wav|webm)$/.test(url.pathname)) {
+    event.respondWith(cachedAudio(event.request));
+    return;
+  }
+  if (event.request.headers.has("range")) return;
   const path = ASSETS.find(
     (asset) =>
       new URL(asset, self.registration.scope).pathname === url.pathname,
@@ -136,3 +147,36 @@ self.addEventListener("message", (event) => {
     ),
   );
 });
+
+// Cache only music actually requested by the player, never a whole future catalog.
+// WebViews commonly request bytes=0-; serve ranges from the cached complete file.
+async function cachedAudio(request) {
+  const cache = await caches.open(CACHE_NAME);
+  let response = await cache.match(request.url);
+  if (!response) {
+    const headers = new Headers(request.headers);
+    headers.delete("range");
+    response = await fetch(new Request(request, { headers }));
+    if (response.status === 200) {
+      try { await cache.put(request.url, response.clone()); } catch {
+        // A full cache must not prevent online listening.
+      }
+    }
+  }
+  const range = request.headers.get("range");
+  if (!range || response.status !== 200) return response;
+  const match = /^bytes=(\d*)-(\d*)$/.exec(range);
+  if (!match || (!match[1] && !match[2])) return response;
+  const buffer = await response.arrayBuffer();
+  const length = buffer.byteLength;
+  const start = match[1] ? Number(match[1]) : Math.max(0, length - Number(match[2]));
+  const end = match[1] && match[2] ? Math.min(length - 1, Number(match[2])) : length - 1;
+  if (start >= length || start > end || !Number.isSafeInteger(start) || !Number.isSafeInteger(end))
+    return new Response(null, { status: 416, headers: { "Content-Range": `bytes */${length}` } });
+  const headers = new Headers(response.headers);
+  headers.delete("content-encoding");
+  headers.set("Content-Range", `bytes ${start}-${end}/${length}`);
+  headers.set("Content-Length", String(end - start + 1));
+  headers.set("Accept-Ranges", "bytes");
+  return new Response(buffer.slice(start, end + 1), { status: 206, headers });
+}

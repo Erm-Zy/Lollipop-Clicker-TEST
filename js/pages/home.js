@@ -1,3 +1,4 @@
+import { WORLD_CHAPTERS, getWorldStage } from "../world.js";
 import { bootPage, format, time, setText } from "../ui/shared.js";
 import { mountShop } from "../ui/shop.js";
 import { lollipopSVG, buildingSVG, worldSVG } from "../ui/art.js";
@@ -16,12 +17,6 @@ let candyLook = "",
   buildingSignature = "",
   pressAnimation;
 const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
-const worlds = [
-  ["Colina de Açúcar", "Uma receita, um sonho e muito açúcar."],
-  ["Vila Caramelada", "As primeiras chaminés já perfumam o vale."],
-  ["Vale das Engenhocas", "Sua pequena vila virou uma doce potência."],
-  ["Reino dos Pirulitos", "Um mundo inteiro gira ao redor da sua receita."],
-];
 mountShop(
   runtime,
   document.getElementById("upgradesList"),
@@ -49,22 +44,21 @@ runtime.subscribe((state, info) => {
     candy.innerHTML = lollipopSVG(state.activeFlavor, state.activeSkin);
   }
   const count = game.getTotalUpgradesCount(state);
-  const stage = count >= 100 ? 3 : count >= 25 ? 2 : count >= 5 ? 1 : 0;
+  const stage = getWorldStage(state);
   if (stage !== worldStage) {
     worldStage = stage;
     document.getElementById("worldScene").innerHTML = worldSVG(stage);
     document.body.dataset.world = stage;
   }
   document.querySelector(".world-zone").classList.toggle("running", count > 0);
-  setText("worldTitle", worlds[stage][0]);
-  setText("mobileWorldName", worlds[stage][0]);
+  setText("worldTitle", WORLD_CHAPTERS[stage].name);
+  setText("mobileWorldName", WORLD_CHAPTERS[stage].name);
   setText("worldChapter", `CAPÍTULO 0${stage + 1}`);
-  const thresholds = [5, 25, 100];
   setText(
     "worldProgress",
     stage < 3
-      ? `${count} / ${thresholds[stage]} engenhocas para expandir o mundo`
-      : worlds[stage][1],
+      ? `${count} / ${WORLD_CHAPTERS[stage + 1].minimum} engenhocas para expandir o mundo`
+      : WORLD_CHAPTERS[stage].story,
   );
   setText(
     "buildingCount",
