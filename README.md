@@ -66,6 +66,9 @@ js/ui/art.js                Pirulitos, máquinas, cenários e chefes SVG origina
 js/ui/shop.js               Componente reutilizável de compra e lotes
 js/ui/qol.js                Prévias e estimativas de interface sem mutar progresso
 js/pages/*.js               Somente o controlador do documento visitado
+js/world.js                Capítulos/guardiões compartilhados pela cena e pela música
+js/music/*.js              Catálogo, descobertas, preferências e player musical
+js/ui/jukebox.js            Biblioteca musical dentro dos Ajustes
 js/audio.js / effects.js    Som e partículas sob demanda
 sw.js / manifest.json       Aplicação estática instalável e páginas offline
 ```
@@ -113,3 +116,10 @@ Artes futuras em PNG/WebP ficam em `assets/images/`, organizadas por pirulitos, 
 ## Qualidade de vida no celular
 
 A oficina oferece vista normal ou compacta, mantendo ×1/×10/×100/MAX e mostrando disponibilidade e estimativas passivas quando confiáveis. Na Coleção, consulte todos os bônus e compare um sabor sem comprar ou equipar; na Arena, confira a recompensa antes de lutar. A preferência `lollipopUI.shopView` fica separada do progresso. [Mudanças, testes e limites](docs/QOL_UPDATE.md) · [Capturas](docs/SCREENSHOTS.md).
+
+
+## Jukebox Açucarada
+
+Em Ajustes, escolha **Original**, **Aleatório**, **Mundo dinâmico** ou **Manual**, ajuste o volume e selecione músicas descobertas. O catálogo registra apenas `assets/audio/bmg1.ogg` por enquanto; os outros modos têm fallback para ela. Novas faixas locais podem ser atribuídas a capítulos e guardiões, com descobertas preservadas após o prestígio, separadas do save. A música pausa em segundo plano e respeita a aba ativa; a navegação restaura a posição aproximada quando o navegador permite.
+
+A Coleção agora tem filtros e comparação em painel sobre a tela, sem pular para o topo. A Loja compacta concentra preço/produção e reduz a introdução; a vista normal foi mantida. [Como acrescentar músicas e um tema ao capítulo 3](docs/MUSIC_GUIDE.md) · [Resultados e capturas desta atualização](docs/MUSIC_UPDATE.md).
