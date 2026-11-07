@@ -206,9 +206,12 @@ with sync_playwright() as p:
 
     context,page=open_game(browser,seed(upgrades={'maquina':25}),mock=True,extra=True)
     page.locator('[data-music-track="test-vale"]').click()
+    # Selecting a track fades out asynchronously; navigation must wait for the
+    # actual source/session, not merely the immediately updated target label.
+    page.wait_for_function("JSON.parse(sessionStorage.getItem('lollipopMusic.session.v1'))?.trackId==='test-vale'")
     goto(page,'arena');page.locator('#startBossBtn').click()
-    page.wait_for_timeout(250)
-    check(page.evaluate("JSON.parse(sessionStorage.getItem('lollipopMusic.session.v1')).trackId==='test-vale'"),'Manual mode is preserved even when this boss has a soundtrack')
+    page.wait_for_function("JSON.parse(sessionStorage.getItem('lollipopMusic.session.v1'))?.trackId==='test-vale'")
+    check(preferences(page)['mode']=='manual','Manual mode is preserved even when this boss has a soundtrack')
     goto(page,'settings');page.locator('#musicBattleOverrides').check()
     goto(page,'arena')
     page.wait_for_function("JSON.parse(sessionStorage.getItem('lollipopMusic.session.v1'))?.trackId==='test-boss'")
