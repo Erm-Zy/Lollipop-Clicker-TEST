@@ -5,8 +5,8 @@ Jogo incremental independente em português brasileiro, feito com HTML, CSS e Ja
 ## Mapa rápido
 
 - `index.html` e `pages/*.html`: nove documentos reais; seus controladores ficam em `js/pages/`. Navegação usa links normais, não abas ocultas de uma SPA.
-- `js/data.js`: IDs, nomes, preços e conteúdo. `js/gameplay.js`: regras e cálculos puros.
-- `js/storage.js`: validação, migração e backups de `lollipopSave`. `js/core/runtime.js`: relógio, ownership entre abas, autosave e lifecycle compartilhados.
+- `js/data.js`: IDs, preços e constantes da economia. `js/progression.js`: marcos, progresso da jornada, multiplicadores, custos em PP e capacidades. `js/gameplay.js`: ações/transações e produção.
+- `js/storage.js`: schema 4, validação, migração e backups de `lollipopSave`. Saves antigos dentro das capacidades migram com pontos históricos; quantidades antigas incompatíveis têm reset único autorizado nesta atualização, com backup `lollipopSave.pre-prestige-v4`. Consulte `docs/PRESTIGE_BALANCE.md`. `js/core/runtime.js`: relógio, ownership entre abas, autosave e lifecycle compartilhados.
 - `js/ui/art.js`: ilustrações SVG atuais. `js/ui/assets.js`: registro opcional de PNG/WebP locais e fallback. Leia `docs/ART_GUIDE.md` antes de integrar desenhos.
 - `js/ui/shared.js`: HUD/navegação/notificações. `css/`: paleta, temas, layout e animações atuais. Fundo, partículas e aparência são escolhas independentes; sabores dão bônus.
 - `js/world.js`: capítulos e identidade dos guardiões compartilhados com a cena e a música; não duplique os limites 0/5/25/100.
@@ -16,7 +16,7 @@ Jogo incremental independente em português brasileiro, feito com HTML, CSS e Ja
 
 ## Regras de desenvolvimento
 
-1. Preserve mecânicas, IDs de conteúdo, progresso e saves. Nunca zere dados para simplificar uma alteração.
+1. Preserve mecânicas, IDs de conteúdo, progresso e saves. Nunca zere dados para simplificar uma alteração. A exceção de reset para saves beta incompatíveis com as capacidades do schema 4 foi autorizada somente para esta atualização; futuros resets continuam exigindo autorização explícita.
 2. Mantenha o desenho visual atual, salvo pedido explícito de mudança.
 3. Prefira JS, HTML e CSS simples; evite frameworks/dependências desnecessários.
 4. Preserve compatibilidade com navegador, Android, GitHub Pages em subdiretório e uso offline.
@@ -27,7 +27,8 @@ Jogo incremental independente em português brasileiro, feito com HTML, CSS e Ja
 
 ## Validação
 
-- `npm run check` e `npm test` sempre.
+- `npm run check` e `npm test` sempre. `node scripts/simulate-prestige.mjs` reproduz os cenários de balanceamento; não altere custos/multiplicadores na UI.
+- `python3 tests/prestige_browser.py` (servidor local aberto): PP, melhorias, capacidades, rollback, migração/reset e layouts. Gastos em PP e renascimento usam `runtime.act(..., { requireSave: true })`.
 - `npm run serve` + `npm run test:browser` para mudanças de UI, navegação ou runtime (Python Playwright + Chromium; confira o cabeçalho do teste).
 - `python3 tests/music_browser.py` e `python3 tests/qol_browser.py` (servidor local aberto) para música, filtros, comparação e Loja. O teste musical usa mocks e decodificação Chromium real; não prova saída de som/aparelho Android.
 - `python3 tests/artwork_browser.py` (inicia um servidor localhost temporário) para o fallback de imagens opcionais.

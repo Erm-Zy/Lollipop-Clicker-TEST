@@ -23,7 +23,7 @@ Publique o conteúdo do repositório como uma pasta estática. Caminhos relativo
 | `pages/shop.html` | Oito engenhocas originais, níveis, contribuição e lotes ×1/×10/×100/MAX |
 | `pages/collection.html` | Inventário de 11 sabores e sete coleções; pirulito, fundo e partículas independentes |
 | `pages/arena.html` | Três guardiões ilustrados alternados, dano por toque, prazo, vitória e recarga |
-| `pages/prestige.html` | Requisitos, medidor de progresso, ganho, bônus permanentes e confirmação |
+| `pages/prestige.html` | Progresso da jornada, renascimento, Pontos de Prestígio, Ímpeto Estelar e expansões permanentes |
 | `pages/achievements.html` | Álbum das 13 conquistas, categorias, progresso e estado de desbloqueio |
 | `pages/statistics.html` | Diário da aventura com as estatísticas de produção e progresso |
 | `pages/rewards.html` | Roleta persistente e bônus grátis de produção/clique |
@@ -37,9 +37,9 @@ O pirulito reage a mouse, toque e Espaço/Enter. As ilustrações mudam conforme
 
 - **Catálogos preservados:** oito upgrades, onze sabores, sete coleções visuais e treze conquistas, com IDs, custos base, bônus e condições originais. Saves anteriores mantêm o conteúdo comprado.
 - **Preço:** cada unidade custa `floor(custoBase × 1,15 ^ quantidadePossuída)`. Um lote é a soma dos preços individuais, cada um arredondado separadamente. ×10 e ×100 exigem saldo para o lote inteiro. MAX compra exatamente o maior prefixo acessível. O débito e o aumento de quantidade acontecem juntos.
-- **Produção:** a soma das máquinas recebe o bônus do sabor ativo, do prestígio e de boost. Toda compra ou troca integra o ganho anterior antes de alterar a taxa. Cliques e automação usam as mesmas regras da versão 2.0.
+- **Produção:** a soma das máquinas recebe o bônus do sabor ativo, do prestígio e de boost. Toda compra ou troca integra o ganho anterior antes de alterar a taxa. Os bônus de prestígio e Ímpeto são aplicados uma única vez a cliques, produção, prévias e ausência.
 - **Ausência:** até oito horas de produção por intervalo offline, dividindo o cálculo no vencimento de boosts. Uma aba oculta também usa tempo decorrido. Tempo fora da página não conta como tempo jogado. Saves sem timestamp não recebem duração inventada.
-- **Prestígio:** `floor(cbrt(totalHistórico / 1.000.000))` é o total de níveis conquistáveis. Só níveis ainda não resgatados são concedidos. Cada nível dá +15% de produção e clique. Reinicia saldo, máquinas, batalha e bônus temporários; preserva sabores, cosméticos, conquistas, estatísticas e cooldowns. Um giro pendente precisa terminar primeiro.
+- **Prestígio:** `floor(cbrt(totalHistórico / 1.000.000))` é o total de níveis conquistáveis. Só níveis ainda não resgatados são concedidos. Cada nível mantém +15% de produção/clique e concede 1 Ponto de Prestígio gastável. Ímpeto Estelar multiplica o bônus base; expansões aumentam a capacidade individual. Gastar pontos não reduz nível nem marcos resgatados. Reinicia saldo, máquinas, batalha e bônus temporários; preserva pontos, melhorias, sabores, cosméticos, conquistas, estatísticas e cooldowns. Um giro pendente precisa terminar primeiro.
 - **Arena:** HP inicial 100, multiplicado por 1,6 a cada vitória; trinta segundos reais para vencer. Apenas cliques dentro do prazo causam dano. Vitória concede 15× HP máximo. Há trinta segundos de descanso após vitória ou fim do prazo; o cooldown persiste em outras páginas e no reload.
 - **Roleta:** seis resultados igualmente prováveis, um giro grátis a cada cinco minutos, como na versão 2.0. Percentuais usam o saldo no início do giro, com mínimo de cem pirulitos. O raro acrescenta cem ao clique até o próximo prestígio. O resultado e o cooldown são salvos antes da animação, cujo ponteiro indica esse mesmo resultado. Navegar ou recarregar não permite sortear novamente ou receber duas vezes.
 - **Bônus grátis:** produção e cliques 2× por trinta segundos, com recarga de cinco minutos. É um bônus do jogo, sem anúncio fictício ou SDK publicitário. Boosts da roleta podem estender um bônus ativo.
@@ -58,7 +58,8 @@ css/pages.css               Inventário, arena, santuário, álbum e diário
 css/animations.css          Movimento opcional e redução de movimento
 css/responsive.css          Layouts específicos para desktop/tablet/celular
 js/data.js                  Catálogos, constantes e versão do save
-js/gameplay.js              Regras puras, tempo, compras, eventos e progressão
+js/gameplay.js              Ações, tempo, compras, eventos e produção
+js/progression.js           Jornada, PP, multiplicadores permanentes e capacidades
 js/storage.js               Validação, migração, backups e recuperação
 js/core/runtime.js          Único relógio, escritor, lifecycle, áudio e eventos
 js/ui/shared.js             Navegação, HUD, avisos e bootstrap compartilhado
@@ -77,9 +78,9 @@ O runtime recebe regras sem DOM e coordena o estado de cada documento. Cada pág
 
 ## Continuidade do save
 
-A chave principal permanece **`lollipopSave`**. O schema 3 adiciona recarga da arena, agenda do açúcar dourado e preferência de animação. A migração aceita o formato original sem versão e o schema 2 real. Ela não redefine itens equipados, histórico ou prestígio já conquistado.
+A chave principal permanece **`lollipopSave`**. O schema **4** acrescenta PP, Ímpeto Estelar, expansões e o marco inicial da jornada. Saves antigos dentro dos limites são migrados: os níveis históricos viram pontos ainda não gastos, sem mexer nos marcos resgatados. Saves beta antigos com fábricas acima das novas capacidades passam pelo reset único explicitamente autorizado para esta atualização, com aviso e backup exportável; dados corrompidos/futuros continuam protegidos. [Decisão e regras completas](docs/PRESTIGE_BALANCE.md).
 
-- O primeiro save original é preservado em `lollipopSave.legacy-v1`; o primeiro schema 2 em `lollipopSave.legacy-v2`. São backups brutos imutáveis da migração.
+- O primeiro save original é preservado em `lollipopSave.legacy-v1`; o primeiro schema 2 em `lollipopSave.legacy-v2`. O schema 3 usa `lollipopSave.legacy-v3`; um reset autorizado preserva o original em `lollipopSave.pre-prestige-v4`. São backups brutos imutáveis da migração.
 - `lollipopSave.backup` guarda a escrita completa anterior. Escritas são feitas a cada cinco segundos, ao ocultar/sair da página, antes de navegar e após transações importantes.
 - O runtime usa **Web Locks**, quando disponível, para permitir um único escritor entre os documentos e abas da origem. O fallback usa uma concessão curta em localStorage, conferida antes de ações e saves. A página antiga libera o controle em `pagehide`; ao voltar pelo histórico/BFCache, recarrega o estado atual antes de retomar.
 - Uma segunda aba fica em consulta. Pode navegar e exportar, mas não compra, clica ou recebe recompensas. Para assumir o jogo, feche a aba ativa e recarregue. Mudanças externas também impedem que um escritor desatualizado sobrescreva progresso.
@@ -123,3 +124,8 @@ A oficina oferece vista normal ou compacta, mantendo ×1/×10/×100/MAX e mostra
 Em Ajustes, escolha **Original**, **Aleatório**, **Mundo dinâmico** ou **Manual**, ajuste o volume e selecione músicas descobertas. O catálogo registra apenas `assets/audio/bmg1.ogg` por enquanto; os outros modos têm fallback para ela. Novas faixas locais podem ser atribuídas a capítulos e guardiões, com descobertas preservadas após o prestígio, separadas do save. A música pausa em segundo plano e respeita a aba ativa; a navegação restaura a posição aproximada quando o navegador permite.
 
 A Coleção agora tem filtros e comparação em painel sobre a tela, sem pular para o topo. A Loja compacta concentra preço/produção e reduz a introdução; a vista normal foi mantida. [Como acrescentar músicas e um tema ao capítulo 3](docs/MUSIC_GUIDE.md) · [Resultados e capturas desta atualização](docs/MUSIC_UPDATE.md).
+
+
+## Prestígio estratégico
+
+O Santuário oferece Ímpeto Estelar (20 níveis, +5% por nível, custos 1–20 PP) e expansões individuais (+10 espaços, custos 2/4/…/20 PP, dez níveis). Capacidades base: **40/25/25/15/15/15/20/20**, na ordem das oito fábricas. A Loja mostra quantidade/capacidade e mantém lotes inteiros; MAX respeita saldo e espaço. A barra mede a produção desde o último renascimento e volta a 0%, preservando o total histórico. [Balanceamento, migração, simulações e testes](docs/PRESTIGE_BALANCE.md).

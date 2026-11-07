@@ -40,3 +40,13 @@ Capturas mais recentes, em 390 × 844, com o catálogo real (somente a trilha or
 - [Comparação em painel inferior, sem salto para o topo](screenshots/music/mobile-comparison-sheet.png)
 
 Veja os [resultados e limites da validação musical](MUSIC_UPDATE.md) e o [guia para acrescentar faixas](MUSIC_GUIDE.md).
+
+## Prestígio, pontos e capacidades
+
+Capturas da atualização de progressão: estrela original, resumo de multiplicadores, jornada após renascimento, Ímpeto Estelar, oito expansões e capacidades na Loja. Fixtures do schema 4; movimento reduzido e notificações transitórias ocultas.
+
+- [Santuário no desktop](screenshots/prestige/desktop-sanctuary.png)
+- [Santuário no celular, Ímpeto e expansões](screenshots/prestige/mobile-sanctuary.png)
+- [Loja compacta com capacidades](screenshots/prestige/mobile-shop-capacity.png)
+
+[Regras, migração, simulação e validação](PRESTIGE_BALANCE.md). As capturas de página inteira mantêm a barra fixa na posição da viewport; os testes verificam o acesso ao conteúdo final acima dela.
