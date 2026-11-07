@@ -40,9 +40,9 @@ jobs:
             curl --fail --silent http://127.0.0.1:8000/ > /dev/null && break
             sleep 1
           done
+          python tests/music_browser.py
           npm run test:browser
           python tests/qol_browser.py
-          python tests/music_browser.py
           python tests/prestige_browser.py
           python tests/artwork_browser.py
       - uses: actions/upload-pages-artifact@v3
