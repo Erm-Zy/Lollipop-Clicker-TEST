@@ -67,7 +67,7 @@ with sync_playwright() as p:
     browser = p.chromium.launch(executable_path=os.environ.get('CHROMIUM_PATH','/usr/bin/chromium'), headless=True, args=['--no-sandbox'])
     for view in ['normal','compact']:
         for quantity in [1,10,100,'max']:
-            context, page = open_game(browser, seed(pirulitos=1e12))
+            context, page = open_game(browser, seed(version=4,pirulitos=1e12,totalEarned=1e15,prestigeLevel=110,prestigeClaimed=110,factoryExpansions={"maquina":10}))
             page.locator(f'button[data-shop-view="{view}"]').click()
             page.locator(f'[data-buy="{quantity}"]').click()
             offer = quote(page, quantity)
@@ -180,7 +180,7 @@ with sync_playwright() as p:
     # Inspect actual card geometry, accessible navigation and long amounts at small widths.
     for width in [280,320,390,640,768,1440]:
         for name in ['shop','collection','arena']:
-            context, page = open_game(browser, seed(pirulitos=1e25, upgrades={'maquina':200}), name=name, width=width, touch=width<700)
+            context, page = open_game(browser, seed(pirulitos=1e25, upgrades={'maquina':40}), name=name, width=width, touch=width<700)
             if name == 'shop':
                 for view in ['normal','compact']:
                     page.locator(f'button[data-shop-view="{view}"]').click()

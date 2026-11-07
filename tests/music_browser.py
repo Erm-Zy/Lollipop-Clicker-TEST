@@ -153,7 +153,7 @@ with sync_playwright() as p:
     page.locator('#musicMode').select_option('manual')
     page.locator('#musicVolume').fill('65')
     check('temporárias' in page.locator('#musicStatus').inner_text(),'blocked preference storage is explained without breaking settings')
-    check(saved(page)['version']==3 and page.evaluate('__audio[0].volume===.65'),'blocked music storage preserves main save and in-memory controls')
+    check(saved(page)['version']==4 and page.evaluate('__audio[0].volume===.65'),'blocked music storage preserves main save and in-memory controls')
     context.close()
 
     # Browser DOM + real storage, mock media and injected future entries.

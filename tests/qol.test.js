@@ -63,6 +63,7 @@ test("shop quotes keep exact fixed lots and the true MAX affordable prefix", () 
   const state = createState(NOW);
   state.pirulitos = 1e9;
   state.upgrades.maquina = 2;
+  state.factoryExpansions.maquina = 10;
   for (const quantity of [1, 10, 100, "max"]) {
     const offer = shopOffer(state, "maquina", quantity, NOW);
     assert.deepEqual(offer.quote, getBulkQuote(state, "maquina", quantity));

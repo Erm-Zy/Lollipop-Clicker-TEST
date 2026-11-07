@@ -187,6 +187,16 @@ export async function bootPage(page) {
       )
       .catch(() => {});
   }
+  if (runtime.loaded.prestigeReset) {
+    const notice = document.createElement("aside");
+    notice.className = "beta-reset-notice";
+    const title = document.createElement("strong"); title.textContent = "Nova progressão de Prestígio na beta";
+    const message = document.createElement("p"); message.textContent = runtime.loaded.warnings[0];
+    const link = document.createElement("a"); link.href = hrefFor("settings"); link.textContent = "Exportar o backup antigo nos Ajustes";
+    const close = document.createElement("button"); close.type = "button"; close.textContent = "Fechar aviso"; close.addEventListener("click", () => notice.remove());
+    notice.append(title,message,link,close);
+    document.getElementById("gameHeader").append(notice);
+  }
   if (runtime.loaded.warnings.length)
     runtime.notify(runtime.loaded.warnings.join(" "));
   else if (

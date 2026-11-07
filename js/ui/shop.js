@@ -1,5 +1,5 @@
 import { UPGRADES_DATA } from "../data.js";
-import { getBulkQuote, buyBulk } from "../gameplay.js";
+import { getBulkQuote, buyBulk, getFactoryCapacity } from "../gameplay.js";
 import { format, setNodeText } from "./shared.js";
 import { buildingSVG } from "./art.js";
 import { shopOffer, buildingContribution, readShopView, writeShopView } from "./qol.js";
@@ -53,7 +53,7 @@ export function mountShop(runtime, container, controls, onBuy = () => {}, viewCo
     for (const [key, cached] of rows) {
       const { row, owned, price, contribution, status, eta } = cached;
       // Fixed lots change only when owned/quantity changes; MAX also depends on balance.
-      const quoteKey = `${quantity}/${state.upgrades[key]}/${quantity === "max" ? state.pirulitos : ""}`;
+      const quoteKey = `${quantity}/${getFactoryCapacity(state,key)}/${state.upgrades[key]}/${quantity === "max" ? state.pirulitos : ""}`;
       if (quoteKey !== cached.quoteKey) {
         cached.quote = getBulkQuote(state, key, quantity);
         cached.quoteKey = quoteKey;
@@ -62,9 +62,9 @@ export function mountShop(runtime, container, controls, onBuy = () => {}, viewCo
       row.disabled = !runtime.writable || !offer.available;
       row.classList.toggle("affordable", !row.disabled);
       row.classList.toggle("unbuilt", state.upgrades[key] === 0);
-      setNodeText(owned, state.upgrades[key]);
-      owned.setAttribute("aria-label", `${exact.format(state.upgrades[key])} possuídas`);
-      setNodeText(price, Number.isFinite(offer.price)
+      setNodeText(owned, `${state.upgrades[key]} / ${offer.capacity}`);
+      owned.setAttribute("aria-label", `${exact.format(state.upgrades[key])} possuídas de ${offer.capacity} espaços`);
+      setNodeText(price, offer.capacityBlocked ? offer.room === 0 ? "Limite atingido" : "Lote acima da capacidade" : Number.isFinite(offer.price)
         ? `${format(offer.price)} doces${quantity === "max" && !offer.quote.quantity ? " · próxima unidade" : ""}`
         : "Preço fora do limite");
       const produced = buildingContribution(state, key, now);
@@ -75,6 +75,7 @@ export function mountShop(runtime, container, controls, onBuy = () => {}, viewCo
         ? `MAX: ${offer.quote.quantity} unidades`
         : `Comprar ×${quantity}`;
       const reason = !runtime.writable ? "Outra aba está jogando"
+        : offer.capacityBlocked ? offer.room === 0 ? "Expanda no Santuário · permanente" : `Restam apenas ${offer.room} espaços. Use ×1 ou MAX.`
         : !Number.isFinite(offer.price) ? "Limite de compra atingido"
         : !offer.available ? `Faltam ${format(Math.max(1, Math.ceil(offer.missing)))} doces`
         : `✓ ${action}`;
@@ -82,7 +83,7 @@ export function mountShop(runtime, container, controls, onBuy = () => {}, viewCo
         ? `MAX: 0 unidades · ${reason}` : reason);
       setNodeText(eta, runtime.writable && !offer.available && offer.seconds > 0
         ? `≈ ${estimate(offer.seconds)} só com produção` : "");
-      const label = `${UPGRADES_DATA[key].name} · ${exact.format(state.upgrades[key])} possuídas · ${action} · ${Number.isFinite(offer.price) ? exact.format(offer.price) + " doces" : "preço fora do limite"} · ${reason}`;
+      const label = `${UPGRADES_DATA[key].name} · ${exact.format(state.upgrades[key])} de ${offer.capacity} espaços · ${action} · ${offer.capacityBlocked ? "capacidade insuficiente" : Number.isFinite(offer.price) ? exact.format(offer.price) + " doces" : "preço fora do limite"} · ${reason}`;
       if (row.getAttribute("aria-label") !== label) {
         row.setAttribute("aria-label", label);
         row.title = label;

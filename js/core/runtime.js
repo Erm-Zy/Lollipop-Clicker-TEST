@@ -234,7 +234,7 @@ export async function createRuntime() {
     emit("readonly");
   }
 
-  function noticeTransitions(before, progress) {
+  function noticeTransitions(before, progress, committedAchievements = null) {
     if (
       progress?.bossExpired ||
       (before.boss &&
@@ -256,7 +256,7 @@ export async function createRuntime() {
       );
       audio.play("win");
     }
-    const unlocked = game.checkAchievements(state, Date.now());
+    const unlocked = committedAchievements ?? game.checkAchievements(state, Date.now());
     for (const id of unlocked) {
       const achievement = ACHIEVEMENTS_DATA.find((item) => item.id === id);
       notify(`Conquista desbloqueada: ${achievement.title}!`);
@@ -530,8 +530,9 @@ export async function createRuntime() {
       };
       const snapshot = requireSave ? clone(state) : null;
       const result = action(state, Date.now());
-      const unlocked = noticeTransitions(before);
+      const unlocked = requireSave ? game.checkAchievements(state, Date.now()) : noticeTransitions(before);
       if (result === false || result === undefined) {
+        if (requireSave) noticeTransitions(before, undefined, unlocked);
         if (
           unlocked.length ||
           state.lastWheelReward?.at !== snapshot?.lastWheelReward?.at
@@ -547,6 +548,7 @@ export async function createRuntime() {
           return false;
         }
       }
+      if (requireSave) noticeTransitions(before, undefined, unlocked);
       if (sound) audio.play(sound);
       audio.sync();
       emit("action", { result });

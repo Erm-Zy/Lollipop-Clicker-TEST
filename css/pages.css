@@ -1284,3 +1284,44 @@ dialog.flavor-comparison::backdrop { background: #180e28b8; }
 .shop-scene[data-shop-view="compact"] .buy-controls { margin-bottom: 10px; }
 .shop-scene[data-shop-view="compact"] .page-note { margin: 9px auto; font-size: 11px; }
 .shop-scene[data-shop-view="compact"] .shop-view-controls { margin: 12px auto; }
+
+/* Permanent progression keeps the existing star and sanctuary palette. */
+.prestige-page .prestige-shrine { max-width: 1000px; border-radius: 30px; padding: 20px 26px 26px; }
+.prestige-page .prestige-orb { width: 110px; height: 105px; filter: none; }
+.prestige-page .prestige-shrine h2 { font-size: 24px; }
+.prestige-overview { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 10px; margin: 18px 0; text-align: left; }
+.prestige-overview p { padding: 10px 12px; border: 1px solid #8b699b; border-radius: 12px; min-width: 0; font-size: 12px; overflow-wrap: anywhere; }
+.prestige-overview strong { display: block; color: var(--gold); font-size: 18px; }
+.journey-title { margin: 18px 0 7px; font-size: 17px; color: #f4d5eb; }
+.prestige-page .prestige-shrine .prestige-lifetime { font-size: 11px; margin-top: 8px; }
+.prestige-page .prestige-shrine .prestige-gain { font-size: 20px; margin-top: 16px; }
+.permanent-section { max-width: 1000px; margin: 28px auto 0; }
+.permanent-heading { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 9px; margin-bottom: 14px; }
+.permanent-heading h2 { font-size: 24px; color: var(--gold); }
+.permanent-heading > span, .permanent-intro { color: #ddc1d6; font-size: 12px; }
+.permanent-intro { margin-bottom: 15px; }
+.permanent-card { padding: 18px; border: 2px solid #a879a0; border-radius: 18px; background: #422d51; min-width: 0; }
+.permanent-card p { font-size: 13px; color: #e8cadd; margin: 5px 0; }
+.permanent-card small { display: block; font-size: 12px; color: #efcda9; margin-top: 12px; }
+.permanent-card .game-button { margin-top: 12px; font-size: 12px; min-height: 44px; }
+.expansion-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 13px; }
+.expansion-name { display: flex; gap: 10px; align-items: center; }
+.expansion-name h3 { font-size: 15px; color: var(--cream); }
+.expansion-art { width: 50px; height: 45px; flex: none; }
+.expansion-art svg { width: 100%; height: 100%; }
+.expansion-card .game-button { width: 100%; }
+.prestige-save-warning { margin-top: 15px; }
+.upgrade-row > .owned { max-width: 9ch; font-size: 16px; white-space: nowrap; }
+:is(#fullShop,.full-shop) .upgrade-row > .owned { font-size: 18px; }
+:is(#fullShop,.full-shop)[data-shop-view="compact"] .owned { font-size: 14px; }
+:is(#fullShop,.full-shop)[data-shop-view="compact"] .owned::after { content: "capacidade"; }
+.journal-entry dd { overflow-wrap: anywhere; }
+.beta-reset-notice { margin: 12px; padding: 16px; border: 2px solid #d6a57e; border-radius: 14px; background: #533547; color: #ffe3b8; font-size: 13px; }
+.beta-reset-notice p { margin: 8px 0; }
+.beta-reset-notice button { display: block; margin-top: 12px; padding: 8px 15px; min-height: 44px; border: 1px solid #c98fa8; border-radius: 10px; background: #3b2944; }
+.expansion-card { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 3px 10px; padding: 12px; }
+.expansion-card .expansion-name { grid-column: 1 / -1; margin-bottom: 3px; }
+.expansion-card .expansion-art { width: 36px; height: 36px; }
+.expansion-card .expansion-level, .expansion-card .expansion-capacity { grid-column: 1; margin: 0; font-size: 12px; }
+.expansion-card .game-button { grid-column: 2; grid-row: 2 / 4; width: auto; min-width: 0; margin: 0; padding: 8px 10px; font-size: 11px; }
+.expansion-card small { grid-column: 1 / -1; margin-top: 4px; font-size: 11px; }

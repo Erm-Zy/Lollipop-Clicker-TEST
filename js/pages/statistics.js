@@ -1,6 +1,6 @@
 import { bootPage, format, setText } from "../ui/shared.js";
-import { FLAVORS_DATA, SKINS_DATA } from "../data.js";
-import { getPps, getClickPower, getTotalUpgradesCount } from "../gameplay.js";
+import { FLAVORS_DATA, SKINS_DATA, PRESTIGE_CONFIG } from "../data.js";
+import { getPps, getClickPower, getTotalUpgradesCount, getPrestigeMultiplier } from "../gameplay.js";
 
 const runtime = await bootPage("statistics");
 function playedTime(seconds) {
@@ -25,7 +25,9 @@ runtime.subscribe((state, info) => {
     statMaxScore: `${format(state.maxScore)} pirulitos`,
     statMaxPps: `${format(state.maxPps)} / seg`,
     statBossesKilled: format(state.bossesKilled),
-    statPrestige: `${format(state.prestigeLevel)} · bônus de ${format(state.prestigeLevel * 15)}%`,
+    statPrestige: `${format(state.prestigeLevel)} níveis · ×${format(getPrestigeMultiplier(state))}` ,
+    statPrestigePoints: format(state.prestigePoints),
+    statStellar: `${state.stellarBoostLevel} / ${PRESTIGE_CONFIG.stellar.maxLevel}`,
   };
   for (const [id, value] of Object.entries(entries)) setText(id, value);
 });
