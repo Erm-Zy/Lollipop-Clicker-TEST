@@ -54,6 +54,7 @@ export async function createRuntime() {
   let lastError = "";
   let observedWheelAt = 0;
   let resumePromise = null;
+  let updateFreeze = null;
   let abortListeners = new AbortController();
   const audio = createAudio(
     () => state?.settings || { music: false, sfx: false },
@@ -73,6 +74,7 @@ export async function createRuntime() {
       now: Date.now(),
       writable: isWritable(),
       canSave: !protectedSave,
+      updating: Boolean(updateFreeze),
       error: lastError,
       ...extra,
     };
@@ -111,7 +113,7 @@ export async function createRuntime() {
   }
 
   function isWritable() {
-    return holdsOwnership();
+    return !updateFreeze && holdsOwnership();
   }
 
   function releaseOwnership() {
@@ -298,14 +300,14 @@ export async function createRuntime() {
 
   function flush() {
     if (!holdsOwnership()) return false;
-    advance(background);
+    if (!updateFreeze) advance(background);
     return saveCurrent();
   }
 
   function tick() {
     if (disposed || paused) return;
     renewLease();
-    if (!holdsOwnership() || document.hidden) return;
+    if (updateFreeze || !holdsOwnership() || document.hidden) return;
     const { progress, unlocked } = advance(false);
     if (
       progress.wheelReward ||
@@ -339,7 +341,7 @@ export async function createRuntime() {
   }
 
   async function resume() {
-    if (disposed) return false;
+    if (disposed || updateFreeze) return false;
     if (resumePromise) return resumePromise;
     resumePromise = (async () => {
       paused = false;
@@ -408,7 +410,7 @@ export async function createRuntime() {
   document.addEventListener(
     "visibilitychange",
     () => {
-      if (disposed || paused) return;
+      if (disposed || paused || updateFreeze) return;
       if (document.hidden) {
         if (holdsOwnership()) {
           advance(false);
@@ -487,8 +489,9 @@ export async function createRuntime() {
       return state;
     },
     get writable() {
-      return holdsOwnership();
+      return isWritable();
     },
+    get updating() { return Boolean(updateFreeze); },
     get canSave() {
       return !protectedSave;
     },
@@ -502,6 +505,25 @@ export async function createRuntime() {
     audio,
     notify,
     flush,
+    async prepareForUpdate(transactionId) {
+      if (resumePromise) await resumePromise;
+      if (updateFreeze) return updateFreeze === transactionId;
+      // A read-only view must never write its possibly stale snapshot.
+      if (disposed || paused || conflict || protectedSave || memoryOnly) return false;
+      if (holdsOwnership() && !flush()) return false;
+      updateFreeze = transactionId;
+      audio.suspend(true);
+      emit("update-prepared");
+      return true;
+    },
+    cancelUpdate(transactionId) {
+      if (updateFreeze !== transactionId) return;
+      updateFreeze = null;
+      background = document.hidden;
+      if (holdsOwnership()) advance(true);
+      audio.suspend(document.hidden || !holdsOwnership());
+      emit("update-cancelled");
+    },
     async reconnect() {
       return resume();
     },
@@ -511,6 +533,7 @@ export async function createRuntime() {
       return () => listeners.delete(listener);
     },
     act(action, { sound = "buy", persist = true, requireSave = false } = {}) {
+      if (updateFreeze) return false;
       if (!holdsOwnership()) {
         notify(
           "Esta aba está em modo de consulta. Recarregue depois de fechar a outra aba do jogo.",
@@ -560,7 +583,7 @@ export async function createRuntime() {
           ok: false,
           error: "Confirmação necessária antes de substituir o progresso.",
         };
-      if (!holdsOwnership())
+      if (!isWritable())
         return {
           ok: false,
           error:

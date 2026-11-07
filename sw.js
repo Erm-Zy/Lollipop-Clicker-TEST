@@ -1,83 +1,145 @@
-// A complete release cache keeps all real pages and their shared modules together.
-const CACHE_NAME = "lollipop-clicker-3.1-prestige:" + self.registration.scope;
-const ASSETS = [
-  "./",
-  "./index.html",
-  "./manifest.json",
-  "./icon-192.png",
-  "./icon-512.png",
-  "./pages/achievements.html",
-  "./pages/arena.html",
-  "./pages/collection.html",
-  "./pages/prestige.html",
-  "./pages/rewards.html",
-  "./pages/settings.html",
-  "./pages/shop.html",
-  "./pages/statistics.html",
-  "./js/audio.js",
-  "./js/world.js",
-  "./js/music/catalog.js",
-  "./js/music/preferences.js",
-  "./js/music/selection.js",
-  "./js/music/player.js",
-  "./js/ui/jukebox.js",
-  "./js/core/runtime.js",
-  "./js/data.js",
-  "./js/effects.js",
-  "./js/gameplay.js",
-  "./js/progression.js",
-  "./js/pages/achievements.js",
-  "./js/pages/arena.js",
-  "./js/pages/collection.js",
-  "./js/pages/home.js",
-  "./js/pages/prestige.js",
-  "./js/pages/rewards.js",
-  "./js/pages/settings.js",
-  "./js/pages/shop.js",
-  "./js/pages/statistics.js",
-  "./js/storage.js",
-  "./js/ui/art.js",
-  "./js/ui/assets.js",
-  "./js/ui/shared.js",
-  "./js/ui/shop.js",
-  "./js/ui/qol.js",
-  "./css/global.css",
-  "./css/game.css",
-  "./css/navigation.css",
-  "./css/animations.css",
-  "./css/pages.css",
-  "./css/responsive.css",
-  "./assets/audio/bmg1.ogg",
-  "./assets/images/bg-purple.png",
-];
-self.addEventListener("install", (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS)),
-  );
-  // Existing tabs finish their adventure before this complete shell takes over.
+// Source template. npm run pwa:build injects a deterministic, verified release.
+const RELEASE = /*__PWA_RELEASE__*/ null;
+if (!RELEASE) throw new Error("Sirva o artefato gerado por npm run pwa:build para testar o PWA.");
+const SCOPE = self.registration.scope;
+const PREFIX = "lollipop-pwa:" + encodeURIComponent(SCOPE) + ":";
+const CACHE_NAME = PREFIX + RELEASE.id;
+const ASSETS = RELEASE.assets.filter(asset=>asset.required).map(asset=>asset.path);
+const COMPLETE = new URL("__pwa_complete__",SCOPE).href;
+const OBSOLETE = new URL("__pwa_obsolete__",SCOPE).href;
+const ownCache = name => name.startsWith(PREFIX) || (name.startsWith("lollipop-clicker-") && name.endsWith(":"+SCOPE));
+
+async function verifiedFetch(asset) {
+  const response=await fetch(new URL(asset.path,SCOPE).href,{cache:"no-store",credentials:"same-origin",redirect:"error"});
+  if (response.status!==200) throw new Error("Asset indisponível: "+asset.path);
+  const bytes=await response.clone().arrayBuffer();
+  const hash=Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256",bytes)),b=>b.toString(16).padStart(2,"0")).join("");
+  if (hash!==asset.hash) throw new Error("Asset de outra release: "+asset.path);
+  return response;
+}
+async function complete() {
+  if (!(await caches.has(CACHE_NAME))) return false;
+  const cache=await caches.open(CACHE_NAME);
+  if ((await cache.match(COMPLETE))?.headers.get("X-PWA-Release")!==RELEASE.id) return false;
+  return (await Promise.all(ASSETS.map(path=>cache.match(new URL(path,SCOPE).href)))).every(Boolean);
+}
+self.addEventListener("install",event=>event.waitUntil((async()=>{
+  if (await complete()) return;
+  const cache=await caches.open(CACHE_NAME);
+  try {
+    const queue=RELEASE.assets.filter(asset=>asset.required).slice();
+    const results=await Promise.allSettled(Array.from({length:4},async()=>{
+      while(queue.length) { const asset=queue.shift(); await cache.put(new URL(asset.path,SCOPE).href,await verifiedFetch(asset)); }
+    }));
+    const failed=results.find(result=>result.status==='rejected');
+    if (failed) throw failed.reason;
+    await cache.put(COMPLETE,new Response("complete",{headers:{"X-PWA-Release":RELEASE.id}}));
+  } catch(error) {
+    // Content IDs isolate this candidate from the working release, even on retry.
+    await caches.delete(CACHE_NAME);
+    throw error;
+  }
+})()));
+
+const readyClients=new Map();
+async function appClients() {
+  const paths=new Set(RELEASE.assets.filter(a=>a.path.endsWith('.html')).map(a=>new URL(a.path,SCOPE).pathname));
+  paths.add(new URL('./',SCOPE).pathname);
+  return (await self.clients.matchAll({type:'window',includeUncontrolled:true}))
+    .filter(client=>{ const url=new URL(client.url); return url.origin===self.location.origin && paths.has(url.pathname); });
+}
+async function cleanup() {
+  const clients=await appClients();
+  const live=new Set(clients.map(client=>client.id));
+  for (const id of readyClients.keys()) if (!live.has(id)) readyClients.delete(id);
+  if (clients.some(client=>readyClients.get(client.id)!==RELEASE.id)) return;
+  // Only candidates captured at this worker's activation. A later install's cache
+  // must never be deleted by an older active worker reporting its clients ready.
+  const cache=await caches.open(CACHE_NAME);
+  const record=await cache.match(OBSOLETE);
+  const names=record ? await record.json() : [];
+  for (const name of names) if (name!==CACHE_NAME && ownCache(name)) await caches.delete(name);
+}
+self.addEventListener('activate',event=>event.waitUntil((async()=>{
+  if (!(await complete())) throw new Error('Cache de release incompleto');
+  const cache=await caches.open(CACHE_NAME);
+  const obsolete=(await caches.keys()).filter(name=>name!==CACHE_NAME && ownCache(name));
+  try { await cache.put(OBSOLETE,new Response(JSON.stringify(obsolete))); } catch { /* Cleanup may wait; never fail activation for bookkeeping quota. */ }
+  await self.clients.claim();
+  await cleanup().catch(()=>{});
+})()));
+
+let transaction=null;
+let reserving=false;
+function finishTransaction(ok,reason='') {
+  const current=transaction;
+  if (!current) return;
+  clearTimeout(current.timer);
+  if (!ok) for(const client of current.clients) client.postMessage({type:'PWA_CANCEL',transactionId:current.id,releaseId:RELEASE.id,reason});
+  current.port?.postMessage({ok,reason,releaseId:RELEASE.id});
+  current.resolve(); transaction=null;
+}
+async function advanceTransaction() {
+  const current=transaction;
+  if (!current) return;
+  if (current.advancing) { current.dirty=true; return; }
+  current.advancing=true;
+  try {
+    const clients=await appClients();
+    if (transaction!==current) return;
+    if (clients.some(client=>!current.expected.has(client.id))) { finishTransaction(false,'windows-changed'); return; }
+    if (clients.some(client=>!current.acks.has(client.id))) return;
+    if (current.phase==='prepare') {
+      current.phase='arm'; current.acks.clear();
+      for(const client of clients) client.postMessage({type:'PWA_ARM',transactionId:current.id,releaseId:RELEASE.id});
+    } else {
+      if (!(await complete())) { finishTransaction(false,'incomplete'); return; }
+      await self.skipWaiting();
+      finishTransaction(true);
+    }
+  } finally {
+    if (transaction===current) {
+      current.advancing=false;
+      if (current.dirty) { current.dirty=false; await advanceTransaction(); }
+    }
+  }
+}
+self.addEventListener('message',event=>{
+  const data=event.data;
+  if (!data || !event.source?.id) return;
+  if (data.type==='PWA_RELEASE') {
+    event.waitUntil(complete().then(ready=>event.ports[0]?.postMessage({id:RELEASE.id,protocol:1,ready}))); return;
+  }
+  if (data.type==='PWA_READY' && data.releaseId===RELEASE.id) {
+    readyClients.set(event.source.id,RELEASE.id); event.waitUntil(cleanup()); return;
+  }
+  if (data.type==='PWA_ACTIVATE' && data.releaseId===RELEASE.id && typeof data.transactionId==='string') {
+    if (transaction || reserving) { event.ports[0]?.postMessage({ok:false,reason:'busy'}); return; }
+    reserving=true;
+    event.waitUntil((async()=>{
+      try {
+      if (!(await complete())) { event.ports[0]?.postMessage({ok:false,reason:'incomplete'}); return; }
+      const clients=await appClients();
+      if (!clients.some(client=>client.id===event.source.id)) return;
+      let resolve;
+      const done=new Promise(r=>resolve=r);
+      transaction={id:data.transactionId,clients,expected:new Set(clients.map(c=>c.id)),acks:new Set(),phase:'prepare',port:event.ports[0],resolve,advancing:false};
+      reserving=false;
+      transaction.timer=setTimeout(()=>finishTransaction(false,'window-timeout'),10000);
+      for(const client of clients) client.postMessage({type:'PWA_PREPARE',transactionId:data.transactionId,releaseId:RELEASE.id});
+      await done;
+      } finally { reserving=false; }
+    })()); return;
+  }
+  if (data.type==='PWA_ACK' && transaction && transaction.id===data.transactionId && data.releaseId===RELEASE.id && transaction.expected.has(event.source.id)) {
+    if (!data.ok) { finishTransaction(false,data.reason||'save'); return; }
+    if (data.phase===transaction.phase) { transaction.acks.add(event.source.id); event.waitUntil(advanceTransaction()); }
+  }
 });
-self.addEventListener("activate", (event) => {
-  event.waitUntil(
-    (async () => {
-      for (const name of await caches.keys()) {
-        if (name === CACHE_NAME || !name.startsWith("lollipop-clicker-"))
-          continue;
-        const cache = await caches.open(name),
-          requests = await cache.keys();
-        // Other GitHub Pages games on the same origin must keep their own caches.
-        if (
-          requests.length &&
-          requests.every((request) =>
-            request.url.startsWith(self.registration.scope),
-          )
-        )
-          await caches.delete(name);
-      }
-    })(),
-  );
-});
+
 self.addEventListener("fetch", (event) => {
   const url = new URL(event.request.url);
+  if (url.pathname === new URL("sw.js",SCOPE).pathname || url.pathname === new URL("pwa-release.json",SCOPE).pathname) return;
   if (
     event.request.method !== "GET" ||
     url.origin !== self.location.origin
@@ -89,7 +151,7 @@ self.addEventListener("fetch", (event) => {
     return;
   }
   if (event.request.headers.has("range")) return;
-  const path = ASSETS.find(
+  const path = url.pathname === new URL("./",SCOPE).pathname ? "index.html" : ASSETS.find(
     (asset) =>
       new URL(asset, self.registration.scope).pathname === url.pathname,
   );
@@ -118,11 +180,14 @@ self.addEventListener("fetch", (event) => {
     }
     return;
   }
-  event.respondWith(
-    caches
-      .open(CACHE_NAME)
-      .then(async (cache) => (await cache.match(path)) || fetch(event.request)),
-  );
+  event.respondWith(caches.open(CACHE_NAME).then(async cache => {
+    const cached=await cache.match(new URL(path,SCOPE).href);
+    if (cached) return cached;
+    // Repair only with bytes belonging to this release, never mix newer JS/HTML.
+    const asset=RELEASE.assets.find(asset=>new URL(asset.path,SCOPE).pathname===url.pathname) ?? RELEASE.assets.find(asset=>asset.path==='index.html');
+    try { const response=await verifiedFetch(asset); await cache.put(new URL(asset.path,SCOPE).href,response.clone()); return response; }
+    catch { return new Response("Esta versão não está disponível offline. Reconecte para atualizar.",{status:503,headers:{'Content-Type':'text/plain; charset=utf-8'}}); }
+  }));
 });
 
 // Warm only explicitly configured local images. Failed optional artwork never breaks install.
