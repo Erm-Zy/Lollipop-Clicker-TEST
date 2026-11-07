@@ -224,7 +224,7 @@ test("achievement meters follow the same thresholds and categories as original u
   });
 });
 
-test("actual version 2 format migrates independent cosmetics and unclaimed prestige into schema4", () => {
+test("actual version 2 format migrates independent cosmetics and unclaimed prestige into schema5", () => {
   const v2 = {
     version: 2,
     pirulitos: 1234,
@@ -249,7 +249,7 @@ test("actual version 2 format migrates independent cosmetics and unclaimed prest
   const raw = JSON.stringify(v2);
   const storage = memoryStorage({ [SAVE_KEY]: raw });
   const result = loadGame(storage, NOW + 1000);
-  assert.equal(result.state.version, 4);
+  assert.equal(result.state.version, 5);
   assert.equal(result.state.activeSkin, "neon");
   assert.equal(result.state.activeTheme, "gold");
   assert.equal(result.state.activeParticles, "classic");

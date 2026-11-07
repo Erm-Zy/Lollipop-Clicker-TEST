@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#291440" />
+    <meta
+      name="description"
+      content="Encontre companheiros, abra ovos e evolua seus pets até Gigante."
+    />
+    <title>Pets e ovos · Lollipop Clicker</title>
+    <link rel="icon" href="../icon-192.png" />
+    <link rel="manifest" href="../manifest.json" />
+    <link rel="stylesheet" href="../css/global.css" />
+    <link rel="stylesheet" href="../css/game.css" />
+    <link rel="stylesheet" href="../css/navigation.css" />
+    <link rel="stylesheet" href="../css/animations.css" />
+    <link rel="stylesheet" href="../css/pages.css" />
+    <link rel="stylesheet" href="../css/responsive.css" />
+    <link rel="stylesheet" href="../css/pets.css" />
+  </head>
+  <body data-page="pets">
+    <header id="gameHeader"></header>
+    <main id="mainContent" class="page-scene pets-page">
+      <div class="page-heading">
+        <div>
+          <span class="eyebrow">AMIGOS PARA TODAS AS JORNADAS</span>
+          <h1 class="page-title">Ninho açucarado</h1>
+          <p class="page-lead">
+            Pequenos companheiros. Grandes aventuras. Seus pets ficam com você
+            após o prestígio.
+          </p>
+        </div>
+        <a class="game-button secondary" href="collection.html"
+          >Voltar à coleção</a
+        >
+      </div>
+      <section class="pet-team-panel" aria-labelledby="teamTitle">
+        <div class="pet-section-heading">
+          <div>
+            <h2 id="teamTitle">Minha equipe <span id="teamCount"></span></h2>
+            <p id="teamBonus"></p>
+          </div>
+          <div class="pet-best">
+            <label for="teamStrategy"
+              >Estratégia<select id="teamStrategy">
+                <option value="balanced">Equilibrado</option>
+                <option value="production">Produção</option>
+                <option value="clicks">Cliques</option>
+              </select></label
+            ><button
+              id="equipBestBtn"
+              type="button"
+              class="game-button secondary"
+            >
+              Equipar melhores
+            </button>
+          </div>
+        </div>
+        <p id="strategyExplanation" class="pet-hint"></p>
+        <div id="petTeam" class="pet-team"></div>
+      </section>
+      <div class="pet-sections" role="group" aria-label="Explorar pets">
+        <button
+          type="button"
+          class="game-button"
+          data-panel="eggs"
+          aria-pressed="true"
+        >
+          Ovos</button
+        ><button
+          type="button"
+          class="game-button secondary"
+          data-panel="inventory"
+          aria-pressed="false"
+        >
+          Inventário <span id="capacityCount"></span></button
+        ><button
+          type="button"
+          class="game-button secondary"
+          data-panel="catalog"
+          aria-pressed="false"
+        >
+          Descobertas <span id="discoveryCount"></span>
+        </button>
+      </div>
+      <section id="panel-eggs" aria-labelledby="eggsTitle">
+        <h2 id="eggsTitle">Escolha seu próximo amigo</h2>
+        <div id="eggSelection" class="pet-eggs"></div>
+        <div class="pet-hatch-panel">
+          <h3 id="selectedEggName"></h3>
+          <p id="eggRequirement"></p>
+          <p id="hatchAvailability" role="status"></p>
+          <div id="hatchButtons" class="pet-hatch-buttons"></div>
+          <label class="pet-animation-setting"
+            ><input id="skipHatchAnimation" type="checkbox" /> Revelar
+            resultados sem animação</label
+          >
+          <div class="pet-auto-controls">
+            <label for="autoBatch"
+              >Lote automático<select id="autoBatch">
+                <option value="1">×1</option>
+                <option value="2">×2</option>
+                <option value="3">×3</option>
+              </select></label
+            ><button
+              id="autoOpenBtn"
+              type="button"
+              class="game-button secondary"
+            >
+              Abrir automaticamente · grátis</button
+            ><button id="stopAutoBtn" type="button" class="game-button" hidden>
+              Parar
+            </button>
+          </div>
+          <p id="autoStatus" role="status" aria-live="polite">
+            Abre um lote a cada 2,4 s, apenas nesta página ativa. Ao sair ou
+            ocultar, para; não abre ovos durante sua ausência.
+          </p>
+          <div id="autoResults" hidden>
+            <h3>Último lote recebido</h3>
+            <div id="autoPetResults" class="pet-results"></div>
+          </div>
+        </div>
+        <details class="pet-probabilities">
+          <summary>Ver probabilidades reais do ovo selecionado</summary>
+          <p id="rarityOdds"></p>
+          <div class="pet-table-wrap">
+            <table>
+              <caption id="oddsCaption"></caption>
+              <thead>
+                <tr>
+                  <th scope="col">Pet</th>
+                  <th scope="col">Raridade</th>
+                  <th scope="col">Chance</th>
+                </tr>
+              </thead>
+              <tbody id="speciesOdds"></tbody>
+            </table>
+          </div>
+          <p>
+            Cada ovo tem um sorteio independente. ×2 e ×3 não alteram as
+            chances. As demais raridades têm chance zero neste ovo.
+          </p>
+        </details>
+      </section>
+      <section id="panel-inventory" aria-labelledby="inventoryTitle" hidden>
+        <div class="pet-section-heading">
+          <h2 id="inventoryTitle" tabindex="-1">Meus companheiros</h2>
+          <p id="inventoryCapacity"></p>
+        </div>
+        <div class="pet-filters">
+          <label for="petSearch"
+            >Buscar por nome<input
+              id="petSearch"
+              type="search"
+              maxlength="80"
+              placeholder="Ex.: raposa" /></label
+          ><label for="rarityFilter"
+            >Raridade<select id="rarityFilter">
+              <option value="all">Todas</option>
+            </select></label
+          ><label for="eggFilter"
+            >Ovo<select id="eggFilter">
+              <option value="all">Todos</option>
+            </select></label
+          ><label for="stageFilter"
+            >Evolução<select id="stageFilter">
+              <option value="all">Todas</option>
+            </select></label
+          ><label for="petSort"
+            >Ordenar<select id="petSort">
+              <option value="strength">Força total</option>
+              <option value="rarity">Raridade</option>
+              <option value="acquired">Aquisição</option>
+              <option value="evolution">Evolução</option>
+            </select></label
+          >
+        </div>
+        <div class="pet-selection-tools">
+          <p id="fusionSelectionCount" role="status">
+            Selecione cinco cópias para uma fusão.
+          </p>
+          <button
+            id="fuseSelectedBtn"
+            type="button"
+            class="game-button secondary"
+          >
+            Revisar fusão</button
+          ><button id="clearSelectionBtn" type="button" class="item-preview">
+            Limpar seleção
+          </button>
+        </div>
+        <p class="pet-hint">
+          ★ Favorito e 🔒 Bloqueado protegem contra fusão. Cada cartão é uma
+          instância individual. Cinco cópias da mesma espécie e evolução viram
+          uma da próxima: Normal → Médio → Grande → Gigante (125 Normais).
+        </p>
+        <div id="petInventory" class="pet-inventory"></div>
+        <p id="petsEmpty" class="inventory-empty" hidden>
+          Nenhum companheiro neste filtro. Abra um ovo ou experimente outros
+          filtros.
+        </p>
+        <nav class="pet-pagination" aria-label="Páginas do inventário">
+          <button id="previousPets" type="button" class="item-preview">
+            ← Anterior</button
+          ><span id="petsPageNumber" role="status"></span
+          ><button id="nextPets" type="button" class="item-preview">
+            Próxima →
+          </button>
+        </nav>
+      </section>
+      <section id="panel-catalog" aria-labelledby="catalogTitle" hidden>
+        <h2 id="catalogTitle">Álbum de descobertas</h2>
+        <p id="catalogCompletion"></p>
+        <p>
+          O álbum lembra todas as evoluções já encontradas, mesmo depois de uma
+          fusão. Não é preciso possuir todas ao mesmo tempo.
+        </p>
+        <div id="petCatalog"></div>
+      </section>
+      <section class="pet-lifetime" aria-labelledby="petStatsTitle">
+        <h2 id="petStatsTitle">Nossa história</h2>
+        <p id="petLifetimeStats"></p>
+      </section>
+      <dialog id="hatchDialog" class="pet-dialog" aria-labelledby="hatchTitle">
+        <h2 id="hatchTitle">Novos companheiros!</h2>
+        <p id="hatchSummary" role="status" aria-live="polite"></p>
+        <div id="hatchResults" class="pet-results"></div>
+        <div class="pet-dialog-actions">
+          <button id="skipHatchBtn" type="button" class="item-preview">
+            Pular animação</button
+          ><button id="closeHatchBtn" type="button" class="game-button">
+            Continuar
+          </button>
+        </div>
+      </dialog>
+      <dialog
+        id="fusionDialog"
+        class="pet-dialog"
+        aria-labelledby="fusionTitle"
+        aria-describedby="fusionDescription"
+      >
+        <h2 id="fusionTitle" tabindex="-1">Revisar fusão</h2>
+        <p id="fusionDescription"></p>
+        <ul id="fusionSources"></ul>
+        <p id="fusionResult"></p>
+        <label id="equippedFusionWarning"
+          ><input type="checkbox" id="allowEquippedFusion" /> Confirmo o consumo
+          dos pets equipados listados. Eles sairão da equipe; o novo pet será
+          guardado no inventário.</label
+        >
+        <p id="fusionError" role="status"></p>
+        <div class="pet-dialog-actions">
+          <button id="cancelFusionBtn" type="button" class="item-preview">
+            Cancelar</button
+          ><button id="confirmFusionBtn" type="button" class="game-button">
+            Confirmar fusão de 5 pets
+          </button>
+        </div>
+      </dialog>
+    </main>
+    <nav id="bottomNav"></nav>
+    <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+    <canvas id="fxCanvas" aria-hidden="true"></canvas>
+    <script type="module" src="../js/pages/pets.js"></script>
+  </body>
+</html>

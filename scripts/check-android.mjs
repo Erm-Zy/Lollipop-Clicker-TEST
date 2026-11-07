@@ -10,7 +10,8 @@ const docs = [
     .filter((n) => n.endsWith(".html"))
     .map((n) => "pages/" + n),
 ];
-assert.equal(docs.length, 9);
+assert.ok(docs.includes('pages/pets.html'));
+assert.equal(docs.length,1+readdirSync('pages').filter(n=>n.endsWith('.html')).length);
 for (const path of docs) {
   const html = readFileSync("www/" + path, "utf8");
   assert.ok(html.includes("native.js"));
@@ -31,5 +32,5 @@ for (const asset of [
 ])
   assert.ok(existsSync("www/" + asset));
 console.log(
-  "Pacote Android: 9 documentos, dependências locais e ID estável verificados.",
+  `Pacote Android: ${docs.length} documentos, dependências locais e ID estável verificados.`,
 );

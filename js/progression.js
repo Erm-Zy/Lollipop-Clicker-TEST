@@ -1,5 +1,7 @@
 import { PRESTIGE_CONFIG, FACTORY_CAPACITIES, MAX_VALUE } from "./data.js";
 
+export const getTotalUpgradesCount = state => Object.values(state.upgrades).reduce((a,b)=>a+b,0);
+
 const integer = (value, max = PRESTIGE_CONFIG.maxLevel) =>
   typeof value === "number" && Number.isFinite(value) ? Math.min(max, Math.max(0, Math.floor(value))) : 0;
 export const getBasePrestigeMultiplier = state => 1 + integer(state.prestigeLevel) * PRESTIGE_CONFIG.baseBonusPerLevel;

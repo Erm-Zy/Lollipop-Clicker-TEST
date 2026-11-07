@@ -1,5 +1,5 @@
 import * as game from "../gameplay.js";
-import { loadGame, saveGame, validateState, SAVE_KEY } from "../storage.js";
+import { loadGame, saveGame, validateState, SAVE_KEY, preserveLegacyBackup } from "../storage.js";
 import { ACHIEVEMENTS_DATA } from "../data.js";
 import { createAudio } from "../audio.js";
 
@@ -597,6 +597,7 @@ export async function createRuntime() {
         };
       try {
         const candidate = validateState(raw, Date.now());
+        if (raw.version === 4) preserveLegacyBackup(storage, JSON.stringify(raw), 4);
         game.advance(candidate, Date.now(), { offline: true });
         const result = saveGame(storage, candidate, { force: true });
         if (!result.ok) return result;

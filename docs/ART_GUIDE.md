@@ -140,3 +140,9 @@ O Android já copia `assets/` e `js/` inteiros: depois de adicionar uma arte, ro
 Na PWA, o service worker guarda as imagens locais configuradas quando a página está online e o worker ativo; também guarda imagens carregadas depois. Acesse online uma vez após publicar artes novas para aquecer o cache. Se uma imagem não estiver disponível offline, o SVG continua funcionando. Use o aviso “Atualizar agora” para receber a nova release; no primeiro rollout do worker antigo, feche todas as janelas uma vez e reabra. Não é preciso editar uma lista no service worker a cada PNG.
 
 Os testes de fallback estão em `tests/artwork.test.js` e `tests/artwork_browser.py`. O primeiro também avisa se um caminho configurado não existe. Nunca se apaga o save para testar um desenho.
+
+## Pets e ovos
+
+A expansão tem 18 espécies e três ovos, com SVGs temporários em `js/pets/art.js`. PNG/WebP de aproximadamente 512×512 transparente são bons pontos de partida; centralize a figura e reserve margem para o recorte do cartão. Nomes, raridade, evolução e bônus são textos da interface, não precisam ser desenhados na imagem.
+
+Use `assets/images/pets/<id>.png` e `assets/images/eggs/<id>.png`, configurando `ARTWORK.pets.<id>` ou `ARTWORK.eggs.<id>` em `js/ui/assets.js`. As chaves de espécies/ovos e a lista completa estão em [Pets & Eggs](PETS_UPDATE.md). Uma arte por espécie vale nos quatro estágios; o selo de estágio continua independente. `null` ou imagem ausente/corrompida mantém o SVG, sem requisitar nomes inventados. O build PWA identifica a nova release automaticamente e o preparador Android copia as imagens. Isso não inicia o redesenho completo de arte planejado.

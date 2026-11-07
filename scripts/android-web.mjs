@@ -50,5 +50,5 @@ for (const doc of [
   writeFileSync(`www/${doc}`, html);
 }
 console.log(
-  "Android: nove páginas e assets locais preparados em www/. Nenhuma URL remota de inicialização.",
+  `Android: ${1+readdirSync("pages").filter(n=>n.endsWith(".html")).length} páginas e assets locais preparados em www/. Nenhuma URL remota de inicialização.`,
 );
