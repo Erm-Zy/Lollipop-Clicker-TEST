@@ -91,13 +91,23 @@ export function initializeUpdates(runtime) {
         return;
       }
       candidate = { ...release, worker };
+      watch(worker);
       show("Uma nova versão do Lollipop Clicker está pronta. Seu progresso será salvo antes de atualizar.");
     } catch { /* An offline update check must never interrupt the running game. */ }
+  }
+  function acknowledge(worker, data) {
+    try { worker.postMessage(data); }
+    catch { cancel(data.transactionId, "windows-changed"); }
   }
   function watch(worker) {
     if (!worker || watched.has(worker)) return;
     watched.add(worker);
     worker.addEventListener("statechange", () => {
+      if (worker.state === "redundant" && candidate?.worker === worker) {
+        if (prepared) cancel(prepared, "windows-changed");
+        candidate = null;
+        banner.hidden = true;
+      }
       if (worker.state === "installed" || worker.state === "activated") setTimeout(inspect, 0);
     }, options);
   }
@@ -135,10 +145,10 @@ export function initializeUpdates(runtime) {
           show("A atualização demorou para responder. Tente novamente.", true);
         }, 20_000);
       }
-      worker.postMessage({ type: "PWA_ACK", phase: "prepare", transactionId: data.transactionId, releaseId: data.releaseId, ok, reason: "save" });
+      acknowledge(worker, { type: "PWA_ACK", phase: "prepare", transactionId: data.transactionId, releaseId: data.releaseId, ok, reason: "save" });
     } else if (data.type === "PWA_ARM" && prepared === data.transactionId) {
       expected = data.releaseId;
-      worker.postMessage({ type: "PWA_ACK", phase: "arm", transactionId: prepared, releaseId: expected, ok: true });
+      acknowledge(worker, { type: "PWA_ACK", phase: "arm", transactionId: prepared, releaseId: expected, ok: true });
     } else if (data.type === "PWA_CANCEL") {
       cancelled.add(data.transactionId);
       if (cancelled.size > 32) cancelled.delete(cancelled.values().next().value);
@@ -195,7 +205,7 @@ export function initializeUpdates(runtime) {
   window.addEventListener("pagehide", event => {
     if (event.persisted) {
       if (prepared) {
-        candidate?.worker.postMessage({ type: "PWA_ACK", phase: expected ? "arm" : "prepare", transactionId: prepared, releaseId: candidate.id, ok: false, reason: "windows-changed" });
+        acknowledge(candidate.worker, { type: "PWA_ACK", phase: expected ? "arm" : "prepare", transactionId: prepared, releaseId: candidate.id, ok: false, reason: "windows-changed" });
         cancel(prepared);
       }
       return;

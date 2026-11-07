@@ -49,6 +49,7 @@ async function appClients() {
     .filter(client=>{ const url=new URL(client.url); return url.origin===self.location.origin && paths.has(url.pathname); });
 }
 async function cleanup() {
+  if (self.registration.installing || self.registration.waiting) return;
   const clients=await appClients();
   const live=new Set(clients.map(client=>client.id));
   for (const id of readyClients.keys()) if (!live.has(id)) readyClients.delete(id);
@@ -58,12 +59,22 @@ async function cleanup() {
   const cache=await caches.open(CACHE_NAME);
   const record=await cache.match(OBSOLETE);
   const names=record ? await record.json() : [];
-  for (const name of names) if (name!==CACHE_NAME && ownCache(name)) await caches.delete(name);
+  for (const name of names) {
+    if (self.registration.installing || self.registration.waiting) return;
+    if (name!==CACHE_NAME && ownCache(name)) await caches.delete(name);
+  }
 }
 self.addEventListener('activate',event=>event.waitUntil((async()=>{
   if (!(await complete())) throw new Error('Cache de release incompleto');
   const cache=await caches.open(CACHE_NAME);
-  const obsolete=(await caches.keys()).filter(name=>name!==CACHE_NAME && ownCache(name));
+  const obsolete=[];
+  for (const name of await caches.keys()) {
+    if (name===CACHE_NAME || !ownCache(name)) continue;
+    // A future release may already be installing while this one activates.
+    // Only previously activated releases (or the old namespace) are obsolete.
+    if (name.startsWith(PREFIX) && !(await (await caches.open(name)).match(OBSOLETE))) continue;
+    obsolete.push(name);
+  }
   try { await cache.put(OBSOLETE,new Response(JSON.stringify(obsolete))); } catch { /* Cleanup may wait; never fail activation for bookkeeping quota. */ }
   await self.clients.claim();
   await cleanup().catch(()=>{});
