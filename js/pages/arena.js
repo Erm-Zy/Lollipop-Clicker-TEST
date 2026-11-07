@@ -4,8 +4,10 @@ import {
   startBoss,
   hitBoss,
   getBossMaxHp,
-  getClickPower,
+  getBossDamage,
+  getBossReward,
 } from "../gameplay.js";
+import { getPetBonuses } from "../pets/bonuses.js";
 import { bossSVG } from "../ui/art.js";
 import { BOSS_DURATION_MS, MAX_VALUE } from "../data.js";
 
@@ -47,20 +49,30 @@ function render(state, info = {}) {
       ? `Tempo restante: ${time(boss.endsAt - now)}`
       : `${BOSS_DURATION_MS / 1000} segundos para vencer`,
   );
-  setText("bossDamage", `Seu ataque: ${format(getClickPower(state, now))}`);
-  const reward = Math.min(MAX_VALUE, Math.floor(max * 15));
+  setText(
+    "bossDamage",
+    `Seu ataque: ${format(getBossDamage(state, now))} por toque · +${format(getPetBonuses(state).bossDamage * 100)}% dos pets de combate. Seu clique e fábricas preparam o ataque.`,
+  );
+  const reward = getBossReward(state, max);
   setText("bossReward", `Vitória: ${format(reward)} doces`);
-  document.getElementById("bossReward").title = `Recompensa de vitória: ${exact.format(reward)} doces, limitada ao espaço disponível no saldo.`;
+  document.getElementById("bossReward").title =
+    `Recompensa de vitória: ${exact.format(reward)} doces, limitada ao espaço disponível no saldo.`;
   const cooldown = Math.max(0, (state.bossCooldownUntil || 0) - now);
   start.disabled = !runtime.writable || Boolean(boss) || cooldown > 0;
   avatar.disabled = !runtime.writable || !boss;
   avatar.classList.toggle("fighting", Boolean(boss));
-  avatar.setAttribute("aria-label", `Atacar ${name} · ${format(getClickPower(state, now))} de dano por toque`);
-  setText("bossHint", boss
-    ? "Toque no guardião ou use Espaço e Enter. Vença antes que o tempo acabe para receber a recompensa."
-    : cooldown > 0
-      ? `Próximo desafio em ${time(cooldown)}. Sua fábrica continua produzindo durante o descanso.`
-      : "Confira a recompensa e desafie o guardião. A batalha só começa quando você escolher.");
+  avatar.setAttribute(
+    "aria-label",
+    `Atacar ${name} · ${format(getBossDamage(state, now))} de dano por toque`,
+  );
+  setText(
+    "bossHint",
+    boss
+      ? "Toque no guardião ou use Espaço e Enter. Vença antes que o tempo acabe para receber a recompensa."
+      : cooldown > 0
+        ? `Próximo desafio em ${time(cooldown)}. Sua fábrica continua produzindo durante o descanso.`
+        : "Confira a recompensa e desafie o guardião. A batalha só começa quando você escolher.",
+  );
   setText(
     "startBossBtn",
     boss
@@ -69,7 +81,12 @@ function render(state, info = {}) {
         ? `Descanso dos guardiões · ${time(cooldown)}`
         : "Desafiar guardião",
   );
-  if (previousBoss && !boss && state.bossesKilled === previousVictories && now >= previousBoss.endsAt) {
+  if (
+    previousBoss &&
+    !boss &&
+    state.bossesKilled === previousVictories &&
+    now >= previousBoss.endsAt
+  ) {
     const result = document.getElementById("battleResult");
     if (result.hidden) {
       setText(
@@ -103,7 +120,11 @@ avatar.addEventListener("click", (event) => {
     event.detail ? event.clientY : rect.top + rect.height / 2,
     `−${format(result.damage)}`,
   );
-  if (!reducedMotion.matches && runtime.state.settings.animations && !runtime.state.settings.reducedMotion) {
+  if (
+    !reducedMotion.matches &&
+    runtime.state.settings.animations &&
+    !runtime.state.settings.reducedMotion
+  ) {
     avatar.classList.remove("hit");
     requestAnimationFrame(() => avatar.classList.add("hit"));
   }

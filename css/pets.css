@@ -555,3 +555,27 @@ body[data-motion="off"] .pet-opening-shell {
     font-size: 16px;
   }
 }
+
+/* Focused balance controls share the existing visual system. */
+.pet-bulk {
+  padding: 12px 0;
+}
+.pet-bulk label {
+  display: block;
+  margin: 10px 0;
+}
+.pet-bulk select,
+.pet-bulk input[type="number"] {
+  max-width: 100%;
+  min-width: 0;
+}
+#replacePetOptions {
+  display: grid;
+  gap: 10px;
+  margin: 16px 0;
+}
+#fusionSources,
+#fusionDescription,
+#fusionResult {
+  overflow-wrap: anywhere;
+}

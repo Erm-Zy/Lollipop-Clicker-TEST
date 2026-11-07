@@ -11,6 +11,7 @@ import {
   DISCOVERIES,
   STRATEGIES,
   discoveryKey,
+  PRESET_NAMES,
   hatchTable,
 } from "../pets/catalog.js";
 import {
@@ -22,11 +23,22 @@ import {
   setStrategy,
   togglePetFlag,
   fusePets,
+  replacePet,
+  savePreset,
+  equipPreset,
+  setReserve,
+  fuseBatch,
+  releasePets,
 } from "../pets/actions.js";
-import { fusionQuote, fusionCandidates } from "../pets/evolution.js";
+import {
+  batchFusionQuote,
+  fusionQuote,
+  fusionCandidates,
+} from "../pets/evolution.js";
 import { getPetBonuses, petPower } from "../pets/bonuses.js";
 import { inventoryView } from "../pets/inventory.js";
 import { createAutoHatcher } from "../pets/auto.js";
+import { UPGRADES_DATA } from "../data.js";
 import { petSVG, eggSVG } from "../pets/art.js";
 import {
   inventoryCard,
@@ -45,6 +57,8 @@ let eggId = "acucarado",
   manualBusy = false,
   fusionBusy = false,
   fusionIds = [],
+  bulkReview = null,
+  replaceId = null,
   returnFocus = null;
 let previousInventory,
   previousEquipped,
@@ -68,10 +82,15 @@ const filters = {
   sort: "strength",
 };
 const explanations = {
+  combat: "Prioriza dano real de chefe, separado do clique que rende doces.",
+  prestige:
+    "Maximiza PP do próximo resgate quando há ganho; PPS desempata. Sem marco pronto, prioriza a taxa futura (teto 25%).",
+  capacity:
+    "Prioriza espaços por PPS base do tipo; PPS desempata. Fábricas excedentes ficam inativas sem a equipe.",
   balanced:
-    "Soma as contribuições de clique e PPS e escolhe os três melhores resultados. Em empate, usa aquisição e ID.",
+    "Compara equipes pelo clique e PPS real, incluindo ativação de fábricas extras. Empates usam aquisição e ID.",
   production:
-    "Prioriza o bônus real de PPS; o bônus de clique desempata. Não escolhe apenas pela raridade.",
+    "Maximiza PPS real, incluindo fábricas extras ativas. Cliques desempata; depois aquisição e ID.",
   clicks:
     "Prioriza o bônus real de clique; o bônus de PPS desempata. Não escolhe apenas pela raridade.",
 };
@@ -95,6 +114,11 @@ byId("hatchButtons").innerHTML = [1, 2, 3]
   )
   .join("");
 
+function eggRequirement(egg) {
+  return `${WORLD_CHAPTERS[egg.unlockStage].minimum} fábricas na jornada${egg.requiredFactory ? ` + ${egg.requiredCount} ${UPGRADES_DATA[egg.requiredFactory].name}` : ""}${egg.requiredPrestige ? ` + nível histórico ${egg.requiredPrestige}` : ""}.`;
+}
+for (const [id, species] of Object.entries(SPECIES))
+  byId("bulkSpecies").add(new Option(species.name, id));
 function canAct() {
   return runtime.writable && runtime.canSave && !runtime.updating;
 }
@@ -128,13 +152,28 @@ function showOdds() {
 }
 function renderControls(state) {
   const available = canAct();
+  for (const id of [
+    "savePetPreset",
+    "loadPetPreset",
+    "savePetReserve",
+    "reviewBulkFusion",
+    "releaseSelectedPets",
+  ])
+    byId(id).disabled = !available;
+  const preset = state.pets.presets[byId("petPreset").value];
+  setText(
+    "presetStatus",
+    `${preset.length} IDs salvos · ${preset.filter((id) => state.pets.inventory.some((p) => p.id === id)).length} disponíveis. Cópias consumidas são ignoradas.`,
+  );
+  if (document.activeElement !== byId("petReserve"))
+    byId("petReserve").value = state.pets.reserveNormals;
   const egg = EGGS[eggId],
     unlocked = state.pets.unlockedEggs.includes(eggId);
   setText(
     "eggRequirement",
     unlocked
       ? `${egg.theme}. Desbloqueio permanente.`
-      : `Desbloqueie ao alcançar ${WORLD_CHAPTERS[egg.unlockStage].minimum} fábricas em uma jornada. Agora: ${getTotalUpgradesCount(state)}.`,
+      : `${eggRequirement(egg)} Agora: ${getTotalUpgradesCount(state)} fábricas, nível histórico ${state.prestigeLevel}.`,
   );
   for (const card of byId("eggSelection").children) {
     const id = card.dataset.egg,
@@ -143,7 +182,7 @@ function renderControls(state) {
     card.setAttribute("aria-pressed", String(id === eggId));
     card.querySelector("[data-egg-state]").textContent = found
       ? "✓ Desbloqueado"
-      : `🔒 ${WORLD_CHAPTERS[EGGS[id].unlockStage].minimum} fábricas na jornada`;
+      : `🔒 ${eggRequirement(EGGS[id])}`;
   }
   const quote = eggQuote(state, eggId, 1);
   setText(
@@ -185,7 +224,7 @@ function renderTeam(state) {
   setText("teamCount", `${state.pets.equipped.length} / ${PET_SLOTS}`);
   setText(
     "teamBonus",
-    `Equipe: +${percent(bonuses.click)}% cliques · +${percent(bonuses.pps)}% PPS. Apenas os equipados dão bônus.`,
+    `Equipe: ${bonusLabel(bonuses)}. Apenas equipados dão bônus; fábricas acima da capacidade ficam inativas.`,
   );
   const pets = state.pets.equipped.map((id) =>
     state.pets.inventory.find((pet) => pet.id === id),
@@ -345,9 +384,11 @@ function reviewFusion(ids, trigger) {
     runtime.notify(quote.reason);
     return;
   }
+  bulkReview = null;
   fusionIds = [...ids];
   returnFocus = trigger;
   fusionBusy = false;
+  setText("confirmFusionBtn", "Confirmar fusão de 5 pets");
   setText("fusionTitle", `Evoluir ${quote.species.name}`);
   setText(
     "fusionDescription",
@@ -457,6 +498,22 @@ byId("petInventory").addEventListener("click", (event) => {
       fusionCandidates(runtime.state.pets, pet.speciesId, pet.stage),
       button,
     );
+  if (
+    button.dataset.action === "equip" &&
+    !runtime.state.pets.equipped.includes(id) &&
+    runtime.state.pets.equipped.length >= PET_SLOTS
+  ) {
+    replaceId = id;
+    returnFocus = button;
+    byId("replacePetOptions").innerHTML = runtime.state.pets.equipped
+      .map(
+        (old) =>
+          `<button type="button" class="game-button secondary" data-replace="${old}">${SPECIES[runtime.state.pets.inventory.find((p) => p.id === old).speciesId].name} · ${old}</button>`,
+      )
+      .join("");
+    byId("replacePetDialog").showModal();
+    return;
+  }
   transaction((state, now) =>
     button.dataset.action === "equip"
       ? state.pets.equipped.includes(id)
@@ -513,6 +570,36 @@ byId("fusionDialog").addEventListener("close", () => {
 });
 byId("confirmFusionBtn").addEventListener("click", () => {
   if (fusionBusy || !canAct()) return;
+  if (bulkReview) {
+    const quote = batchFusionQuote(runtime.state.pets, bulkReview.options);
+    if (!quote.ok || quote.signature !== bulkReview.signature) {
+      setText("fusionError", "A prévia mudou. Cancele e revise novamente.");
+      return;
+    }
+    if (quote.consumesEquipped && !byId("allowEquippedFusion").checked) {
+      setText("fusionError", "Confirme o consumo dos equipados listados.");
+      return;
+    }
+    fusionBusy = true;
+    byId("confirmFusionBtn").disabled = true;
+    const result = transaction(
+      (state, now) =>
+        fuseBatch(state, bulkReview.options, now, bulkReview.signature),
+      "win",
+    );
+    if (result) {
+      selected.clear();
+      byId("fusionDialog").close();
+      runtime.notify(
+        `${result.fusions} fusões salvas; ${result.created} resultados no inventário.`,
+      );
+    } else {
+      fusionBusy = false;
+      byId("confirmFusionBtn").disabled = false;
+      setText("fusionError", "Falha ao salvar. Nenhuma cópia foi consumida.");
+    }
+    return;
+  }
   const quote = fusionQuote(runtime.state.pets, fusionIds);
   if (!quote.ok) {
     setText("fusionError", quote.reason);
@@ -552,6 +639,115 @@ byId("confirmFusionBtn").addEventListener("click", () => {
 });
 window.addEventListener("pagehide", (event) => {
   if (!event.persisted) auto.dispose();
+});
+byId("savePetPreset").addEventListener("click", () => {
+  if (transaction((state) => savePreset(state, byId("petPreset").value)))
+    runtime.notify("Conjunto salvo.");
+});
+byId("loadPetPreset").addEventListener("click", () =>
+  transaction((state, now) => equipPreset(state, byId("petPreset").value, now)),
+);
+byId("petPreset").addEventListener("change", () =>
+  renderControls(runtime.state),
+);
+byId("savePetReserve").addEventListener("click", () => {
+  if (
+    transaction((state) => setReserve(state, Number(byId("petReserve").value)))
+  )
+    runtime.notify("Reserva salva.");
+});
+byId("cancelReplacePet").addEventListener("click", () =>
+  byId("replacePetDialog").close(),
+);
+byId("replacePetDialog").addEventListener("close", () => {
+  (returnFocus?.isConnected ? returnFocus : byId("inventoryTitle")).focus({
+    preventScroll: true,
+  });
+});
+byId("replacePetOptions").addEventListener("click", (event) => {
+  const button = event.target.closest("[data-replace]");
+  if (!button) return;
+  if (
+    transaction((state, now) =>
+      replacePet(state, replaceId, button.dataset.replace, now),
+    )
+  )
+    byId("replacePetDialog").close();
+});
+byId("releaseSelectedPets").addEventListener("click", () => {
+  const ids = [...selected];
+  if (!ids.length) {
+    runtime.notify("Selecione as cópias que deseja liberar.");
+    return;
+  }
+  auto.stop("Abertura parada para revisar cópias.");
+  const rows = ids.map((id) => {
+    const p = runtime.state.pets.inventory.find((p) => p.id === id);
+    return p
+      ? `${id}: ${SPECIES[p.speciesId].name} ${STAGES[p.stage].name}`
+      : id;
+  });
+  if (
+    !confirm(
+      `Liberar permanentemente ${ids.length} cópias sem recompensa?\n${rows.join("\n")}`,
+    )
+  )
+    return;
+  if (
+    !confirm(
+      "Confirmação final: estas cópias serão removidas. Prefira fusão; favoritos, bloqueios, equipados e reservas ficam protegidos.",
+    )
+  )
+    return;
+  if (transaction((state, now) => releasePets(state, ids, now))) {
+    selected.clear();
+    renderInventory(runtime.state, true);
+    runtime.notify("Cópias liberadas e progresso salvo.");
+  } else
+    runtime.notify(
+      "Nenhuma cópia liberada. Confira proteções/reserva e armazenamento.",
+    );
+});
+byId("reviewBulkFusion").addEventListener("click", (event) => {
+  auto.stop("Abertura parada para revisar fusão em lote.");
+  const options = {
+    speciesId: byId("bulkSpecies").value,
+    stage: Number(byId("bulkStage").value),
+    chain: byId("bulkChain").checked,
+    allowEquipped: byId("bulkEquipped").checked,
+  };
+  const quote = batchFusionQuote(runtime.state.pets, options);
+  if (!quote.ok) {
+    runtime.notify(quote.reason);
+    return;
+  }
+  bulkReview = { options, signature: quote.signature };
+  returnFocus = event.currentTarget;
+  fusionBusy = false;
+  setText("confirmFusionBtn", "Confirmar fusão em lote");
+  setText("fusionTitle", "Revisar fusão em lote");
+  setText(
+    "fusionDescription",
+    `${quote.consumed.length} cópias existentes serão consumidas em ${quote.operations.length} fusões. Resultados finais: ${quote.outputs.map((p) => `${p.id} ${STAGES[p.stage].name}`).join(", ")}. ${options.chain ? "Você permitiu consumir resultados intermediários." : "Resultados novos não serão reutilizados."} Reserva: ${runtime.state.pets.reserveNormals} Normais. Sem taxa. Irreversível.`,
+  );
+  byId("fusionSources").innerHTML = quote.operations
+    .map(
+      (op) =>
+        `<li>${op.ids.join(", ")} → ${op.output.id} ${STAGES[op.output.stage].name}</li>`,
+    )
+    .join("");
+  setText(
+    "fusionResult",
+    quote.outputs
+      .map((p) => `${SPECIES[p.speciesId].name}: ${bonusLabel(petPower(p))}`)
+      .join(" · "),
+  );
+  byId("equippedFusionWarning").hidden = !quote.consumesEquipped;
+  byId("allowEquippedFusion").checked = false;
+  setText("fusionError", "");
+  byId("confirmFusionBtn").disabled = !canAct();
+  byId("fusionDialog").showModal();
+  byId("fusionTitle").focus();
 });
 showOdds();
 runtime.subscribe(render);
