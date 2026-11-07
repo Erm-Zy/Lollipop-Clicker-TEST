@@ -1,5 +1,27 @@
 apply plugin: 'com.android.application'
 
+def appVersion = new groovy.json.JsonSlurper().parse(file('../../package.json')).version
+def signingNames = ['ANDROID_KEYSTORE_PATH', 'ANDROID_KEYSTORE_PASSWORD', 'ANDROID_KEY_ALIAS', 'ANDROID_KEY_PASSWORD']
+def providedSigning = signingNames.findAll { System.getenv(it)?.trim() }
+def distribution = System.getenv('ANDROID_DISTRIBUTION') == 'true'
+def releaseRequested = gradle.startParameter.taskNames.any { it.toLowerCase().contains('release') }
+if (distribution || releaseRequested || !providedSigning.isEmpty()) {
+    def missing = signingNames.findAll { !System.getenv(it)?.trim() }
+    if (!missing.isEmpty()) throw new GradleException("Assinatura beta persistente obrigatória; faltam: ${missing.join(', ')}. Não distribua a chave debug temporária.")
+    if (!file(System.getenv('ANDROID_KEYSTORE_PATH')).isFile()) throw new GradleException('Keystore beta não encontrado.')
+}
+if (distribution && !System.getenv('ANDROID_VERSION_CODE')) throw new GradleException('Distribuição exige ANDROID_VERSION_CODE reservado.')
+def codeText = System.getenv('ANDROID_VERSION_CODE') ?: '3000001'
+if (!(codeText ==~ /[1-9][0-9]*/) || codeText.toBigInteger() > 2100000000) throw new GradleException('ANDROID_VERSION_CODE inválido (1..2100000000).')
+
+// Also guard aggregate tasks such as assemble/build that include a release variant.
+gradle.taskGraph.whenReady { graph ->
+    if (graph.allTasks.any { it.project.path == ':app' && it.name.toLowerCase().contains('release') }
+        && providedSigning.size() != signingNames.size()) {
+        throw new GradleException('Build release exige a assinatura beta persistente completa.')
+    }
+}
+
 android {
     namespace "com.ermzy.lollipopclicker"
     compileSdk rootProject.ext.compileSdkVersion
@@ -7,8 +29,8 @@ android {
         applicationId "com.ermzy.lollipopclicker"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode = (System.getenv("ANDROID_VERSION_CODE") ?: "3000001").toInteger()
-        versionName "3.0.0-beta.1"
+        versionCode = codeText.toInteger()
+        versionName appVersion
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
@@ -18,7 +40,7 @@ android {
     }
     signingConfigs {
         beta {
-            if (System.getenv("ANDROID_KEYSTORE_PATH")) {
+           if (System.getenv("ANDROID_KEYSTORE_PATH")) {
                 storeFile file(System.getenv("ANDROID_KEYSTORE_PATH"))
                 storePassword System.getenv("ANDROID_KEYSTORE_PASSWORD")
                 keyAlias System.getenv("ANDROID_KEY_ALIAS")
@@ -28,10 +50,10 @@ android {
     }
     buildTypes {
         debug {
-            if (System.getenv("ANDROID_KEYSTORE_PATH")) signingConfig signingConfigs.beta
+           if (System.getenv("ANDROID_KEYSTORE_PATH")) signingConfig signingConfigs.beta
         }
         release {
-            if (System.getenv("ANDROID_KEYSTORE_PATH")) signingConfig signingConfigs.beta
+           if (System.getenv("ANDROID_KEYSTORE_PATH")) signingConfig signingConfigs.beta
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }

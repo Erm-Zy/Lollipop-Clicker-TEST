@@ -1,25 +1,13 @@
 name: Android beta APK
 on:
   push:
-    branches: [feat/android-beta]
+    branches: [dev]
   pull_request:
-    paths:
-      [
-        "android/**",
-        "js/**",
-        "css/**",
-        "pages/**",
-        "assets/**",
-        "index.html",
-        "package*.json",
-        "capacitor.config.json",
-        "scripts/**",
-        ".github/workflows/android-apk.yml",
-      ]
+    paths: ["android/**", "js/**", "css/**", "pages/**", "assets/**", "index.html", "package*.json", "capacitor.config.json", "scripts/**", "tests/**", ".github/workflows/android-apk.yml"]
   workflow_dispatch:
     inputs:
       variant:
-        description: "debug para teste; release exige secrets de assinatura"
+        description: "Beta distribuível: debug e release exigem assinatura persistente"
         required: true
         default: debug
         type: choice
@@ -27,13 +15,14 @@ on:
 permissions:
   contents: read
 jobs:
-  apk:
+  validate:
+    if: github.event_name != 'workflow_dispatch'
     runs-on: ubuntu-24.04
     timeout-minutes: 30
-    env:
-      ANDROID_VERSION_CODE: ${{ github.run_number }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version: "24.11.0"
@@ -45,44 +34,79 @@ jobs:
       - uses: android-actions/setup-android@v3
         with:
           packages: platform-tools
-      - name: Install SDK
-        run: sdkmanager 'platforms;android-35' 'build-tools;35.0.0' 'build-tools;34.0.0' 'platform-tools'
-      - run: npm ci
-      - run: npm run check && npm test
+      - run: sdkmanager 'platforms;android-35' 'build-tools;35.0.0' 'build-tools;34.0.0'
+      - run: npm ci && npm run check && npm test
       - run: npm run android:sync && node scripts/check-android.mjs
-      - name: Restore optional persistent beta signing key
-        if: github.event_name != 'pull_request'
-        env:
-          KEY_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
-          STORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
-          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+      - name: Compile isolated validation APK (never distribute)
+        run: android/gradlew -p android :app:assembleDebug --no-daemon
+      # Deliberately no upload-artifact for validation APKs.
+
+  distribute:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: write # Reserve immutable versionCode tags; no GitHub Release.
+    concurrency:
+      group: android-beta-distribution
+      cancel-in-progress: false
+    env:
+      VARIANT: ${{ inputs.variant }}
+      ANDROID_DISTRIBUTION: 'true'
+      ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+      ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+      ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+      ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Require dev and all four signing secrets
         run: |
-          if [ -n "$KEY_BASE64" ]; then
-            test -n "$STORE_PASSWORD" && test -n "$KEY_ALIAS" && test -n "$KEY_PASSWORD"
-            printf '%s' "$KEY_BASE64" | base64 --decode > "$RUNNER_TEMP/beta.jks"
-            echo "ANDROID_KEYSTORE_PATH=$RUNNER_TEMP/beta.jks" >> "$GITHUB_ENV"
-          fi
-      - name: Compile APK
+          test "$GITHUB_REF" = refs/heads/dev || { echo '::error::Distribuição beta deve usar a branch dev.'; exit 1; }
+          node scripts/android-signing.mjs
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24.11.0"
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
+      - run: sdkmanager 'platforms;android-35' 'build-tools;35.0.0' 'build-tools;34.0.0'
+      - run: npm ci && npm run check && npm test
+      - run: npm run android:sync && node scripts/check-android.mjs
+      - name: Reserve increasing versionCode
         env:
-          VARIANT: ${{ inputs.variant || 'debug' }}
-          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
-          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
-          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          ANDROID_VERSION_CODE_FLOOR: ${{ vars.ANDROID_VERSION_CODE_FLOOR || '3000001' }}
+        run: node scripts/reserve-android-version.mjs
+      - name: Restore mandatory persistent signing key
         run: |
-          export ANDROID_VERSION_CODE=$((3000000 + ANDROID_VERSION_CODE))
-          chmod +x android/gradlew
-          if [ "$VARIANT" = release ]; then
-            test -n "$ANDROID_KEYSTORE_PATH" || { echo 'Release exige os quatro secrets ANDROID_KEYSTORE_* / ANDROID_KEY_*.'; exit 1; }
-            (cd android && ./gradlew assembleRelease --no-daemon)
-          else
-            (cd android && ./gradlew assembleDebug --no-daemon)
-          fi
-      - name: Upload installable APK
+          umask 077
+          node scripts/android-signing.mjs "$RUNNER_TEMP/beta.jks"
+          echo "ANDROID_KEYSTORE_PATH=$RUNNER_TEMP/beta.jks" >> "$GITHUB_ENV"
+      - name: Compile and verify signed APK
+        id: artifact
+        run: |
+          case "$VARIANT" in
+            debug) task=:app:assembleDebug ;;
+            release) task=:app:assembleRelease ;;
+            *) echo '::error::Variante inválida'; exit 1 ;;
+          esac
+          android/gradlew -p android "$task" --no-daemon
+          app_version=$(node -p "require('./package.json').version")
+          artifact="lollipop-$app_version-$VARIANT-$ANDROID_VERSION_CODE"
+          mkdir -p android-artifact
+          cp "android/app/build/outputs/apk/$VARIANT/app-$VARIANT.apk" "android-artifact/$artifact.apk"
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs "android-artifact/$artifact.apk" > android-artifact/certificate.txt
+          (cd android-artifact && sha256sum "$artifact.apk" > "$artifact.apk.sha256")
+          echo "name=$artifact" >> "$GITHUB_OUTPUT"
+      - name: Upload official signed beta APK
         uses: actions/upload-artifact@v4
         with:
-          name: lollipop-3.0.0-beta.1-${{ inputs.variant || 'debug' }}-${{ github.run_number }}
-          path: android/app/build/outputs/apk/**/*.apk
+          name: ${{ steps.artifact.outputs.name }}
+          path: android-artifact/
           if-no-files-found: error
           retention-days: 14
       - name: Delete temporary signing file
@@ -90,7 +114,9 @@ jobs:
         run: rm -f "$RUNNER_TEMP/beta.jks"
 
   android-smoke:
-    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    # Isolated emulator build: never receives signing secrets or distributes an APK.
+    permissions:
+      contents: read
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
