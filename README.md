@@ -114,7 +114,7 @@ O site publica o artefato pelo workflow de GitHub Actions. A configuração inic
 
 ## Beta Android
 
-O suporte Android usa Capacitor7, com ID `com.ermzy.lollipopclicker`, assets embarcados e versão inicial `3.0.0-beta.1`. O site continua funcionando sem instalar dependências nativas. Veja [instalação, migração de saves, assinatura e build](docs/android/BETA.md). O workflow `.github/workflows/android-apk.yml` compila e guarda artifacts; não publica na Google Play.
+O suporte Android usa Capacitor7, com ID `com.ermzy.lollipopclicker`, assets embarcados e versão inicial `3.0.0-beta.1`. O site continua funcionando sem instalar dependências nativas. Veja [instalação, migração de saves, assinatura e build](docs/android/BETA.md). O workflow `.github/workflows/android-apk.yml` valida PRs sem distribuir APK e gera betas oficiais somente por execução manual na `dev`, com os quatro secrets obrigatórios e versionCode reservado em tags internas. Não publica na Google Play.
 
 ## Desenhos feitos à mão
 
