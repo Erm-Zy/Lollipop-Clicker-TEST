@@ -1,4 +1,9 @@
-import { advance, getPps } from "../gameplay.js";
+import {
+  advance,
+  getPps,
+  getBossDamage,
+  getPrestigeReward,
+} from "../gameplay.js";
 import { getWorldStage } from "../world.js";
 import {
   EGGS,
@@ -6,6 +11,7 @@ import {
   STRATEGIES,
   PET_CAPACITY,
   PET_SLOTS,
+  PRESET_NAMES,
   DISCOVERIES,
   HATCH_GAP_MS,
   rollSpecies,
@@ -13,7 +19,7 @@ import {
 } from "./catalog.js";
 import { allocatePet } from "./state.js";
 import { bestTeam } from "./bonuses.js";
-import { fusionQuote } from "./evolution.js";
+import { batchFusionQuote, fusionQuote } from "./evolution.js";
 
 const increment = (value, amount = 1) =>
   Math.min(Number.MAX_SAFE_INTEGER, value + amount);
@@ -31,7 +37,10 @@ export function eggQuote(state, eggId, count = 1, now = Date.now()) {
     return fail("Escolha um ovo e um lote de ×1, ×2 ou ×3.");
   if (
     !state.pets.unlockedEggs.includes(eggId) &&
-    getWorldStage(state) < egg.unlockStage
+    (getWorldStage(state) < egg.unlockStage ||
+      (egg.requiredFactory &&
+        (state.upgrades[egg.requiredFactory] < egg.requiredCount ||
+          state.prestigeLevel < egg.requiredPrestige)))
   )
     return fail("Este ovo ainda está bloqueado.");
   if (state.pets.inventory.length + count > PET_CAPACITY)
@@ -129,7 +138,16 @@ export function equipBest(
 ) {
   if (typeof strategy !== "string" || !Object.hasOwn(STRATEGIES, strategy))
     return false;
-  const ids = bestTeam(state.pets, strategy);
+  // Inject authoritative nonlinear objectives without a gameplay -> bonus -> gameplay cycle.
+  const evaluateTeam = ["combat", "prestige"].includes(strategy)
+    ? (ids) => {
+        const projection = { ...state, pets: { ...state.pets, equipped: ids } };
+        if (strategy === "combat") return getBossDamage(projection, now);
+        const reward = getPrestigeReward(projection);
+        return reward.base > 0 ? reward.bonus : reward.rate;
+      }
+    : null;
+  const ids = bestTeam(state.pets, strategy, state, evaluateTeam);
   if (!ids.length) return false;
   const changed = setTeam(state, ids, now);
   if (state.pets.strategy === strategy && !changed) return false;
@@ -185,4 +203,94 @@ export function fusePets(
   state.pets.discovered = DISCOVERIES.filter((key) => found.has(key));
   state.pets.stats.fused = increment(state.pets.stats.fused);
   return allocated.pet;
+}
+
+export function replacePet(state, id, replacedId, now = Date.now()) {
+  if (
+    state.pets.equipped.includes(id) ||
+    !state.pets.equipped.includes(replacedId)
+  )
+    return false;
+  return setTeam(
+    state,
+    state.pets.equipped.map((old) => (old === replacedId ? id : old)),
+    now,
+  );
+}
+export function savePreset(state, name) {
+  if (!Object.hasOwn(PRESET_NAMES, name)) return false;
+  state.pets.presets = {
+    ...state.pets.presets,
+    [name]: [...state.pets.equipped],
+  };
+  return true;
+}
+export function equipPreset(state, name, now = Date.now()) {
+  if (!Object.hasOwn(PRESET_NAMES, name)) return false;
+  const ids = state.pets.presets[name].filter((id) =>
+    state.pets.inventory.some((p) => p.id === id),
+  );
+  return setTeam(state, ids, now);
+}
+export function setReserve(state, count) {
+  if (!Number.isInteger(count) || count < 0 || count > 125) return false;
+  state.pets.reserveNormals = count;
+  return true;
+}
+export function fuseBatch(
+  state,
+  options,
+  now = Date.now(),
+  expectedSignature = null,
+) {
+  const quote = batchFusionQuote(state.pets, options);
+  if (!quote.ok || !expectedSignature || quote.signature !== expectedSignature)
+    return false;
+  advance(state, now);
+  const oldIds = new Set(state.pets.inventory.map((p) => p.id));
+  state.pets.inventory = quote.inventory.map((p) =>
+    oldIds.has(p.id) ? p : { ...p, acquiredAt: state.lastTick },
+  );
+  state.pets.nextId = quote.nextId;
+  const valid = new Set(quote.inventory.map((p) => p.id));
+  state.pets.equipped = state.pets.equipped.filter((id) => valid.has(id));
+  const found = new Set(state.pets.discovered);
+  for (const operation of quote.operations)
+    found.add(discoveryKey(operation.output.speciesId, operation.output.stage));
+  state.pets.discovered = DISCOVERIES.filter((key) => found.has(key));
+  state.pets.stats.fused = increment(
+    state.pets.stats.fused,
+    quote.operations.length,
+  );
+  return {
+    consumed: quote.consumed.length,
+    created: quote.outputs.length,
+    fusions: quote.operations.length,
+  };
+}
+/** No rewards for releasing; exact protected/reserved IDs must be explicitly confirmed. */
+export function releasePets(state, ids, now = Date.now()) {
+  if (!Array.isArray(ids) || !ids.length || new Set(ids).size !== ids.length)
+    return false;
+  const consumed = state.pets.inventory.filter((p) => ids.includes(p.id));
+  if (
+    consumed.length !== ids.length ||
+    consumed.some(
+      (p) => p.favorite || p.locked || state.pets.equipped.includes(p.id),
+    )
+  )
+    return false;
+  for (const species of new Set(
+    consumed.filter((p) => p.stage === 0).map((p) => p.speciesId),
+  )) {
+    const remaining = state.pets.inventory.filter(
+      (p) => p.speciesId === species && p.stage === 0 && !ids.includes(p.id),
+    ).length;
+    if (remaining < state.pets.reserveNormals) return false;
+  }
+  advance(state, now);
+  state.pets.inventory = state.pets.inventory.filter(
+    (p) => !ids.includes(p.id),
+  );
+  return { released: consumed.length };
 }

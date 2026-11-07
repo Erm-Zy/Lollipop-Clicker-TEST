@@ -1,5 +1,8 @@
 import { normalizePets, syncEggUnlocks, PetDataError } from "./pets/state.js";
-import { sanitizePermanentProgress, getFactoryCapacity } from "./progression.js";
+import {
+  sanitizePermanentProgress,
+  getFactoryCapacity,
+} from "./progression.js";
 import {
   UPGRADES_DATA,
   FLAVORS_DATA,
@@ -21,11 +24,17 @@ export const BACKUP_KEY = "lollipopSave.backup";
 export const LEGACY_BACKUP_KEY = "lollipopSave.legacy-v1";
 export const V2_BACKUP_KEY = "lollipopSave.legacy-v2";
 export const V3_BACKUP_KEY = "lollipopSave.legacy-v3";
+export const V5_BACKUP_KEY = "lollipopSave.legacy-v5";
 export const V4_BACKUP_KEY = "lollipopSave.legacy-v4";
 export const PET_QUARANTINE_KEY = "lollipopSave.pets-v5-quarantine";
 export const PRE_PRESTIGE_BACKUP_KEY = "lollipopSave.pre-prestige-v4";
 export class IncompatibleLegacySaveError extends Error {
-  constructor() { super("Save beta antigo com fábricas acima dos novos limites de capacidade."); this.name = "IncompatibleLegacySaveError"; }
+  constructor() {
+    super(
+      "Save beta antigo com fábricas acima dos novos limites de capacidade.",
+    );
+    this.name = "IncompatibleLegacySaveError";
+  }
 }
 export const RECOVERY_KEY = "lollipopSave.recovery";
 
@@ -70,7 +79,11 @@ const list = (value, allowed, defaults = []) => [
 ];
 
 /** Build an isolated, fully shaped state. Unknown keys never become executable state. */
-export function validateState(raw, now = Date.now(), { allowLegacyOverflow = false } = {}) {
+export function validateState(
+  raw,
+  now = Date.now(),
+  { allowLegacyOverflow = false } = {},
+) {
   if (!record(raw) || !Object.keys(raw).some((key) => STATE_FIELDS.has(key)))
     throw new TypeError("Formato de save inválido.");
   if (number(raw.version) > SAVE_VERSION)
@@ -97,19 +110,57 @@ export function validateState(raw, now = Date.now(), { allowLegacyOverflow = fal
     state[key] = count(raw[key]);
   }
   state.prestigeLevel = Math.min(PRESTIGE_CONFIG.maxLevel, state.prestigeLevel);
+  if (number(raw.version) >= 6) {
+    const bonus = raw.prestigeBonusEarned ?? 0;
+    if (
+      !Number.isSafeInteger(bonus) ||
+      bonus < 0 ||
+      bonus > Math.floor(state.prestigeLevel * 0.25) ||
+      bonus > Number.MAX_SAFE_INTEGER - state.prestigeLevel
+    )
+      throw new Error(
+        "Registro de PP extras inválido. Exporte o original para recuperação.",
+      );
+    state.prestigeBonusEarned = bonus;
+  }
   // A balance cannot exceed the lifetime amount that created it.
   state.totalEarned = Math.max(state.totalEarned, state.pirulitos);
   state.maxScore = Math.max(state.maxScore, state.pirulitos);
   const upgrades = record(raw.upgrades) ? raw.upgrades : {};
   const oldPrestige = number(raw.version) < 4;
-  if (oldPrestige && !allowLegacyOverflow && Object.keys(UPGRADES_DATA).some(key => count(upgrades[key]) > FACTORY_CAPACITIES[key]))
+  if (
+    oldPrestige &&
+    !allowLegacyOverflow &&
+    Object.keys(UPGRADES_DATA).some(
+      (key) => count(upgrades[key]) > FACTORY_CAPACITIES[key],
+    )
+  )
     throw new IncompatibleLegacySaveError();
-  Object.assign(state, oldPrestige
-    ? { prestigePoints: state.prestigeLevel }
-    : sanitizePermanentProgress(raw, state.prestigeLevel));
-  state.prestigeBaseline = oldPrestige ? state.totalEarned : Math.min(state.totalEarned, number(raw.prestigeBaseline, state.prestigeLevel > 0 || count(raw.prestigeClaimed) > 0 ? state.totalEarned : 0));
+  Object.assign(
+    state,
+    oldPrestige
+      ? { prestigePoints: state.prestigeLevel }
+      : sanitizePermanentProgress(
+          { ...raw, prestigeBonusEarned: state.prestigeBonusEarned },
+          state.prestigeLevel,
+        ),
+  );
+  state.prestigeBaseline = oldPrestige
+    ? state.totalEarned
+    : Math.min(
+        state.totalEarned,
+        number(
+          raw.prestigeBaseline,
+          state.prestigeLevel > 0 || count(raw.prestigeClaimed) > 0
+            ? state.totalEarned
+            : 0,
+        ),
+      );
   for (const key of Object.keys(UPGRADES_DATA))
-    state.upgrades[key] = Math.min(getFactoryCapacity(state, key), count(upgrades[key]));
+    state.upgrades[key] =
+      number(raw.version) >= 6
+        ? Math.min(10000, count(upgrades[key])) // Owned units survive equipment removal; only active units produce.
+        : Math.min(getFactoryCapacity(state, key), count(upgrades[key]));
   state.unlockedFlavors = list(
     raw.unlockedFlavors,
     Object.keys(FLAVORS_DATA),
@@ -164,7 +215,14 @@ export function validateState(raw, now = Date.now(), { allowLegacyOverflow = fal
     ? state.prestigeLevel > 0
       ? getPrestigeTarget(state)
       : 0
-    : Math.min(getPrestigeTarget(state), count(raw.prestigeClaimed, Math.min(getPrestigeTarget(state), state.prestigeLevel)), PRESTIGE_CONFIG.maxLevel);
+    : Math.min(
+        getPrestigeTarget(state),
+        count(
+          raw.prestigeClaimed,
+          Math.min(getPrestigeTarget(state), state.prestigeLevel),
+        ),
+        PRESTIGE_CONFIG.maxLevel,
+      );
   if (record(raw.boss)) {
     const hp = number(raw.boss.hp);
     const maxHp = number(raw.boss.maxHp);
@@ -221,6 +279,14 @@ export function validateState(raw, now = Date.now(), { allowLegacyOverflow = fal
   }
   const normalizedPets = normalizePets(raw.pets, now);
   state.pets = normalizedPets.pets;
+  if (number(raw.version) < 6) {
+    // Grandfather old world-based unlocks before applying the new invitation requirements.
+    const owned = Object.values(state.upgrades).reduce((a, b) => a + b, 0);
+    if (owned >= 25 && !state.pets.unlockedEggs.includes("cristalizado"))
+      state.pets.unlockedEggs.push("cristalizado");
+    if (owned >= 100 && !state.pets.unlockedEggs.includes("celestial"))
+      state.pets.unlockedEggs.push("celestial");
+  }
   syncEggUnlocks(state);
   if (normalizedPets.invalid) {
     const error = new PetDataError();
@@ -232,13 +298,25 @@ export function validateState(raw, now = Date.now(), { allowLegacyOverflow = fal
 
 export function preserveLegacyBackup(storage, raw, version) {
   if (version >= SAVE_VERSION) return;
-  const key = version < 2 ? LEGACY_BACKUP_KEY : version < 3 ? V2_BACKUP_KEY : version < 4 ? V3_BACKUP_KEY : V4_BACKUP_KEY;
+  const key =
+    version < 2
+      ? LEGACY_BACKUP_KEY
+      : version < 3
+        ? V2_BACKUP_KEY
+        : version < 4
+          ? V3_BACKUP_KEY
+          : version < 5
+            ? V4_BACKUP_KEY
+            : V5_BACKUP_KEY;
   const previous = storage.getItem(key);
   if (previous === null) {
     storage.setItem(key, raw);
-    if (storage.getItem(key) !== raw) throw new Error("Backup não confirmado pelo armazenamento.");
-  } else if (version === 4 && JSON.parse(previous)?.version !== 4) {
-    throw new Error("O backup v4 existente precisa ser exportado e recuperado nos Ajustes.");
+    if (storage.getItem(key) !== raw)
+      throw new Error("Backup não confirmado pelo armazenamento.");
+  } else if (version >= 4 && JSON.parse(previous)?.version !== version) {
+    throw new Error(
+      "O backup legado existente precisa ser exportado e recuperado nos Ajustes.",
+    );
   }
 }
 
@@ -289,21 +367,38 @@ export function loadGame(storage, now = Date.now()) {
       }
     }
   } catch (error) {
-    if (error instanceof IncompatibleLegacySaveError || error instanceof PetDataError) {
+    if (
+      error instanceof IncompatibleLegacySaveError ||
+      error instanceof PetDataError
+    ) {
       result.canSave = false;
       let petError = error instanceof PetDataError ? error : null;
       if (petError) result.state = petError.state;
       else {
-        try { result.state = validateState(JSON.parse(raw), now, { allowLegacyOverflow: true }); }
-        catch (previewError) {
-          if (previewError instanceof PetDataError) { petError = previewError; result.state = previewError.state; }
+        try {
+          result.state = validateState(JSON.parse(raw), now, {
+            allowLegacyOverflow: true,
+          });
+        } catch (previewError) {
+          if (previewError instanceof PetDataError) {
+            petError = previewError;
+            result.state = previewError.state;
+          }
           // The original remains protected even if a safe preview is unavailable.
         }
       }
-      result.warnings.push(error instanceof PetDataError ? error.message
-        : "Este save antigo excede as capacidades atuais. O original está preservado para exportação nos Ajustes; a visualização usa os limites atuais, sem reset nem escrita automática.");
+      result.warnings.push(
+        error instanceof PetDataError
+          ? error.message
+          : "Este save antigo excede as capacidades atuais. O original está preservado para exportação nos Ajustes; a visualização usa os limites atuais, sem reset nem escrita automática.",
+      );
       if (petError) {
-        try { if (storage.getItem(PET_QUARANTINE_KEY) === null) storage.setItem(PET_QUARANTINE_KEY, raw); } catch { /* Primary remains untouched. */ }
+        try {
+          if (storage.getItem(PET_QUARANTINE_KEY) === null)
+            storage.setItem(PET_QUARANTINE_KEY, raw);
+        } catch {
+          /* Primary remains untouched. */
+        }
       }
       return result;
     }
@@ -351,7 +446,8 @@ export function saveGame(storage, state, { force = false } = {}) {
     state.savedAt = state.lastTick;
     const serialized = JSON.stringify(state);
     storage.setItem(SAVE_KEY, serialized);
-    if (storage.getItem(SAVE_KEY) !== serialized) throw new Error("A gravação não foi confirmada pelo armazenamento.");
+    if (storage.getItem(SAVE_KEY) !== serialized)
+      throw new Error("A gravação não foi confirmada pelo armazenamento.");
     return { ok: true, error: null };
   } catch (error) {
     return { ok: false, error: `Não foi possível salvar: ${error.message}` };

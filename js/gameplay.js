@@ -3,12 +3,30 @@ import { getPetBonuses } from "./pets/bonuses.js";
 import { getTotalUpgradesCount } from "./progression.js";
 export { getTotalUpgradesCount } from "./progression.js";
 import {
-  getPrestigeTarget, getPrestigeGain, getPrestigeMultiplier,
-  getFactoryCapacity, getStellarCost, getExpansionCost,
+  getPrestigeTarget,
+  getPrestigeGain,
+  getPrestigeMultiplier,
+  getFactoryCapacity,
+  getPermanentFactoryCapacity,
+  getActiveFactoryCount,
+  getPrestigeReward,
+  getStellarCost,
+  getExpansionCost,
 } from "./progression.js";
-export { getPrestigeTarget, getPrestigeGain, getPrestigeMultiplier, getFactoryCapacity,
-  getPrestigeProgress, getBasePrestigeMultiplier, getStellarMultiplier,
-  getStellarCost, getExpansionCost } from "./progression.js";
+export {
+  getPrestigeTarget,
+  getPrestigeGain,
+  getPrestigeMultiplier,
+  getFactoryCapacity,
+  getPrestigeProgress,
+  getBasePrestigeMultiplier,
+  getStellarMultiplier,
+  getStellarCost,
+  getExpansionCost,
+  getPermanentFactoryCapacity,
+  getActiveFactoryCount,
+  getPrestigeReward,
+} from "./progression.js";
 import {
   UPGRADES_DATA,
   FLAVORS_DATA,
@@ -38,9 +56,12 @@ export function createState(now = Date.now()) {
     prestigeLevel: 0,
     prestigeClaimed: 0,
     prestigePoints: 0,
+    prestigeBonusEarned: 0,
     prestigeBaseline: 0,
     stellarBoostLevel: 0,
-    factoryExpansions: Object.fromEntries(Object.keys(UPGRADES_DATA).map(key => [key, 0])),
+    factoryExpansions: Object.fromEntries(
+      Object.keys(UPGRADES_DATA).map((key) => [key, 0]),
+    ),
     activeFlavor: "morango",
     activeSkin: "classic",
     activeTheme: "classic",
@@ -82,36 +103,88 @@ export function createState(now = Date.now()) {
 
 const cap = (value) => Math.min(MAX_VALUE, Math.max(0, value));
 export const getBossMaxHp = (state) =>
-  Math.min(MAX_VALUE, Math.floor(100 * Math.pow(1.6, state.bossesKilled)));
+  Math.min(
+    MAX_VALUE,
+    Math.floor(
+      100 *
+        Math.pow(1.6, Math.min(10, state.bossesKilled)) *
+        (1 + 0.15 * Math.max(0, state.bossesKilled - 10)),
+    ),
+  );
 
-export function getPps(state, now = Date.now()) {
-  now = Math.max(now, state.lastTick);
+function productionBase(state, bonuses) {
   const base = Object.entries(UPGRADES_DATA).reduce(
-    (sum, [key, data]) => sum + state.upgrades[key] * data.basePps,
+    (sum, [key, data]) =>
+      sum +
+      Math.min(
+        state.upgrades[key],
+        getPermanentFactoryCapacity(state, key) +
+          (bonuses.factoryCapacity[key] || 0),
+      ) *
+        data.basePps,
     0,
   );
   return cap(
     base *
       FLAVORS_DATA[state.activeFlavor].ppsMult *
-      getPetBonuses(state).ppsMultiplier *
-      getPrestigeMultiplier(state) *
-      (now < state.boostEndTime ? 2 : 1),
+      getPrestigeMultiplier(state),
   );
 }
-
-export function getClickPower(state, now = Date.now()) {
-  now = Math.max(now, state.lastTick);
+function clickBase(state) {
   return cap(
     (1 + FLAVORS_DATA[state.activeFlavor].clickBonus + state.wheelClickBonus) *
-      getPetBonuses(state).clickMultiplier *
-      getPrestigeMultiplier(state) *
-      (now < state.boostEndTime ? 2 : 1),
+      getPrestigeMultiplier(state),
   );
 }
-
+export function getPps(state, now = Date.now()) {
+  const bonuses = getPetBonuses(state);
+  return cap(
+    productionBase(state, bonuses) *
+      bonuses.ppsMultiplier *
+      (Math.max(now, state.lastTick) < state.boostEndTime ? 2 : 1),
+  );
+}
+export function getClickPower(state, now = Date.now()) {
+  return cap(
+    clickBase(state) *
+      getPetBonuses(state).clickMultiplier *
+      (Math.max(now, state.lastTick) < state.boostEndTime ? 2 : 1),
+  );
+}
+// Combat uses preparation, its own pet channel and the existing temporary boost.
+// Never divide a capped getter to reconstruct a baseline at extreme balances.
+export function getBossDamage(state, now = Date.now()) {
+  const bonuses = getPetBonuses(state);
+  const baseline = Math.max(
+    clickBase(state),
+    Math.sqrt(productionBase(state, bonuses)) / 2,
+  );
+  return cap(
+    baseline *
+      (Math.max(now, state.lastTick) < state.boostEndTime ? 2 : 1) *
+      bonuses.bossMultiplier,
+  );
+}
+export function getBossReward(
+  state,
+  maxHp = state.boss?.maxHp || getBossMaxHp(state),
+) {
+  return cap(
+    Math.floor(
+      Math.min(
+        maxHp * 15,
+        Math.max(
+          1500,
+          getPps(state, Infinity) * 60 + getBossDamage(state, Infinity) * 60,
+        ),
+      ),
+    ),
+  );
+}
 export function getUpgradeCost(state, key) {
   const data = Object.hasOwn(UPGRADES_DATA, key) ? UPGRADES_DATA[key] : null;
-  if (!data || state.upgrades[key] >= getFactoryCapacity(state, key)) return Infinity;
+  if (!data || state.upgrades[key] >= getFactoryCapacity(state, key))
+    return Infinity;
   const cost = Math.floor(
     data.baseCost * Math.pow(data.costMult, state.upgrades[key]),
   );
@@ -216,8 +289,12 @@ export function getBulkQuote(state, key, quantity = 1) {
   const data = Object.hasOwn(UPGRADES_DATA, key) ? UPGRADES_DATA[key] : null;
   if (!data || ![1, 10, 100, "max"].includes(quantity))
     return { quantity: 0, cost: Infinity };
-  const room = Math.max(0, getFactoryCapacity(state, key) - state.upgrades[key]);
-  if (quantity !== "max" && quantity > room) return { quantity, cost: Infinity };
+  const room = Math.max(
+    0,
+    getFactoryCapacity(state, key) - state.upgrades[key],
+  );
+  if (quantity !== "max" && quantity > room)
+    return { quantity, cost: Infinity };
   const limit = quantity === "max" ? room : quantity;
   let cost = 0;
   let count = 0;
@@ -323,19 +400,39 @@ export function startWheel(state, now = Date.now(), random = Math.random) {
     endsAt: now + WHEEL_DURATION_MS,
     amount:
       reward.type === "pct"
-        ? Math.max(100, Math.floor(state.pirulitos * reward.val))
+        ? Math.max(
+            100,
+            Math.floor(
+              Math.min(
+                state.pirulitos * reward.val,
+                Math.max(100, getPps(state, Infinity) * 600),
+              ),
+            ),
+          )
         : 0,
   };
   return state.pendingWheel;
 }
 
-export function prestige(state, now = Date.now()) {
+export function prestige(
+  state,
+  now = Date.now(),
+  { expectedReward = null } = {},
+) {
   advance(state, now);
   const gain = getPrestigeGain(state);
-  if (gain <= 0 || state.pendingWheel) return false;
+  const reward = getPrestigeReward(state);
+  if (
+    gain <= 0 ||
+    state.pendingWheel ||
+    (expectedReward &&
+      JSON.stringify(expectedReward) !== JSON.stringify(reward))
+  )
+    return false;
   state.prestigeClaimed = getPrestigeTarget(state);
   state.prestigeLevel += gain;
-  state.prestigePoints += gain;
+  state.prestigePoints += reward.total;
+  state.prestigeBonusEarned += reward.bonus;
   state.prestigeBaseline = state.totalEarned;
   state.pirulitos = 0;
   for (const key of Object.keys(UPGRADES_DATA)) state.upgrades[key] = 0;
@@ -349,7 +446,12 @@ export function prestige(state, now = Date.now()) {
 
 export function buyStellarBoost(state, now = Date.now()) {
   const cost = getStellarCost(state);
-  if (!Number.isFinite(cost) || !Number.isSafeInteger(state.prestigePoints) || state.prestigePoints < cost) return false;
+  if (
+    !Number.isFinite(cost) ||
+    !Number.isSafeInteger(state.prestigePoints) ||
+    state.prestigePoints < cost
+  )
+    return false;
   advance(state, now);
   state.prestigePoints -= cost;
   state.stellarBoostLevel += 1;
@@ -359,11 +461,20 @@ export function buyStellarBoost(state, now = Date.now()) {
 
 export function buyFactoryExpansion(state, key, now = Date.now()) {
   const cost = getExpansionCost(state, key);
-  if (!Number.isFinite(cost) || !Number.isSafeInteger(state.prestigePoints) || state.prestigePoints < cost) return false;
+  if (
+    !Number.isFinite(cost) ||
+    !Number.isSafeInteger(state.prestigePoints) ||
+    state.prestigePoints < cost
+  )
+    return false;
   advance(state, now);
   state.prestigePoints -= cost;
   state.factoryExpansions[key] += 1;
-  return { cost, level: state.factoryExpansions[key], capacity: getFactoryCapacity(state, key) };
+  return {
+    cost,
+    level: state.factoryExpansions[key],
+    capacity: getFactoryCapacity(state, key),
+  };
 }
 
 export function startBoss(state, now = Date.now()) {
@@ -378,14 +489,15 @@ export function startBoss(state, now = Date.now()) {
 export function hitBoss(state, now = Date.now()) {
   advance(state, now);
   if (!state.boss) return false;
-  const damage = getClickPower(state, now);
+  const damage = getBossDamage(state, now);
   state.boss.hp = Math.max(0, state.boss.hp - damage);
   if (state.boss.hp > 0) return { damage, won: false, reward: 0 };
   const maxHp = state.boss.maxHp;
+  const quotedReward = getBossReward(state, maxHp);
   state.boss = null;
   state.bossesKilled += 1;
   state.bossCooldownUntil = state.lastTick + BOSS_COOLDOWN_MS;
-  const reward = addCurrency(state, cap(Math.floor(maxHp * 15)));
+  const reward = addCurrency(state, quotedReward);
   return { damage, won: true, reward };
 }
 

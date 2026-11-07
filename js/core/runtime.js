@@ -597,7 +597,7 @@ export async function createRuntime() {
         };
       try {
         const candidate = validateState(raw, Date.now());
-        if (raw.version === 4) preserveLegacyBackup(storage, JSON.stringify(raw), 4);
+        if (raw.version === 4 || raw.version === 5) preserveLegacyBackup(storage, JSON.stringify(raw), raw.version);
         game.advance(candidate, Date.now(), { offline: true });
         const result = saveGame(storage, candidate, { force: true });
         if (!result.ok) return result;
