@@ -1,5 +1,5 @@
 // A complete release cache keeps all real pages and their shared modules together.
-const CACHE_NAME = "lollipop-clicker-3.0.3-music:" + self.registration.scope;
+const CACHE_NAME = "lollipop-clicker-3.1-prestige:" + self.registration.scope;
 const ASSETS = [
   "./",
   "./index.html",
@@ -25,6 +25,7 @@ const ASSETS = [
   "./js/data.js",
   "./js/effects.js",
   "./js/gameplay.js",
+  "./js/progression.js",
   "./js/pages/achievements.js",
   "./js/pages/arena.js",
   "./js/pages/collection.js",

@@ -1,5 +1,5 @@
 import { FLAVORS_DATA, UPGRADES_DATA } from "../data.js";
-import { getBulkQuote, getClickPower, getPps } from "../gameplay.js";
+import { getBulkQuote, getClickPower, getPps, getFactoryCapacity } from "../gameplay.js";
 
 export const SHOP_VIEW_KEY = "lollipopUI.shopView";
 
@@ -45,12 +45,14 @@ export function shopOffer(state, key, quantity, now = Date.now(), quote = getBul
   const price = quantity === "max" && !quote.quantity
     ? getBulkQuote(state, key, 1).cost
     : quote.cost;
+  const capacity = getFactoryCapacity(state, key);
+  const room = Math.max(0, capacity - (state.upgrades[key] ?? 0));
+  const capacityBlocked = room === 0 || (quantity !== "max" && quantity > room);
   return {
-    quote,
-    price,
+    quote, price, capacity, room, capacityBlocked,
     available: quote.quantity > 0 && Number.isFinite(quote.cost) && state.pirulitos >= quote.cost,
-    missing: Math.max(0, price - state.pirulitos),
-    seconds: affordabilitySeconds(state, price, now),
+    missing: capacityBlocked ? 0 : Math.max(0, price - state.pirulitos),
+    seconds: capacityBlocked ? null : affordabilitySeconds(state, price, now),
   };
 }
 

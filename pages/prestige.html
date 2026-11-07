@@ -99,32 +99,39 @@
         </div>
         <span class="eyebrow">SEU LEGADO PERMANENTE</span>
         <h2>Estrelas que ficam com você</h2>
-        <p class="prestige-summary">
-          Prestígio atual: <strong id="prestigeLevel">0</strong> · Bônus de
-          produção e clique: <strong id="prestigeBonus">+0%</strong>
-        </p>
-        <p class="prestige-gain" id="prestigeGainText">
-          +0 níveis de prestígio
-        </p>
-        <div
-          class="prestige-progress"
-          role="progressbar"
-          aria-label="Produção até o próximo nível"
-          aria-valuemin="0"
-          aria-valuemax="100"
-          aria-valuenow="0"
-        >
+        <div class="prestige-overview">
+          <p>Nível histórico <strong id="prestigeLevel">0</strong></p>
+          <p>Pontos disponíveis <strong id="prestigePoints">0 PP</strong></p>
+          <p>Bônus base <strong id="prestigeBase">×1</strong></p>
+          <p>Ímpeto Estelar <strong id="prestigeStellar">×1</strong></p>
+          <p>Multiplicador combinado <strong id="prestigeCombined">×1</strong></p>
+          <p>Produção e clique <strong id="prestigeBonus">+0%</strong></p>
+        </div>
+        <h3 class="journey-title">Sua jornada atual</h3>
+        <p id="prestigeJourney">0 doces produzidos nesta jornada</p>
+        <div class="prestige-progress" role="progressbar" aria-label="Produção da jornada atual até o próximo marco de Prestígio" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
           <span id="prestigeProgressFill"></span>
         </div>
-        <p id="prestigeRequirement">
-          O primeiro nível precisa de 1 milhão de doces produzidos no total.
-        </p>
-        <button id="prestigeBtn" type="button" class="game-button" disabled>
-          Renascer com prestígio
-        </button>
-        <p id="prestigePending" class="inventory-hint" hidden>
-          Aguarde o giro da roleta terminar antes de renascer.
-        </p>
+        <p id="prestigeRequirement"></p>
+        <p id="prestigeLifetime" class="prestige-lifetime"></p>
+        <p class="prestige-gain" id="prestigeGainText">+0 níveis · +0 PP</p>
+        <button id="prestigeBtn" type="button" class="game-button" disabled>Renascer com prestígio</button>
+        <p id="prestigePending" class="inventory-hint" hidden>Aguarde o giro da roleta terminar antes de renascer.</p>
+        <p class="prestige-save-warning" id="prestigeSaveWarning" hidden>Exporte ou recupere seu save nos Ajustes para usar os pontos com segurança.</p>
+      </section>
+      <section class="permanent-section" aria-labelledby="stellarTitle">
+        <div class="permanent-heading"><h2 id="stellarTitle">Ímpeto Estelar</h2><span>Somente Pontos de Prestígio</span></div>
+        <div class="stellar-card permanent-card">
+          <p>Um brilho permanente para cada toque e cada fábrica. O bônus multiplica o prestígio base.</p>
+          <p id="stellarLevel"></p><p id="stellarBonus"></p><p id="stellarNext"></p>
+          <button id="buyStellarBtn" type="button" class="game-button secondary" disabled>Comprar Ímpeto Estelar</button>
+          <small id="stellarStatus"></small>
+        </div>
+      </section>
+      <section class="permanent-section" aria-labelledby="expansionTitle">
+        <div class="permanent-heading"><h2 id="expansionTitle">Espaço para sonhar</h2><span>Expansões individuais e permanentes</span></div>
+        <p class="permanent-intro">Escolha qual fábrica pode crescer. Expandir libera espaços; as novas unidades continuam custando doces na Loja.</p>
+        <div id="factoryExpansions" class="expansion-grid"></div>
       </section>
       <div class="prestige-rules">
         <section class="journal-sheet">
@@ -138,7 +145,7 @@
           <h2>Um legado para sempre</h2>
           <p>
             Você mantém sabores, visuais, conquistas, estatísticas e níveis de
-            prestígio. Cada nível concede +15% à produção e ao clique. Cooldowns
+            prestígio, pontos disponíveis, Ímpeto Estelar e expansões. Cada nível concede +15% à produção e ao clique; Ímpeto multiplica esse bônus. Cooldowns
             continuam correndo.
           </p>
         </section>

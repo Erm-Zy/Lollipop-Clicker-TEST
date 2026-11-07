@@ -1238,3 +1238,25 @@
   :is(#fullShop, .full-shop)[data-shop-view="compact"] .upgrade-info { column-gap: 5px; }
   :is(#fullShop, .full-shop)[data-shop-view="compact"] .price { max-width: 13ch; }
 }
+
+@media (max-width: 640px) {
+  .prestige-page .page-heading { margin-bottom: 18px; }
+  .prestige-page .prestige-shrine { padding: 17px 14px 24px; }
+  .prestige-page .prestige-orb { width: 90px; height: 85px; }
+  .prestige-page .prestige-shrine h2 { font-size: 20px; }
+  .prestige-overview { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; }
+  .prestige-overview p { font-size: 11px; padding: 9px; }
+  .prestige-overview strong { font-size: 16px; }
+  .permanent-heading h2 { font-size: 21px; }
+  .expansion-grid { grid-template-columns: minmax(0,1fr); }
+  .permanent-card { padding: 15px; }
+  :is(#fullShop,.full-shop) .upgrade-row > .owned { font-size: 14px; }
+  :is(#fullShop,.full-shop)[data-shop-view="compact"] .owned { font-size: 12px; }
+  .permanent-card, .prestige-shrine { scroll-margin-bottom: calc(95px + env(safe-area-inset-bottom,0px)); }
+}
+@media (max-width: 340px) {
+  :is(#fullShop,.full-shop) .upgrade-row { grid-template-columns: 35px minmax(0,1fr) auto; gap: 5px; }
+  :is(#fullShop,.full-shop) .building-art { width: 34px; }
+  :is(#fullShop,.full-shop)[data-shop-view="compact"] .upgrade-row { grid-template-columns: minmax(0,1fr) auto; }
+  .prestige-page .prestige-shrine .game-button { min-width: 0; width: 100%; }
+}

@@ -1,3 +1,4 @@
+import { sanitizePermanentProgress, getFactoryCapacity } from "./progression.js";
 import {
   UPGRADES_DATA,
   FLAVORS_DATA,
@@ -9,6 +10,8 @@ import {
   WHEEL_DURATION_MS,
   BOSS_DURATION_MS,
   SUGAR_EVENT_DURATION_MS,
+  PRESTIGE_CONFIG,
+  FACTORY_CAPACITIES,
 } from "./data.js";
 import { createState, advance, getPrestigeTarget } from "./gameplay.js";
 
@@ -16,6 +19,11 @@ export const SAVE_KEY = "lollipopSave";
 export const BACKUP_KEY = "lollipopSave.backup";
 export const LEGACY_BACKUP_KEY = "lollipopSave.legacy-v1";
 export const V2_BACKUP_KEY = "lollipopSave.legacy-v2";
+export const V3_BACKUP_KEY = "lollipopSave.legacy-v3";
+export const PRE_PRESTIGE_BACKUP_KEY = "lollipopSave.pre-prestige-v4";
+export class IncompatibleLegacySaveError extends Error {
+  constructor() { super("Save beta antigo com fábricas acima dos novos limites de capacidade."); this.name = "IncompatibleLegacySaveError"; }
+}
 export const RECOVERY_KEY = "lollipopSave.recovery";
 
 const STATE_FIELDS = new Set([
@@ -23,6 +31,7 @@ const STATE_FIELDS = new Set([
   "totalEarned",
   "totalClicks",
   "prestigeLevel",
+  "prestigePoints",
   "upgrades",
   "activeFlavor",
   "activeSkin",
@@ -84,12 +93,20 @@ export function validateState(raw, now = Date.now()) {
   ]) {
     state[key] = count(raw[key]);
   }
+  state.prestigeLevel = Math.min(PRESTIGE_CONFIG.maxLevel, state.prestigeLevel);
   // A balance cannot exceed the lifetime amount that created it.
   state.totalEarned = Math.max(state.totalEarned, state.pirulitos);
   state.maxScore = Math.max(state.maxScore, state.pirulitos);
   const upgrades = record(raw.upgrades) ? raw.upgrades : {};
+  const oldPrestige = number(raw.version) < 4;
+  if (oldPrestige && Object.keys(UPGRADES_DATA).some(key => count(upgrades[key]) > FACTORY_CAPACITIES[key]))
+    throw new IncompatibleLegacySaveError();
+  Object.assign(state, oldPrestige
+    ? { prestigePoints: state.prestigeLevel }
+    : sanitizePermanentProgress(raw, state.prestigeLevel));
+  state.prestigeBaseline = oldPrestige ? state.totalEarned : Math.min(state.totalEarned, number(raw.prestigeBaseline, state.prestigeLevel > 0 || count(raw.prestigeClaimed) > 0 ? state.totalEarned : 0));
   for (const key of Object.keys(UPGRADES_DATA))
-    state.upgrades[key] = count(upgrades[key]);
+    state.upgrades[key] = Math.min(getFactoryCapacity(state, key), count(upgrades[key]));
   state.unlockedFlavors = list(
     raw.unlockedFlavors,
     Object.keys(FLAVORS_DATA),
@@ -144,7 +161,7 @@ export function validateState(raw, now = Date.now()) {
     ? state.prestigeLevel > 0
       ? getPrestigeTarget(state)
       : 0
-    : Math.min(getPrestigeTarget(state), count(raw.prestigeClaimed));
+    : Math.min(getPrestigeTarget(state), count(raw.prestigeClaimed, Math.min(getPrestigeTarget(state), state.prestigeLevel)), PRESTIGE_CONFIG.maxLevel);
   if (record(raw.boss)) {
     const hp = number(raw.boss.hp);
     const maxHp = number(raw.boss.maxHp);
@@ -241,7 +258,7 @@ export function loadGame(storage, now = Date.now()) {
     if (number(parsed.version) < SAVE_VERSION) {
       try {
         const backupKey =
-          number(parsed.version) < 2 ? LEGACY_BACKUP_KEY : V2_BACKUP_KEY;
+          number(parsed.version) < 2 ? LEGACY_BACKUP_KEY : number(parsed.version) < 3 ? V2_BACKUP_KEY : V3_BACKUP_KEY;
         if (storage.getItem(backupKey) === null)
           storage.setItem(backupKey, raw);
       } catch {
@@ -252,6 +269,22 @@ export function loadGame(storage, now = Date.now()) {
       }
     }
   } catch (error) {
+    if (error instanceof IncompatibleLegacySaveError) {
+      result.state = createState(now);
+      try {
+        if (storage.getItem(PRE_PRESTIGE_BACKUP_KEY) === null) storage.setItem(PRE_PRESTIGE_BACKUP_KEY, raw);
+        if (storage.getItem(PRE_PRESTIGE_BACKUP_KEY) !== raw) throw new Error("Backup indisponível");
+        const fresh = JSON.stringify(result.state);
+        storage.setItem(SAVE_KEY, fresh);
+        if (storage.getItem(SAVE_KEY) !== fresh) throw new Error("Sem permissão de escrita");
+        result.prestigeReset = true;
+        result.warnings.push("A progressão desta beta foi reiniciada pelo novo sistema de Prestígio: as fábricas antigas excediam a capacidade. Seu save anterior foi guardado; exporte o backup nos Ajustes.");
+      } catch {
+        result.canSave = false;
+        result.warnings.push("A atualização de Prestígio precisa reiniciar este save beta incompatível, mas não foi possível guardar o novo estado. O original foi preservado; exporte-o nos Ajustes.");
+      }
+      return result;
+    }
     result.canSave = false;
     result.warnings.push(
       `${error.message} O save original foi preservado. Exporte-o ou importe uma cópia válida para recuperar.`,

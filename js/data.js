@@ -330,7 +330,7 @@ export const ACHIEVEMENTS_DATA = [
   },
 ];
 
-export const SAVE_VERSION = 3;
+export const SAVE_VERSION = 4;
 export const WHEEL_COOLDOWN_MS = 5 * 60 * 1000;
 export const BOOST_DURATION_MS = 30 * 1000;
 export const BOOST_COOLDOWN_MS = 5 * 60 * 1000;
@@ -386,3 +386,16 @@ export const WHEEL_REWARDS = [
     color: "#e68b68",
   },
 ];
+
+// Permanent progression: one point per historical level, separate from the base bonus.
+export const PRESTIGE_CONFIG = {
+  thresholdScale: 1_000_000,
+  baseBonusPerLevel: 0.15,
+  maxLevel: Number.MAX_SAFE_INTEGER,
+  stellar: { name: "Ímpeto Estelar", maxLevel: 20, bonusPerLevel: 0.05 },
+  expansion: { maxLevel: 10, slotsPerLevel: 10, costStep: 2 },
+};
+export const FACTORY_CAPACITIES = {
+  maquina: 40, calda: 25, fabrica: 25, misturador: 15,
+  embaladora: 15, laboratorio: 15, linha: 20, superfabrica: 20,
+};

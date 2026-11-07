@@ -156,7 +156,7 @@ with sync_playwright() as p:
     migrated_fixture = fixture()
     context, page = open_game(browser, migrated_fixture)
     state = saved(page)
-    check(state["version"] == 3, "actual v2 save migrates to schema 3")
+    check(state["version"] == 4, "actual v2 save migrates to schema 4")
     check(state["activeSkin"] == "neon" and state["activeTheme"] == "gold" and state["activeParticles"] == "ice", "migration preserves all three independent cosmetic selections")
     check(state["prestigeLevel"] == 12 and state["prestigeClaimed"] == 12, "migration preserves existing prestige and consumed claims")
     backup = page.evaluate("JSON.parse(localStorage.getItem('lollipopSave.legacy-v2'))")
@@ -180,7 +180,7 @@ with sync_playwright() as p:
     check(page.locator("#prestigeBtn").is_disabled(), "migrated lifetime prestige cannot be resold")
     context.close()
 
-    context, page = open_game(browser, fixture(pirulitos=1e15, totalEarned=1e15, prestigeLevel=0, prestigeClaimed=0, activeFlavor="morango", upgrades={}), name="shop")
+    context, page = open_game(browser, fixture(version=4, pirulitos=1e15, totalEarned=1e15, prestigeLevel=110, prestigeClaimed=110, factoryExpansions={"maquina":10}, activeFlavor="morango", upgrades={}), name="shop")
     page.locator('[data-buy="10"]').click()
     page.locator('[data-upgrade="maquina"]').click()
     check(saved(page)["upgrades"]["maquina"] == 10, "shop buys a fixed lot of ten in one action")
@@ -191,7 +191,7 @@ with sync_playwright() as p:
     page.locator('[data-upgrade="maquina"]').click()
     state = saved(page)
     next_price = math.floor(15 * 1.15 ** state["upgrades"]["maquina"])
-    check(state["upgrades"]["maquina"] > 110 and 0 <= state["pirulitos"] < next_price, "MAX buys exactly the affordable building prefix")
+    check(state["upgrades"]["maquina"] == 140 and state["pirulitos"] >= 0, "MAX respects the expanded capacity as well as affordability")
     context.close()
 
     context, page = open_game(browser, fixture(pirulitos=1000, totalEarned=8_000_000, prestigeLevel=0, prestigeClaimed=0, upgrades={}), name="prestige")

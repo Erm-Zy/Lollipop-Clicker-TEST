@@ -1,7 +1,7 @@
 import { mountJukebox } from "../ui/jukebox.js";
 import { bootPage, setText } from "../ui/shared.js";
 import { createState } from "../gameplay.js";
-import { validateState } from "../storage.js";
+import { validateState, PRE_PRESTIGE_BACKUP_KEY } from "../storage.js";
 const runtime = await bootPage("settings");
 mountJukebox(runtime);
 const settings = [
@@ -43,7 +43,7 @@ document.getElementById("exportSaveBtn").addEventListener("click", () => {
     url = URL.createObjectURL(blob),
     a = document.createElement("a");
   a.href = url;
-  a.download = `lollipop-${runtime.canSave ? "save-v3" : "recuperacao-bruta"}-${new Date().toISOString().slice(0, 10)}.json`;
+  a.download = `lollipop-${runtime.canSave ? "save-v4" : "recuperacao-bruta"}-${new Date().toISOString().slice(0, 10)}.json`;
   a.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
   runtime.notify("Seu backup está pronto. Guarde-o com carinho!");
@@ -83,6 +83,7 @@ document.getElementById("restoreBackupBtn").addEventListener("click", () => {
     let candidate;
     for (const key of [
       "lollipopSave.backup",
+      "lollipopSave.legacy-v3",
       "lollipopSave.legacy-v2",
       "lollipopSave.legacy-v1",
     ]) {
@@ -132,4 +133,18 @@ document.getElementById("resetDataBtn").addEventListener("click", () => {
       ? "Um mundo novinho espera por você. O save anterior ficou guardado para recuperação."
       : result.error,
   );
+});
+
+const legacyExport = document.getElementById("exportPrePrestigeBtn");
+try { legacyExport.hidden = !runtime.storage.getItem(PRE_PRESTIGE_BACKUP_KEY); } catch { /* Optional backup. */ }
+legacyExport.addEventListener("click", () => {
+  try {
+    const raw = runtime.storage.getItem(PRE_PRESTIGE_BACKUP_KEY);
+    if (!raw) return;
+    const url = URL.createObjectURL(new Blob([raw], { type: "application/json" }));
+    const link = document.createElement("a");
+    link.href = url; link.download = "lollipop-backup-antes-prestigio-v4.json";
+    link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+    runtime.notify("O backup anterior à atualização foi exportado.");
+  } catch { runtime.notify("Não foi possível exportar o backup antigo."); }
 });

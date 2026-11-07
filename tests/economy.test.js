@@ -6,6 +6,7 @@ import {
   buyBulk,
   buyUpgrade,
   getUpgradeCost,
+  getFactoryCapacity,
   advance,
   getPps,
   startBoss,
@@ -44,13 +45,14 @@ test("bulk quotes sum rounded per-unit prices for every original building and ti
     for (const owned of [0, 3, 21]) {
       const state = createState(NOW);
       state.upgrades[key] = owned;
+      state.factoryExpansions[key] = 10;
       for (const quantity of [1, 10, 100]) {
         const expected = Array.from({ length: quantity }, (_, i) =>
           Math.floor(data.baseCost * Math.pow(data.costMult, owned + i)),
         ).reduce((a, b) => a + b, 0);
         assert.deepEqual(getBulkQuote(state, key, quantity), {
           quantity,
-          cost: expected,
+          cost: owned + quantity <= getFactoryCapacity(state,key) ? expected : Infinity,
         });
       }
     }
@@ -100,7 +102,7 @@ test("bulk calculations reject invalid keys and sizes and stay finite at support
   for (const quantity of [0, -1, 2, 1.5, Infinity, "10", {}, null])
     assert.equal(buyBulk(state, "maquina", quantity, NOW), false);
   const max = getBulkQuote(state, "maquina", "max");
-  assert.ok(max.quantity > 100 && max.quantity < 2000);
+  assert.equal(max.quantity, getFactoryCapacity(state,"maquina"));
   assert.ok(Number.isFinite(max.cost) && max.cost <= MAX_VALUE);
   assert.ok(buyBulk(state, "maquina", "max", NOW));
   assert.ok(state.pirulitos >= 0 && Number.isFinite(state.pirulitos));
@@ -222,7 +224,7 @@ test("achievement meters follow the same thresholds and categories as original u
   });
 });
 
-test("actual version 2 format migrates independent cosmetics and unclaimed prestige into schema3", () => {
+test("actual version 2 format migrates independent cosmetics and unclaimed prestige into schema4", () => {
   const v2 = {
     version: 2,
     pirulitos: 1234,
@@ -247,7 +249,7 @@ test("actual version 2 format migrates independent cosmetics and unclaimed prest
   const raw = JSON.stringify(v2);
   const storage = memoryStorage({ [SAVE_KEY]: raw });
   const result = loadGame(storage, NOW + 1000);
-  assert.equal(result.state.version, 3);
+  assert.equal(result.state.version, 4);
   assert.equal(result.state.activeSkin, "neon");
   assert.equal(result.state.activeTheme, "gold");
   assert.equal(result.state.activeParticles, "classic");
