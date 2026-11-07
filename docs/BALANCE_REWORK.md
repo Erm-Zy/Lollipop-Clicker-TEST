@@ -23,7 +23,7 @@ A roleta conserva seis resultados equiprováveis, mínimo 100, boost e +100/cliq
 
 Fixtures de comparação são **controladas e financiadas explicitamente**, não tempo de jogo medido: prestígio e melhorias comprados com ações reais; todas as fábricas/sabores também comprados pelo motor. A alocação do jogador é legítima sob os limites: 40/25/25/15/15/15/13/19 unidades, Morango, nível histórico 30, Ímpeto 7 (28 PP), sem pets/boost; produz 41.987.038,50 PPS, próximo do relato. O cálculo exato a 42,1M é mostrado separadamente. Não alteramos saves de jogadores.
 
-Perfis: fresco (zero PPS com zero cliques permanece parado), entrada dos ovos, jogador e progresso permanente rico (nível 1090, Ímpeto20, dez expansões por tipo, custos reais 1090 PP). Políticas: fábricas primeiro, colecionador, prestígio com compra de um time Cristalizado, especialista de Arena e casual em check-ins de dez minutos; 0 ou 2 cliques/s. A política 0/s dá apenas cliques manuais suficientes para iniciar uma máquina em cada renascimento; não inventa produção do nada. Casual recebe no máximo 30 s de cliques por visita e usa `advance(...,{offline:true})`. Jornadas excluem roleta, boost e eventos; a política Arena executa combates explícitos e desconta o tempo sem renda de cliques comuns. As demais excluem Arena para não atribuir benefícios combinados a pets. Estados instantâneos com boost ficam separados.
+Perfis: fresco (zero PPS com zero cliques permanece parado), entrada dos ovos, jogador e progresso permanente rico (nível 1090, Ímpeto20, dez expansões por tipo, custos reais 1090 PP). Políticas: fábricas primeiro, colecionador, prestígio com compra de um time Cristalizado, especialista de Arena e casual em check-ins de dez minutos; 0 ou 2 cliques comuns/s; o perfil Arena usa separadamente 2 ataques/s durante combates, sem renda de cliques comuns nesses intervalos. A política 0/s dá apenas cliques manuais suficientes para iniciar uma máquina em cada renascimento; não inventa produção do nada. Casual recebe no máximo 30 s de cliques por visita e usa `advance(...,{offline:true})`. Jornadas excluem roleta, boost e eventos; a política Arena executa combates explícitos e desconta o tempo sem renda de cliques comuns. As demais excluem Arena para não atribuir benefícios combinados a pets. Estados instantâneos com boost ficam separados.
 
 ## Preços, requisitos e metas
 
@@ -71,26 +71,26 @@ Colecionador a 2/s: primeiro time de três em **202,85 s**; seu primeiro prestí
 
 Coeficientes percentuais são somados por canal nos **três equipados válidos**. IDs/raridades/chances originais preservados. Nenhum pet oferece todos os papéis.
 
-| ID / espécie | Ovo | Clique | PPS | Dano de chefe | PP futuro | Espaços por tipo |
-|---|---|---:|---:|---:|---:|---|
-| `balinha` / Balinha Saltitante | acucarado | 6,00% | 0,00% | 0,00% | 0,00% | — |
-| `marshmelinho` / Marshmelinho | acucarado | 0,00% | 4,00% | 0,00% | 0,00% | — |
-| `goma` / Ursinho de Goma | acucarado | 0,00% | 2,00% | 25,00% | 0,00% | — |
-| `raposa_morango` / Raposa de Morango | acucarado | 9,00% | 2,00% | 0,00% | 0,00% | — |
-| `guardiao_pirulito` / Guardião Pirulito | acucarado | 0,00% | 3,00% | 60,00% | 0,00% | — |
-| `cubinho` / Cubinho Gelado | cristalizado | 0,00% | 12,00% | 15,00% | 0,00% | — |
-| `gotinha` / Gotinha de Cristal | cristalizado | 0,00% | 8,00% | 0,00% | 2,00% | — |
-| `coelho_quartzo` / Coelho de Quartzo | cristalizado | 16,00% | 6,00% | 0,00% | 0,00% | — |
-| `raposa_geada` / Raposa de Geada | cristalizado | 5,00% | 0,00% | 100,00% | 0,00% | — |
-| `coruja_prismatica` / Coruja Prismática | cristalizado | 0,00% | 14,00% | 0,00% | 4,00% | — |
-| `dragao_cristalino` / Dragão Cristalino | cristalizado | 0,00% | 18,00% | 150,00% | 0,00% | — |
-| `estrelinha` / Estrelinha Doce | celestial | 0,00% | 30,00% | 0,00% | 0,00% | — |
-| `cometinha` / Cometinha | celestial | 35,00% | 0,00% | 40,00% | 0,00% | — |
-| `coelho_lunar` / Coelho Lunar | celestial | 0,00% | 12,00% | 0,00% | 0,00% | misturador: +1, embaladora: +1, laboratorio: +1 |
-| `raposa_nebulosa` / Raposa Nebulosa | celestial | 10,00% | 0,00% | 0,00% | 6,00% | — |
-| `fenix` / Fênix Açucarada | celestial | 0,00% | 20,00% | 300,00% | 0,00% | — |
-| `guardiao_aurora` / Guardião da Aurora | celestial | 0,00% | 16,00% | 0,00% | 0,00% | linha: +1, superfabrica: +1 |
-| `dragao_galactico` / Dragão Galáctico | celestial | 0,00% | 60,00% | 100,00% | 5,00% | — |
+| ID / espécie | Ovo | Raridade | Clique | PPS | Dano de chefe | PP futuro | Espaços por tipo |
+|---|---|---|---:|---:|---:|---:|---|
+| `balinha` / Balinha Saltitante | acucarado | Comum | 6,00% | 0,00% | 0,00% | 0,00% | — |
+| `marshmelinho` / Marshmelinho | acucarado | Comum | 0,00% | 4,00% | 0,00% | 0,00% | — |
+| `goma` / Ursinho de Goma | acucarado | Incomum | 0,00% | 2,00% | 25,00% | 0,00% | — |
+| `raposa_morango` / Raposa de Morango | acucarado | Raro | 9,00% | 2,00% | 0,00% | 0,00% | — |
+| `guardiao_pirulito` / Guardião Pirulito | acucarado | Épico | 0,00% | 3,00% | 60,00% | 0,00% | — |
+| `cubinho` / Cubinho Gelado | cristalizado | Incomum | 0,00% | 12,00% | 15,00% | 0,00% | — |
+| `gotinha` / Gotinha de Cristal | cristalizado | Incomum | 0,00% | 8,00% | 0,00% | 2,00% | — |
+| `coelho_quartzo` / Coelho de Quartzo | cristalizado | Raro | 16,00% | 6,00% | 0,00% | 0,00% | — |
+| `raposa_geada` / Raposa de Geada | cristalizado | Raro | 5,00% | 0,00% | 100,00% | 0,00% | — |
+| `coruja_prismatica` / Coruja Prismática | cristalizado | Épico | 0,00% | 14,00% | 0,00% | 4,00% | — |
+| `dragao_cristalino` / Dragão Cristalino | cristalizado | Lendário | 0,00% | 18,00% | 150,00% | 0,00% | — |
+| `estrelinha` / Estrelinha Doce | celestial | Raro | 0,00% | 30,00% | 0,00% | 0,00% | — |
+| `cometinha` / Cometinha | celestial | Raro | 35,00% | 0,00% | 40,00% | 0,00% | — |
+| `coelho_lunar` / Coelho Lunar | celestial | Épico | 0,00% | 12,00% | 0,00% | 0,00% | misturador: +1, embaladora: +1, laboratorio: +1 |
+| `raposa_nebulosa` / Raposa Nebulosa | celestial | Épico | 10,00% | 0,00% | 0,00% | 6,00% | — |
+| `fenix` / Fênix Açucarada | celestial | Lendário | 0,00% | 20,00% | 300,00% | 0,00% | — |
+| `guardiao_aurora` / Guardião da Aurora | celestial | Lendário | 0,00% | 16,00% | 0,00% | 0,00% | linha: +1, superfabrica: +1 |
+| `dragao_galactico` / Dragão Galáctico | celestial | Mítico | 0,00% | 60,00% | 100,00% | 5,00% | — |
 
 | Evolução | Normais equivalentes | Renda/combate | PP | Espaços |
 |---|---:|---:|---:|---:|
