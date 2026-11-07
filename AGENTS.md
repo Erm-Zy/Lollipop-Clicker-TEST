@@ -12,7 +12,7 @@ Jogo incremental independente em português brasileiro, feito com HTML, CSS e Ja
 - `js/world.js`: capítulos e identidade dos guardiões compartilhados com a cena e a música; não duplique os limites 0/5/25/100.
 - `js/music/`: catálogo local, preferências/descobertas e player de um único elemento. `js/audio.js` preserva os efeitos sintetizados; Jukebox nos Ajustes. Leia `docs/MUSIC_GUIDE.md` para adicionar faixas reais.
 - `assets/images/`: desenhos futuros; não renomeie imagens existentes. Ícones atuais também existem na raiz. Áudio em `assets/audio/`.
-- `sw.js`: cache offline da web. `scripts/android-web.mjs`: copia páginas/JS/CSS/assets para `www/`; `android/` usa esse diretório após `npm run android:sync`. Não edite os assets gerados para fazer uma mudança permanente.
+- `sw.js`: template do worker; `js/pwa/update.js`: aviso e coordenação de updates. `scripts/build-pwa.mjs` gera `dist/` com release automática; leia `docs/PWA_UPDATES.md`. `scripts/android-web.mjs`: copia páginas/JS/CSS/assets para `www/`; `android/` usa esse diretório após `npm run android:sync`. Não edite os assets gerados para fazer uma mudança permanente.
 
 ## Regras de desenvolvimento
 
@@ -23,11 +23,11 @@ Jogo incremental independente em português brasileiro, feito com HTML, CSS e Ja
 5. Mantenha textos do jogador em pt-BR e não altere arquivos sem relação com a tarefa.
 6. Arte só é ativada quando configurada no registro. Preserve proporção e SVG de fallback; nunca crie requisições automáticas para nomes de arquivos imaginados.
 7. Nunca registre músicas inexistentes nem altere o schema de progresso por preferências musicais. Preserve o ownership da aba e o cache de áudio sob demanda.
-8. Verifique alterações com os testes existentes. Ao mudar módulos/arte do shell, ajuste o cache PWA quando necessário; não altere pacote/assinatura Android sem motivo.
+8. Verifique alterações com os testes existentes. Ao mudar assets, gere e teste `dist/`; o hash de release é automático, nunca incremente cache manualmente; não altere pacote/assinatura Android sem motivo.
 
 ## Validação
 
-- `npm run check` e `npm test` sempre. `node scripts/simulate-prestige.mjs` reproduz os cenários de balanceamento; não altere custos/multiplicadores na UI.
+- `npm run check` e `npm test` sempre. `npm run test:pwa` testa instalação, espera, falhas, offline e coordenação de janelas com workers reais. `npm run serve` gera e serve `dist/`; não publique o template SW bruto. `node scripts/simulate-prestige.mjs` reproduz os cenários de balanceamento; não altere custos/multiplicadores na UI.
 - `python3 tests/prestige_browser.py` (servidor local aberto): PP, melhorias, capacidades, rollback, migração/reset e layouts. Gastos em PP e renascimento usam `runtime.act(..., { requireSave: true })`.
 - `npm run serve` + `npm run test:browser` para mudanças de UI, navegação ou runtime (Python Playwright + Chromium; confira o cabeçalho do teste).
 - `python3 tests/music_browser.py` e `python3 tests/qol_browser.py` (servidor local aberto) para música, filtros, comparação e Loja. O teste musical usa mocks e decodificação Chromium real; não prova saída de som/aparelho Android.

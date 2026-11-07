@@ -121,7 +121,7 @@ maquina: "assets/images/buildings/maquina-pirulitos.png",
 
 3. Execute `npm run check` e `npm test`. Com `npm run serve`, abra o Mundo e a Loja. A máquina também aparece onde for usada como parte do cenário.
 
-Para o pirulito inicial, use `ARTWORK.main = "assets/images/lollipops/main/pirulito-principal.png"`. Ele vale para **Morango + Clássico**. Um caminho em `flavors.uva`, por exemplo, vale para Uva + Clássico. Uma imagem em `skins.neon` vale quando Neon está equipado. Combinações sem imagem própria continuam usando o SVG dinâmico; não é necessário preparar um arquivo para cada combinação. Para remover uma arte personalizada, volte a entrada para `null`; não precisa apagar o arquivo. Ao publicar/atualizar desenhos ou mudar o registro, incremente a versão em `CACHE_NAME` no `sw.js`, como nas outras atualizações do shell da PWA (não é preciso listar o PNG nele).
+Para o pirulito inicial, use `ARTWORK.main = "assets/images/lollipops/main/pirulito-principal.png"`. Ele vale para **Morango + Clássico**. Um caminho em `flavors.uva`, por exemplo, vale para Uva + Clássico. Uma imagem em `skins.neon` vale quando Neon está equipado. Combinações sem imagem própria continuam usando o SVG dinâmico; não é necessário preparar um arquivo para cada combinação. Para remover uma arte personalizada, volte a entrada para `null`; não precisa apagar o arquivo. Ao publicar/atualizar desenhos ou mudar o registro, gere `dist/` com `npm run pwa:build`; a release muda automaticamente pelos arquivos (não é preciso listar o PNG no worker). Veja [atualizações PWA](PWA_UPDATES.md).
 
 O registro aceita somente PNG/WebP locais dentro de `assets/images/`. Não use URL de CDN, link de Drive, caminho absoluto do computador ou arquivo que ainda não exista. Um arquivo colocado na pasta **sem ser associado ao registro não muda o jogo**.
 
@@ -137,6 +137,6 @@ A ligação automática cobre pirulitos/sabores/skins, máquinas, tipos de chefe
 
 O Android já copia `assets/` e `js/` inteiros: depois de adicionar uma arte, rode `npm run android:sync` e `node scripts/check-android.mjs`. Não precisa mudar ID do app, assinatura ou workflow.
 
-Na PWA, o service worker guarda as imagens locais configuradas quando a página está online e o worker ativo; também guarda imagens carregadas depois. Acesse online uma vez após publicar artes novas para aquecer o cache. Se uma imagem não estiver disponível offline, o SVG continua funcionando. Feche abas antigas e reabra para receber a nova versão do cache. Não é preciso editar uma lista no service worker a cada PNG.
+Na PWA, o service worker guarda as imagens locais configuradas quando a página está online e o worker ativo; também guarda imagens carregadas depois. Acesse online uma vez após publicar artes novas para aquecer o cache. Se uma imagem não estiver disponível offline, o SVG continua funcionando. Use o aviso “Atualizar agora” para receber a nova release; no primeiro rollout do worker antigo, feche todas as janelas uma vez e reabra. Não é preciso editar uma lista no service worker a cada PNG.
 
 Os testes de fallback estão em `tests/artwork.test.js` e `tests/artwork_browser.py`. O primeiro também avisa se um caminho configurado não existe. Nunca se apaga o save para testar um desenho.

@@ -2,15 +2,19 @@
 as an HTTP fixture; creates no image files and requires Python Playwright/Chromium.
 """
 import os
+import subprocess
+import tempfile
 from pathlib import Path
 from urllib.parse import urljoin, urlparse
 from http.server import ThreadingHTTPServer, SimpleHTTPRequestHandler
 from threading import Thread, Event
 from playwright.sync_api import sync_playwright, expect
+artifact=tempfile.TemporaryDirectory(prefix='lollipop-art-')
+subprocess.run(['node','scripts/build-pwa.mjs','--out',str(Path(artifact.name)/Path.cwd().name)],check=True)
 allow_image=Event()
 requests={}
 class FixtureServer(SimpleHTTPRequestHandler):
-    def __init__(self,*args,**kwargs):super().__init__(*args,directory=str(Path.cwd().parent),**kwargs)
+    def __init__(self,*args,**kwargs):super().__init__(*args,directory=artifact.name,**kwargs)
     def log_message(self,*args):pass
     def do_GET(self):
         name=urlparse(self.path).path.rsplit('/',1)[-1]
@@ -96,4 +100,5 @@ with sync_playwright() as p:
     check(not errors,'no uncaught JavaScript errors: '+repr(errors))
     context.close();browser.close()
 server.shutdown()
+artifact.cleanup()
 print(f'Completed {checks} artwork browser checks.')

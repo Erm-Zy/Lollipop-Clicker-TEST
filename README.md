@@ -2,7 +2,7 @@
 
 Clique em um pirulito, invente engenhocas e transforme uma colina de açúcar em um reino. A versão 3.0 troca o painel da versão anterior por um jogo de fantasia com ilustrações SVG originais, produção visível, animações leves e páginas HTML independentes. Todo o conteúdo para jogadores é em português brasileiro.
 
-O jogo continua sendo uma aplicação estática de HTML, CSS e JavaScript puro: sem framework, etapa de build, dependência de execução ou servidor de contas.
+O jogo continua sendo uma aplicação estática de HTML, CSS e JavaScript puro: sem framework, dependência de execução ou servidor de contas. Um build leve em Node gera o artefato web e o identificador determinístico das atualizações PWA.
 
 ## Jogar e desenvolver
 
@@ -11,9 +11,9 @@ npm run serve
 # abra http://127.0.0.1:8000
 ```
 
-O servidor de desenvolvimento usa Python 3 e escuta somente no localhost. Sirva por HTTP; abrir arquivos diretamente por `file://` não permite módulos ES, persistência por origem ou service worker de maneira confiável.
+Use Node 24+; `npm run serve` gera `dist/` antes de servir. O servidor de desenvolvimento usa Python 3 e escuta somente no localhost. Sirva por HTTP; abrir arquivos diretamente por `file://` não permite módulos ES, persistência por origem ou service worker de maneira confiável.
 
-Publique o conteúdo do repositório como uma pasta estática. Caminhos relativos e URLs derivadas de `import.meta.url` funcionam no subdiretório do GitHub Pages, inclusive ao entrar diretamente em `pages/arena.html`. `.nojekyll`, ícones, música e configurações de hospedagem existentes foram preservados.
+Publique **`dist/`**, gerado por `npm run pwa:build`, como pasta estática pelo workflow de GitHub Actions. Caminhos relativos e URLs derivadas de `import.meta.url` funcionam no subdiretório do GitHub Pages, inclusive ao entrar diretamente em `pages/arena.html`. `.nojekyll`, ícones, música e configurações de hospedagem existentes foram preservados.
 
 ## Um mundo para explorar
 
@@ -71,7 +71,8 @@ js/world.js                Capítulos/guardiões compartilhados pela cena e pela
 js/music/*.js              Catálogo, descobertas, preferências e player musical
 js/ui/jukebox.js            Biblioteca musical dentro dos Ajustes
 js/audio.js / effects.js    Som e partículas sob demanda
-sw.js / manifest.json       Aplicação estática instalável e páginas offline
+sw.js / js/pwa/update.js    Instalação verificada e atualização coordenada entre janelas
+scripts/build-pwa.mjs       Release por hash e artefato web dist/
 ```
 
 O runtime recebe regras sem DOM e coordena o estado de cada documento. Cada página cria apenas seu próprio controlador. Um tick de 200 ms atualiza o HUD visível; ele não define o valor da produção. Animações visuais usam CSS ou `requestAnimationFrame`, sem manter um loop de canvas vazio. Partículas têm limite de sessenta e resolução em pixels CSS. Desative partículas e movimento do mundo separadamente nos Ajustes; `prefers-reduced-motion` também é respeitado. A música original `assets/audio/bmg1.ogg` começa após interação e pausa em segundo plano; efeitos usam Web Audio com limpeza dos nós.
@@ -98,13 +99,15 @@ npm test               # regressões de regras, economia e armazenamento (Node24
 npm run test:browser   # Chromium real; mantenha o servidor aberto em outro terminal
 ```
 
-O teste de navegador usa Python3, `playwright` e Chromium instalado. O jogo não depende dessas ferramentas. Configure `CHROMIUM_PATH` se o executável não for `/usr/bin/chromium`. Para repetir o teste em subdiretório, sirva a pasta que contém o repositório por HTTP e configure `LOLLIPOP_BASE_URL` com o caminho completo (por exemplo, `http://127.0.0.1:8001/Lollipop-Clicker-TEST/`). Veja também o cabeçalho de `tests/browser_smoke.py`. Capturas de Mundo, Loja e Arena em desktop e celular ficam em `test-results/v3/` (ignorado no Git).
+O teste de navegador usa Python3, `playwright` e Chromium instalado. O jogo não depende dessas ferramentas. Configure `CHROMIUM_PATH` se o executável não for `/usr/bin/chromium`. Para repetir o teste em subdiretório, gere o artefato em uma pasta `Lollipop-Clicker-TEST` sirva a pasta pai por HTTP e configure `LOLLIPOP_BASE_URL` com o caminho completo (por exemplo, `http://127.0.0.1:8001/Lollipop-Clicker-TEST/`). Veja também o cabeçalho de `tests/browser_smoke.py`. Capturas de Mundo, Loja e Arena em desktop e celular ficam em `test-results/v3/` (ignorado no Git).
 
 A fixture `tests/fixtures/v2-save.json` representa o schema real anterior, incluindo pirulito/fundo/partículas distintos e prestígio resgatado. Os testes cobrem esse save, todos os prêmios, preços de lotes, produção, deadlines, recuperação, múltiplas abas, navegação e histórico, páginas offline e caminhos sob um subdiretório de GitHub Pages. [Resultados e limites da validação](docs/VALIDATION.md). Veja também as [capturas de Mundo, Loja e Arena](docs/SCREENSHOTS.md). A [auditoria original](docs/AUDIT.md) registra os problemas encontrados antes da versão 2.0.
 
 ## Atualização do PWA
 
-O service worker instala **todos os documentos** e módulos de uma release em conjunto. O cache usa versão e escopo do projeto; não mistura arquivos individuais entre releases nem remove caches de jogos em outros subdiretórios. Ao alterar o shell, incremente `CACHE_NAME`. A atualização aguarda o fechamento das abas antigas; feche todas as abas e reabra para receber a nova versão. Saves não ficam no cache do service worker.
+O build identifica automaticamente cada release pelos assets publicados. O worker só instala um shell completo com hashes verificados. Um aviso acessível oferece **Atualizar agora** e **Depois**; o jogo salva com segurança e coordena as janelas antes de ativar e recarregar. Offline e saves são preservados.
+
+**A primeira publicação exige trocar Settings → Pages → Source para GitHub Actions depois do merge**, pois o worker da raiz agora é um template. Usuários do worker antigo precisam visitar online, fechar todas as janelas uma vez e reabrir, sem limpar dados. Consulte o [processo de release, teste sem apagar saves e limites por plataforma](docs/PWA_UPDATES.md). O APK Capacitor continua sendo atualizado por novo APK; o service worker não atualiza seus arquivos embarcados.
 
 ## Beta Android
 
