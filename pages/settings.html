@@ -107,19 +107,52 @@
             Saves das versões anteriores são migrados com backup. Nenhuma
             memória é apagada sem sua confirmação.
           </p>
-          <button id="exportLegacyV4Btn" class="game-button secondary" type="button" hidden>Exportar original v4 (antes dos pets)</button>
-          <button id="exportPetQuarantineBtn" class="game-button secondary" type="button" hidden>Exportar save com pets protegidos</button>
-          <button id="exportPrePrestigeBtn" type="button" class="game-button secondary" hidden>Exportar backup anterior ao Prestígio ↓</button>
+          <button
+            id="exportLegacyV5Btn"
+            type="button"
+            class="game-button secondary"
+            hidden
+          >
+            Exportar original v5</button
+          ><button
+            id="exportLegacyV4Btn"
+            class="game-button secondary"
+            type="button"
+            hidden
+          >
+            Exportar original v4 (antes dos pets)
+          </button>
+          <button
+            id="exportPetQuarantineBtn"
+            class="game-button secondary"
+            type="button"
+            hidden
+          >
+            Exportar save com pets protegidos
+          </button>
+          <button
+            id="exportPrePrestigeBtn"
+            type="button"
+            class="game-button secondary"
+            hidden
+          >
+            Exportar backup anterior ao Prestígio ↓
+          </button>
           <hr />
           <button id="resetDataBtn" class="game-button danger">
             Começar do zero</button
           ><small>Requer duas confirmações. Exporte um backup primeiro.</small>
         </section>
-        <section id="candyJukebox" class="settings-sheet jukebox-sheet" aria-labelledby="jukeboxTitle">
+        <section
+          id="candyJukebox"
+          class="settings-sheet jukebox-sheet"
+          aria-labelledby="jukeboxTitle"
+        >
           <h2 id="jukeboxTitle">Jukebox Açucarada</h2>
           <p>Uma pequena coleção de sons para acompanhar seu mundo.</p>
           <div class="jukebox-controls">
-            <label for="musicMode">Modo da trilha
+            <label for="musicMode"
+              >Modo da trilha
               <select id="musicMode">
                 <option value="original">Original</option>
                 <option value="random">Aleatório</option>
@@ -127,19 +160,50 @@
                 <option value="manual">Manual</option>
               </select>
             </label>
-            <label for="musicVolume">Volume da música · <output id="musicVolumeValue" for="musicVolume">25%</output>
-              <input id="musicVolume" type="range" min="0" max="100" step="1" value="25" />
+            <label for="musicVolume"
+              >Volume da música ·
+              <output id="musicVolumeValue" for="musicVolume">25%</output>
+              <input
+                id="musicVolume"
+                type="range"
+                min="0"
+                max="100"
+                step="1"
+                value="25"
+              />
             </label>
           </div>
-          <label class="music-battle-option"><input id="musicBattleOverrides" type="checkbox" /> Permitir temas de batalha no modo Manual</label>
+          <label class="music-battle-option"
+            ><input id="musicBattleOverrides" type="checkbox" /> Permitir temas
+            de batalha no modo Manual</label
+          >
           <p id="nowPlaying" class="now-playing"></p>
           <p id="musicStatus" role="status" aria-live="polite"></p>
           <div class="jukebox-actions">
-            <button id="musicPlayBtn" type="button" class="game-button secondary">Reproduzir / retomar</button>
-            <button id="musicNextBtn" type="button" class="game-button secondary">Próxima faixa</button>
+            <button
+              id="musicPlayBtn"
+              type="button"
+              class="game-button secondary"
+            >
+              Reproduzir / retomar
+            </button>
+            <button
+              id="musicNextBtn"
+              type="button"
+              class="game-button secondary"
+            >
+              Próxima faixa
+            </button>
           </div>
-          <ul id="jukeboxTracks" class="jukebox-tracks" aria-label="Biblioteca musical"></ul>
-          <p class="jukebox-note">Novas trilhas aparecem aqui quando forem adicionadas ao jogo. Descobertas musicais permanecem após o prestígio.</p>
+          <ul
+            id="jukeboxTracks"
+            class="jukebox-tracks"
+            aria-label="Biblioteca musical"
+          ></ul>
+          <p class="jukebox-note">
+            Novas trilhas aparecem aqui quando forem adicionadas ao jogo.
+            Descobertas musicais permanecem após o prestígio.
+          </p>
         </section>
       </div>
     </main>

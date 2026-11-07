@@ -52,7 +52,10 @@ test("bulk quotes sum rounded per-unit prices for every original building and ti
         ).reduce((a, b) => a + b, 0);
         assert.deepEqual(getBulkQuote(state, key, quantity), {
           quantity,
-          cost: owned + quantity <= getFactoryCapacity(state,key) ? expected : Infinity,
+          cost:
+            owned + quantity <= getFactoryCapacity(state, key)
+              ? expected
+              : Infinity,
         });
       }
     }
@@ -102,7 +105,7 @@ test("bulk calculations reject invalid keys and sizes and stay finite at support
   for (const quantity of [0, -1, 2, 1.5, Infinity, "10", {}, null])
     assert.equal(buyBulk(state, "maquina", quantity, NOW), false);
   const max = getBulkQuote(state, "maquina", "max");
-  assert.equal(max.quantity, getFactoryCapacity(state,"maquina"));
+  assert.equal(max.quantity, getFactoryCapacity(state, "maquina"));
   assert.ok(Number.isFinite(max.cost) && max.cost <= MAX_VALUE);
   assert.ok(buyBulk(state, "maquina", "max", NOW));
   assert.ok(state.pirulitos >= 0 && Number.isFinite(state.pirulitos));
@@ -210,7 +213,9 @@ test("achievement meters follow the same thresholds and categories as original u
   state.totalClicks = 100;
   assert.equal(getAchievementProgress(state, "c100").current, 100);
   assert.ok(checkAchievements(state, NOW).includes("c100"));
-  state.upgrades.maquina = 1000;
+  state.upgrades.maquina = 40;
+  state.upgrades.calda = 24;
+  state.upgrades.fabrica = 12;
   assert.deepEqual(getAchievementProgress(state, "fabrica_doces", NOW), {
     current: 500,
     target: 500,
@@ -224,7 +229,7 @@ test("achievement meters follow the same thresholds and categories as original u
   });
 });
 
-test("actual version 2 format migrates independent cosmetics and unclaimed prestige into schema5", () => {
+test("actual version 2 format migrates independent cosmetics and unclaimed prestige into schema6", () => {
   const v2 = {
     version: 2,
     pirulitos: 1234,
@@ -249,7 +254,7 @@ test("actual version 2 format migrates independent cosmetics and unclaimed prest
   const raw = JSON.stringify(v2);
   const storage = memoryStorage({ [SAVE_KEY]: raw });
   const result = loadGame(storage, NOW + 1000);
-  assert.equal(result.state.version, 5);
+  assert.equal(result.state.version, 6);
   assert.equal(result.state.activeSkin, "neon");
   assert.equal(result.state.activeTheme, "gold");
   assert.equal(result.state.activeParticles, "classic");

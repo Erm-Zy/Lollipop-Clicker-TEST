@@ -1,0 +1,2698 @@
+{
+  "schema": 5,
+  "model": "Controlled funded fixtures bought with real actions; no fixture playtime claim. Journeys use actual quotes/advance/Prestige, 2 clicks/s, alternate policies; casual credits at most 30s of clicks per 10-minute check-in as a conservative separate projection. Boost separate. No boss/wheel/events in factory journeys.",
+  "arena": [
+    {
+      "kills": 0,
+      "mode": "none",
+      "stage": 0,
+      "taps": 7,
+      "won": true,
+      "elapsedSeconds": 3,
+      "reward": 1500,
+      "passivePps": 41987038.50000001
+    },
+    {
+      "kills": 0,
+      "mode": "combat",
+      "stage": 0,
+      "taps": 7,
+      "won": true,
+      "elapsedSeconds": 3,
+      "reward": 1500,
+      "passivePps": 41987038.50000001
+    },
+    {
+      "kills": 0,
+      "mode": "boost",
+      "stage": 0,
+      "taps": 4,
+      "won": true,
+      "elapsedSeconds": 1.5,
+      "reward": 1500,
+      "passivePps": 41987038.50000001
+    },
+    {
+      "kills": 0,
+      "mode": "combat",
+      "stage": 3,
+      "taps": 7,
+      "won": true,
+      "elapsedSeconds": 3,
+      "reward": 1500,
+      "passivePps": 41987038.50000001
+    },
+    {
+      "kills": 10,
+      "mode": "none",
+      "stage": 0,
+      "taps": 60,
+      "won": false,
+      "elapsedSeconds": 29.5,
+      "reward": 0,
+      "passivePps": 41987038.50000001
+    },
+    {
+      "kills": 10,
+      "mode": "combat",
+      "stage": 0,
+      "taps": 60,
+      "won": false,
+      "elapsedSeconds": 29.5,
+      "reward": 0,
+      "passivePps": 41987038.50000001
+    },
+    {
+      "kills": 10,
+      "mode": "boost",
+      "stage": 0,
+      "taps": 60,
+      "won": false,
+      "elapsedSeconds": 29.5,
+      "reward": 0,
+      "passivePps": 41987038.50000001
+    },
+    {
+      "kills": 10,
+      "mode": "combat",
+      "stage": 3,
+      "taps": 60,
+      "won": false,
+      "elapsedSeconds": 29.5,
+      "reward": 0,
+      "passivePps": 41987038.50000001
+    },
+    {
+      "kills": 40,
+      "mode": "none",
+      "stage": 0,
+      "taps": 60,
+      "won": false,
+      "elapsedSeconds": 29.5,
+      "reward": 0,
+      "passivePps": 41987038.50000001
+    },
+    {
+      "kills": 40,
+      "mode": "combat",
+      "stage": 0,
+      "taps": 60,
+      "won": false,
+      "elapsedSeconds": 29.5,
+      "reward": 0,
+      "passivePps": 41987038.50000001
+    },
+    {
+      "kills": 40,
+      "mode": "boost",
+      "stage": 0,
+      "taps": 60,
+      "won": false,
+      "elapsedSeconds": 29.5,
+      "reward": 0,
+      "passivePps": 41987038.50000001
+    },
+    {
+      "kills": 40,
+      "mode": "combat",
+      "stage": 3,
+      "taps": 60,
+      "won": false,
+      "elapsedSeconds": 29.5,
+      "reward": 0,
+      "passivePps": 41987038.50000001
+    },
+    {
+      "kills": 100,
+      "mode": "none",
+      "stage": 0,
+      "taps": 60,
+      "won": false,
+      "elapsedSeconds": 29.5,
+      "reward": 0,
+      "passivePps": 41987038.50000001
+    },
+    {
+      "kills": 100,
+      "mode": "combat",
+      "stage": 0,
+      "taps": 60,
+      "won": false,
+      "elapsedSeconds": 29.5,
+      "reward": 0,
+      "passivePps": 41987038.50000001
+    },
+    {
+      "kills": 100,
+      "mode": "boost",
+      "stage": 0,
+      "taps": 60,
+      "won": false,
+      "elapsedSeconds": 29.5,
+      "reward": 0,
+      "passivePps": 41987038.50000001
+    },
+    {
+      "kills": 100,
+      "mode": "combat",
+      "stage": 3,
+      "taps": 60,
+      "won": false,
+      "elapsedSeconds": 29.5,
+      "reward": 0,
+      "passivePps": 41987038.50000001
+    },
+    {
+      "kills": 1000,
+      "mode": "none",
+      "stage": 0,
+      "taps": 60,
+      "won": false,
+      "elapsedSeconds": 29.5,
+      "reward": 0,
+      "passivePps": 41987038.50000001
+    },
+    {
+      "kills": 1000,
+      "mode": "combat",
+      "stage": 0,
+      "taps": 60,
+      "won": false,
+      "elapsedSeconds": 29.5,
+      "reward": 0,
+      "passivePps": 41987038.50000001
+    },
+    {
+      "kills": 1000,
+      "mode": "boost",
+      "stage": 0,
+      "taps": 60,
+      "won": false,
+      "elapsedSeconds": 29.5,
+      "reward": 0,
+      "passivePps": 41987038.50000001
+    },
+    {
+      "kills": 1000,
+      "mode": "combat",
+      "stage": 3,
+      "taps": 60,
+      "won": false,
+      "elapsedSeconds": 29.5,
+      "reward": 0,
+      "passivePps": 41987038.50000001
+    }
+  ],
+  "collection": {
+    "acucarado": {
+      "normal": {
+        "runs": 500,
+        "copiesPerSpecies": 1,
+        "p10": 15,
+        "p50": 70,
+        "p90": 221,
+        "p99": 487,
+        "mean": 99.496,
+        "meanCost": 149244
+      },
+      "giant": {
+        "runs": 500,
+        "copiesPerSpecies": 125,
+        "p10": 11131,
+        "p50": 12546,
+        "p90": 14030,
+        "p99": 15064,
+        "mean": 12581.338,
+        "meanCost": 18872007
+      }
+    },
+    "cristalizado": {
+      "normal": {
+        "runs": 500,
+        "copiesPerSpecies": 1,
+        "p10": 11,
+        "p50": 26,
+        "p90": 80,
+        "p99": 178,
+        "mean": 37.752,
+        "meanCost": 3775200.0000000005
+      },
+      "giant": {
+        "runs": 500,
+        "copiesPerSpecies": 125,
+        "p10": 3672,
+        "p50": 4161,
+        "p90": 4652,
+        "p99": 5119,
+        "mean": 4167.588,
+        "meanCost": 416758800
+      }
+    },
+    "celestial": {
+      "normal": {
+        "runs": 500,
+        "copiesPerSpecies": 1,
+        "p10": 30,
+        "p50": 76,
+        "p90": 224,
+        "p99": 487,
+        "mean": 105.7,
+        "meanCost": 1057000000
+      },
+      "giant": {
+        "runs": 500,
+        "copiesPerSpecies": 125,
+        "p10": 11131,
+        "p50": 12546,
+        "p90": 14030,
+        "p99": 15064,
+        "mean": 12581.338,
+        "meanCost": 125813380000
+      }
+    }
+  },
+  "snapshots": {
+    "starter": {
+      "nextFactory": {
+        "key": "fabrica",
+        "cost": 1454,
+        "gain": 32
+      },
+      "owned": {
+        "maquina": 15,
+        "calda": 8,
+        "fabrica": 2,
+        "misturador": 0,
+        "embaladora": 0,
+        "laboratorio": 0,
+        "linha": 0,
+        "superfabrica": 0
+      },
+      "flavor": "morango",
+      "level": 0,
+      "stellar": 0,
+      "expansions": {
+        "maquina": 0,
+        "calda": 0,
+        "fabrica": 0,
+        "misturador": 0,
+        "embaladora": 0,
+        "laboratorio": 0,
+        "linha": 0,
+        "superfabrica": 0
+      },
+      "team": [],
+      "pps": 103.5,
+      "click": 2,
+      "bossDamage": 2,
+      "bossHp": 100,
+      "bossSecondsAt2Taps": 25,
+      "prestigeReward": {
+        "base": 0,
+        "bonus": 0,
+        "total": 0
+      },
+      "eggs": {
+        "acucarado": {
+          "unlocked": true,
+          "price": 1500,
+          "seconds": 14.492753623188406,
+          "batchSeconds": 43.47826086956522,
+          "autoIncomeFraction": 0.05519999999999999,
+          "autoSustainable": false
+        },
+        "cristalizado": {
+          "unlocked": true,
+          "price": 100000,
+          "seconds": 966.1835748792271,
+          "batchSeconds": 2898.550724637681,
+          "autoIncomeFraction": 0.000828,
+          "autoSustainable": false
+        },
+        "celestial": {
+          "unlocked": false,
+          "price": 10000000,
+          "seconds": 96618.35748792271,
+          "batchSeconds": 289855.0724637681,
+          "autoIncomeFraction": 0.000008279999999999999,
+          "autoSustainable": false
+        }
+      }
+    },
+    "crystal": {
+      "nextFactory": {
+        "key": "misturador",
+        "cost": 12000,
+        "gain": 376.7400000000016
+      },
+      "owned": {
+        "maquina": 25,
+        "calda": 10,
+        "fabrica": 5,
+        "misturador": 0,
+        "embaladora": 0,
+        "laboratorio": 1,
+        "linha": 0,
+        "superfabrica": 0
+      },
+      "flavor": "limao",
+      "level": 1,
+      "stellar": 1,
+      "expansions": {
+        "maquina": 0,
+        "calda": 0,
+        "fabrica": 0,
+        "misturador": 0,
+        "embaladora": 0,
+        "laboratorio": 0,
+        "linha": 0,
+        "superfabrica": 0
+      },
+      "team": [],
+      "pps": 11610.1125,
+      "click": 1.2075,
+      "bossDamage": 1.2075,
+      "bossHp": 100,
+      "bossSecondsAt2Taps": 41.40786749482402,
+      "prestigeReward": {
+        "base": 0,
+        "bonus": 0,
+        "total": 0
+      },
+      "eggs": {
+        "acucarado": {
+          "unlocked": true,
+          "price": 1500,
+          "seconds": 0.12919771449243064,
+          "batchSeconds": 0.3875931434772919,
+          "autoIncomeFraction": 6.19206,
+          "autoSustainable": true
+        },
+        "cristalizado": {
+          "unlocked": true,
+          "price": 100000,
+          "seconds": 8.613180966162043,
+          "batchSeconds": 25.839542898486126,
+          "autoIncomeFraction": 0.09288089999999999,
+          "autoSustainable": false
+        },
+        "celestial": {
+          "unlocked": false,
+          "price": 10000000,
+          "seconds": 861.3180966162042,
+          "batchSeconds": 2583.954289848613,
+          "autoIncomeFraction": 0.0009288089999999998,
+          "autoSustainable": false
+        }
+      }
+    },
+    "celestial": {
+      "nextFactory": {
+        "key": "linha",
+        "cost": 80911154,
+        "gain": 132000
+      },
+      "owned": {
+        "maquina": 40,
+        "calda": 25,
+        "fabrica": 25,
+        "misturador": 15,
+        "embaladora": 15,
+        "laboratorio": 15,
+        "linha": 10,
+        "superfabrica": 10
+      },
+      "flavor": "morango",
+      "level": 10,
+      "stellar": 4,
+      "expansions": {
+        "maquina": 0,
+        "calda": 0,
+        "fabrica": 0,
+        "misturador": 0,
+        "embaladora": 0,
+        "laboratorio": 0,
+        "linha": 0,
+        "superfabrica": 0
+      },
+      "team": [],
+      "pps": 9548460,
+      "click": 6,
+      "bossDamage": 6,
+      "bossHp": 100,
+      "bossSecondsAt2Taps": 8.333333333333334,
+      "prestigeReward": {
+        "base": 27,
+        "bonus": 0,
+        "total": 27
+      },
+      "eggs": {
+        "acucarado": {
+          "unlocked": true,
+          "price": 1500,
+          "seconds": 0.00015709339516529366,
+          "batchSeconds": 0.000471280185495881,
+          "autoIncomeFraction": 5092.512,
+          "autoSustainable": true
+        },
+        "cristalizado": {
+          "unlocked": true,
+          "price": 100000,
+          "seconds": 0.010472893011019578,
+          "batchSeconds": 0.031418679033058734,
+          "autoIncomeFraction": 76.38768,
+          "autoSustainable": true
+        },
+        "celestial": {
+          "unlocked": true,
+          "price": 10000000,
+          "seconds": 1.0472893011019577,
+          "batchSeconds": 3.1418679033058736,
+          "autoIncomeFraction": 0.7638768,
+          "autoSustainable": false
+        }
+      }
+    },
+    "player": {
+      "nextFactory": {
+        "key": "linha",
+        "cost": 123055752,
+        "gain": 326700
+      },
+      "owned": {
+        "maquina": 40,
+        "calda": 25,
+        "fabrica": 25,
+        "misturador": 15,
+        "embaladora": 15,
+        "laboratorio": 15,
+        "linha": 13,
+        "superfabrica": 19
+      },
+      "flavor": "morango",
+      "level": 30,
+      "stellar": 7,
+      "expansions": {
+        "maquina": 0,
+        "calda": 0,
+        "fabrica": 0,
+        "misturador": 0,
+        "embaladora": 0,
+        "laboratorio": 0,
+        "linha": 0,
+        "superfabrica": 0
+      },
+      "team": [],
+      "pps": 41987038.50000001,
+      "click": 14.850000000000001,
+      "bossDamage": 14.850000000000001,
+      "bossHp": 100,
+      "bossSecondsAt2Taps": 3.3670033670033668,
+      "prestigeReward": {
+        "base": 31,
+        "bonus": 0,
+        "total": 31
+      },
+      "eggs": {
+        "acucarado": {
+          "unlocked": true,
+          "price": 1500,
+          "seconds": 0.0000357253108003795,
+          "batchSeconds": 0.00010717593240113849,
+          "autoIncomeFraction": 22393.087200000005,
+          "autoSustainable": true
+        },
+        "cristalizado": {
+          "unlocked": true,
+          "price": 100000,
+          "seconds": 0.0023816873866919666,
+          "batchSeconds": 0.007145062160075899,
+          "autoIncomeFraction": 335.8963080000001,
+          "autoSustainable": true
+        },
+        "celestial": {
+          "unlocked": true,
+          "price": 10000000,
+          "seconds": 0.23816873866919663,
+          "batchSeconds": 0.7145062160075899,
+          "autoIncomeFraction": 3.3589630800000005,
+          "autoSustainable": true
+        }
+      }
+    },
+    "late": {
+      "owned": {
+        "maquina": 140,
+        "calda": 125,
+        "fabrica": 125,
+        "misturador": 115,
+        "embaladora": 115,
+        "laboratorio": 115,
+        "linha": 120,
+        "superfabrica": 120
+      },
+      "flavor": "lendario",
+      "level": 1090,
+      "stellar": 20,
+      "expansions": {
+        "maquina": 10,
+        "calda": 10,
+        "fabrica": 10,
+        "misturador": 10,
+        "embaladora": 10,
+        "laboratorio": 10,
+        "linha": 10,
+        "superfabrica": 10
+      },
+      "team": [],
+      "pps": 49445370520,
+      "click": 33229,
+      "bossDamage": 33229,
+      "bossHp": 100,
+      "bossSecondsAt2Taps": 0.0015047097414908664,
+      "prestigeReward": {
+        "base": 45326,
+        "bonus": 0,
+        "total": 45326
+      },
+      "eggs": {
+        "acucarado": {
+          "unlocked": true,
+          "price": 1500,
+          "seconds": 3.0336510460433695e-8,
+          "batchSeconds": 9.100953138130109e-8,
+          "autoIncomeFraction": 26370864.277333334,
+          "autoSustainable": true
+        },
+        "cristalizado": {
+          "unlocked": true,
+          "price": 100000,
+          "seconds": 0.00000202243403069558,
+          "batchSeconds": 0.0000060673020920867394,
+          "autoIncomeFraction": 395562.96416,
+          "autoSustainable": true
+        },
+        "celestial": {
+          "unlocked": true,
+          "price": 10000000,
+          "seconds": 0.000202243403069558,
+          "batchSeconds": 0.0006067302092086739,
+          "autoIncomeFraction": 3955.6296416,
+          "autoSustainable": true
+        }
+      }
+    }
+  },
+  "freshZeroClick": {
+    "pps": 0,
+    "stalled": true
+  },
+  "teams": {
+    "no-pet": {
+      "nextFactory": {
+        "key": "linha",
+        "cost": 123055752,
+        "gain": 326700
+      },
+      "owned": {
+        "maquina": 40,
+        "calda": 25,
+        "fabrica": 25,
+        "misturador": 15,
+        "embaladora": 15,
+        "laboratorio": 15,
+        "linha": 13,
+        "superfabrica": 19
+      },
+      "flavor": "morango",
+      "level": 30,
+      "stellar": 7,
+      "expansions": {
+        "maquina": 0,
+        "calda": 0,
+        "fabrica": 0,
+        "misturador": 0,
+        "embaladora": 0,
+        "laboratorio": 0,
+        "linha": 0,
+        "superfabrica": 0
+      },
+      "team": [],
+      "pps": 41987038.50000001,
+      "click": 14.850000000000001,
+      "bossDamage": 14.850000000000001,
+      "bossHp": 100,
+      "bossSecondsAt2Taps": 3.3670033670033668,
+      "prestigeReward": {
+        "base": 31,
+        "bonus": 0,
+        "total": 31
+      },
+      "eggs": {
+        "acucarado": {
+          "unlocked": true,
+          "price": 1500,
+          "seconds": 0.0000357253108003795,
+          "batchSeconds": 0.00010717593240113849,
+          "autoIncomeFraction": 22393.087200000005,
+          "autoSustainable": true
+        },
+        "cristalizado": {
+          "unlocked": true,
+          "price": 100000,
+          "seconds": 0.0023816873866919666,
+          "batchSeconds": 0.007145062160075899,
+          "autoIncomeFraction": 335.8963080000001,
+          "autoSustainable": true
+        },
+        "celestial": {
+          "unlocked": true,
+          "price": 10000000,
+          "seconds": 0.23816873866919663,
+          "batchSeconds": 0.7145062160075899,
+          "autoIncomeFraction": 3.3589630800000005,
+          "autoSustainable": true
+        }
+      }
+    },
+    "clicks": {
+      "nextFactory": {
+        "key": "linha",
+        "cost": 123055752,
+        "gain": 429610.5
+      },
+      "owned": {
+        "maquina": 40,
+        "calda": 25,
+        "fabrica": 25,
+        "misturador": 15,
+        "embaladora": 15,
+        "laboratorio": 15,
+        "linha": 13,
+        "superfabrica": 19
+      },
+      "flavor": "morango",
+      "level": 30,
+      "stellar": 7,
+      "expansions": {
+        "maquina": 0,
+        "calda": 0,
+        "fabrica": 0,
+        "misturador": 0,
+        "embaladora": 0,
+        "laboratorio": 0,
+        "linha": 0,
+        "superfabrica": 0
+      },
+      "team": [
+        "dragao_galactico:0",
+        "fenix:0",
+        "raposa_nebulosa:0"
+      ],
+      "pps": 55212955.627500005,
+      "click": 20.344500000000004,
+      "bossDamage": 20.344500000000004,
+      "bossHp": 100,
+      "bossSecondsAt2Taps": 2.4576666912433334,
+      "prestigeReward": {
+        "base": 31,
+        "bonus": 0,
+        "total": 31
+      },
+      "eggs": {
+        "acucarado": {
+          "unlocked": true,
+          "price": 1500,
+          "seconds": 0.000027167536730326615,
+          "batchSeconds": 0.00008150261019097985,
+          "autoIncomeFraction": 29446.909668000004,
+          "autoSustainable": true
+        },
+        "cristalizado": {
+          "unlocked": true,
+          "price": 100000,
+          "seconds": 0.0018111691153551077,
+          "batchSeconds": 0.005433507346065323,
+          "autoIncomeFraction": 441.70364502000007,
+          "autoSustainable": true
+        },
+        "celestial": {
+          "unlocked": true,
+          "price": 10000000,
+          "seconds": 0.18111691153551077,
+          "batchSeconds": 0.5433507346065323,
+          "autoIncomeFraction": 4.4170364502,
+          "autoSustainable": true
+        }
+      }
+    },
+    "production": {
+      "nextFactory": {
+        "key": "linha",
+        "cost": 123055752,
+        "gain": 457380
+      },
+      "owned": {
+        "maquina": 40,
+        "calda": 25,
+        "fabrica": 25,
+        "misturador": 15,
+        "embaladora": 15,
+        "laboratorio": 15,
+        "linha": 13,
+        "superfabrica": 19
+      },
+      "flavor": "morango",
+      "level": 30,
+      "stellar": 7,
+      "expansions": {
+        "maquina": 0,
+        "calda": 0,
+        "fabrica": 0,
+        "misturador": 0,
+        "embaladora": 0,
+        "laboratorio": 0,
+        "linha": 0,
+        "superfabrica": 0
+      },
+      "team": [
+        "dragao_galactico:0",
+        "guardiao_aurora:0",
+        "fenix:0"
+      ],
+      "pps": 58781853.9,
+      "click": 20.121750000000002,
+      "bossDamage": 20.121750000000002,
+      "bossHp": 100,
+      "bossSecondsAt2Taps": 2.4848733335818203,
+      "prestigeReward": {
+        "base": 31,
+        "bonus": 0,
+        "total": 31
+      },
+      "eggs": {
+        "acucarado": {
+          "unlocked": true,
+          "price": 1500,
+          "seconds": 0.000025518079143128217,
+          "batchSeconds": 0.00007655423742938465,
+          "autoIncomeFraction": 31350.322079999998,
+          "autoSustainable": true
+        },
+        "cristalizado": {
+          "unlocked": true,
+          "price": 100000,
+          "seconds": 0.0017012052762085477,
+          "batchSeconds": 0.0051036158286256435,
+          "autoIncomeFraction": 470.25483119999996,
+          "autoSustainable": true
+        },
+        "celestial": {
+          "unlocked": true,
+          "price": 10000000,
+          "seconds": 0.17012052762085478,
+          "batchSeconds": 0.5103615828625644,
+          "autoIncomeFraction": 4.702548311999999,
+          "autoSustainable": true
+        }
+      }
+    },
+    "combat": {
+      "nextFactory": {
+        "key": "linha",
+        "cost": 123055752,
+        "gain": 326700
+      },
+      "owned": {
+        "maquina": 40,
+        "calda": 25,
+        "fabrica": 25,
+        "misturador": 15,
+        "embaladora": 15,
+        "laboratorio": 15,
+        "linha": 13,
+        "superfabrica": 19
+      },
+      "flavor": "morango",
+      "level": 30,
+      "stellar": 7,
+      "expansions": {
+        "maquina": 0,
+        "calda": 0,
+        "fabrica": 0,
+        "misturador": 0,
+        "embaladora": 0,
+        "laboratorio": 0,
+        "linha": 0,
+        "superfabrica": 0
+      },
+      "team": [],
+      "pps": 41987038.50000001,
+      "click": 14.850000000000001,
+      "bossDamage": 14.850000000000001,
+      "bossHp": 100,
+      "bossSecondsAt2Taps": 3.3670033670033668,
+      "prestigeReward": {
+        "base": 31,
+        "bonus": 0,
+        "total": 31
+      },
+      "eggs": {
+        "acucarado": {
+          "unlocked": true,
+          "price": 1500,
+          "seconds": 0.0000357253108003795,
+          "batchSeconds": 0.00010717593240113849,
+          "autoIncomeFraction": 22393.087200000005,
+          "autoSustainable": true
+        },
+        "cristalizado": {
+          "unlocked": true,
+          "price": 100000,
+          "seconds": 0.0023816873866919666,
+          "batchSeconds": 0.007145062160075899,
+          "autoIncomeFraction": 335.8963080000001,
+          "autoSustainable": true
+        },
+        "celestial": {
+          "unlocked": true,
+          "price": 10000000,
+          "seconds": 0.23816873866919663,
+          "batchSeconds": 0.7145062160075899,
+          "autoIncomeFraction": 3.3589630800000005,
+          "autoSustainable": true
+        }
+      }
+    },
+    "prestige": {
+      "nextFactory": {
+        "key": "linha",
+        "cost": 123055752,
+        "gain": 326700
+      },
+      "owned": {
+        "maquina": 40,
+        "calda": 25,
+        "fabrica": 25,
+        "misturador": 15,
+        "embaladora": 15,
+        "laboratorio": 15,
+        "linha": 13,
+        "superfabrica": 19
+      },
+      "flavor": "morango",
+      "level": 30,
+      "stellar": 7,
+      "expansions": {
+        "maquina": 0,
+        "calda": 0,
+        "fabrica": 0,
+        "misturador": 0,
+        "embaladora": 0,
+        "laboratorio": 0,
+        "linha": 0,
+        "superfabrica": 0
+      },
+      "team": [],
+      "pps": 41987038.50000001,
+      "click": 14.850000000000001,
+      "bossDamage": 14.850000000000001,
+      "bossHp": 100,
+      "bossSecondsAt2Taps": 3.3670033670033668,
+      "prestigeReward": {
+        "base": 31,
+        "bonus": 0,
+        "total": 31
+      },
+      "eggs": {
+        "acucarado": {
+          "unlocked": true,
+          "price": 1500,
+          "seconds": 0.0000357253108003795,
+          "batchSeconds": 0.00010717593240113849,
+          "autoIncomeFraction": 22393.087200000005,
+          "autoSustainable": true
+        },
+        "cristalizado": {
+          "unlocked": true,
+          "price": 100000,
+          "seconds": 0.0023816873866919666,
+          "batchSeconds": 0.007145062160075899,
+          "autoIncomeFraction": 335.8963080000001,
+          "autoSustainable": true
+        },
+        "celestial": {
+          "unlocked": true,
+          "price": 10000000,
+          "seconds": 0.23816873866919663,
+          "batchSeconds": 0.7145062160075899,
+          "autoIncomeFraction": 3.3589630800000005,
+          "autoSustainable": true
+        }
+      }
+    },
+    "capacity": {
+      "nextFactory": {
+        "key": "linha",
+        "cost": 123055752,
+        "gain": 326700
+      },
+      "owned": {
+        "maquina": 40,
+        "calda": 25,
+        "fabrica": 25,
+        "misturador": 15,
+        "embaladora": 15,
+        "laboratorio": 15,
+        "linha": 13,
+        "superfabrica": 19
+      },
+      "flavor": "morango",
+      "level": 30,
+      "stellar": 7,
+      "expansions": {
+        "maquina": 0,
+        "calda": 0,
+        "fabrica": 0,
+        "misturador": 0,
+        "embaladora": 0,
+        "laboratorio": 0,
+        "linha": 0,
+        "superfabrica": 0
+      },
+      "team": [],
+      "pps": 41987038.50000001,
+      "click": 14.850000000000001,
+      "bossDamage": 14.850000000000001,
+      "bossHp": 100,
+      "bossSecondsAt2Taps": 3.3670033670033668,
+      "prestigeReward": {
+        "base": 31,
+        "bonus": 0,
+        "total": 31
+      },
+      "eggs": {
+        "acucarado": {
+          "unlocked": true,
+          "price": 1500,
+          "seconds": 0.0000357253108003795,
+          "batchSeconds": 0.00010717593240113849,
+          "autoIncomeFraction": 22393.087200000005,
+          "autoSustainable": true
+        },
+        "cristalizado": {
+          "unlocked": true,
+          "price": 100000,
+          "seconds": 0.0023816873866919666,
+          "batchSeconds": 0.007145062160075899,
+          "autoIncomeFraction": 335.8963080000001,
+          "autoSustainable": true
+        },
+        "celestial": {
+          "unlocked": true,
+          "price": 10000000,
+          "seconds": 0.23816873866919663,
+          "batchSeconds": 0.7145062160075899,
+          "autoIncomeFraction": 3.3589630800000005,
+          "autoSustainable": true
+        }
+      }
+    },
+    "observed-boosted": {
+      "nextFactory": {
+        "key": "linha",
+        "cost": 123055752,
+        "gain": 940896
+      },
+      "owned": {
+        "maquina": 40,
+        "calda": 25,
+        "fabrica": 25,
+        "misturador": 15,
+        "embaladora": 15,
+        "laboratorio": 15,
+        "linha": 13,
+        "superfabrica": 19
+      },
+      "flavor": "morango",
+      "level": 30,
+      "stellar": 7,
+      "expansions": {
+        "maquina": 0,
+        "calda": 0,
+        "fabrica": 0,
+        "misturador": 0,
+        "embaladora": 0,
+        "laboratorio": 0,
+        "linha": 0,
+        "superfabrica": 0
+      },
+      "team": [
+        "dragao_galactico:0",
+        "guardiao_aurora:0",
+        "guardiao_aurora:0"
+      ],
+      "pps": 120922670.88000001,
+      "click": 39.20400000000001,
+      "bossDamage": 39.20400000000001,
+      "bossHp": 100,
+      "bossSecondsAt2Taps": 1.2753800632588508,
+      "prestigeReward": {
+        "base": 31,
+        "bonus": 0,
+        "total": 31
+      },
+      "eggs": {
+        "acucarado": {
+          "unlocked": true,
+          "price": 1500,
+          "seconds": 0.000012404621805687327,
+          "batchSeconds": 0.00003721386541706198,
+          "autoIncomeFraction": 64492.091135999995,
+          "autoSustainable": true
+        },
+        "cristalizado": {
+          "unlocked": true,
+          "price": 100000,
+          "seconds": 0.0008269747870458217,
+          "batchSeconds": 0.0024809243611374652,
+          "autoIncomeFraction": 967.38136704,
+          "autoSustainable": true
+        },
+        "celestial": {
+          "unlocked": true,
+          "price": 10000000,
+          "seconds": 0.08269747870458218,
+          "batchSeconds": 0.24809243611374654,
+          "autoIncomeFraction": 9.6738136704,
+          "autoSustainable": true
+        }
+      }
+    }
+  },
+  "bosses": [
+    {
+      "kills": 0,
+      "hp": 100,
+      "secondsAt2Taps": 3.3670033670033668,
+      "reward": 1500
+    },
+    {
+      "kills": 5,
+      "hp": 1048,
+      "secondsAt2Taps": 35.28619528619528,
+      "reward": 15720
+    },
+    {
+      "kills": 10,
+      "hp": 10995,
+      "secondsAt2Taps": 370.20202020202015,
+      "reward": 164925
+    },
+    {
+      "kills": 20,
+      "hp": 1208925,
+      "secondsAt2Taps": 40704.54545454545,
+      "reward": 18133875
+    },
+    {
+      "kills": 40,
+      "hp": 14615016373,
+      "secondsAt2Taps": 492088093.3670033,
+      "reward": 219225245595
+    },
+    {
+      "kills": 100,
+      "hp": 2.582249878086923e+22,
+      "secondsAt2Taps": 869444403396270400000,
+      "reward": 3.873374817130385e+23
+    },
+    {
+      "kills": 1000,
+      "hp": 1e+100,
+      "secondsAt2Taps": 3.367003367003367e+98,
+      "reward": 1.5e+101
+    }
+  ],
+  "wheel50Reward": 75000000000,
+  "policies": {
+    "factories-first-0cps": {
+      "arenaWins": 0,
+      "seedManualClicks": 4,
+      "eggUnlockSeconds": {
+        "acucarado": 0,
+        "cristalizado": 466.3717731933594,
+        "celestial": 3179.7557770996095
+      },
+      "firstEggAffordableSeconds": 395.96103759765623,
+      "firstTeamSeconds": null,
+      "totalSeconds": 19665.306600341795,
+      "milestones": [
+        {
+          "target": 1,
+          "seconds": 671.0974177246094,
+          "gained": 1,
+          "reward": {
+            "base": 1,
+            "bonus": 0,
+            "total": 1
+          }
+        },
+        {
+          "target": 2,
+          "seconds": 787.4881918945313,
+          "gained": 1,
+          "reward": {
+            "base": 1,
+            "bonus": 0,
+            "total": 1
+          }
+        },
+        {
+          "target": 3,
+          "seconds": 840.9034924316406,
+          "gained": 1,
+          "reward": {
+            "base": 1,
+            "bonus": 0,
+            "total": 1
+          }
+        },
+        {
+          "target": 5,
+          "seconds": 1061.5843549804688,
+          "gained": 2,
+          "reward": {
+            "base": 2,
+            "bonus": 0,
+            "total": 2
+          }
+        },
+        {
+          "target": 10,
+          "seconds": 1601.313362548828,
+          "gained": 5,
+          "reward": {
+            "base": 5,
+            "bonus": 0,
+            "total": 5
+          }
+        },
+        {
+          "target": 30,
+          "seconds": 3105.376519287109,
+          "gained": 20,
+          "reward": {
+            "base": 20,
+            "bonus": 0,
+            "total": 20
+          }
+        },
+        {
+          "target": 60,
+          "seconds": 4206.632883789062,
+          "gained": 30,
+          "reward": {
+            "base": 30,
+            "bonus": 0,
+            "total": 30
+          }
+        },
+        {
+          "target": 100,
+          "seconds": 7390.910377685547,
+          "gained": 40,
+          "reward": {
+            "base": 40,
+            "bonus": 0,
+            "total": 40
+          }
+        }
+      ]
+    },
+    "collector-0cps": {
+      "arenaWins": 0,
+      "seedManualClicks": 4,
+      "eggUnlockSeconds": {
+        "acucarado": 0,
+        "cristalizado": 491.0222653808594,
+        "celestial": 2755.381746826172
+      },
+      "firstEggAffordableSeconds": 395.96103759765623,
+      "firstTeamSeconds": 395.96103759765623,
+      "totalSeconds": 8457.316947753907,
+      "milestones": [
+        {
+          "target": 1,
+          "seconds": 676.2803854980468,
+          "gained": 1,
+          "reward": {
+            "base": 1,
+            "bonus": 0,
+            "total": 1
+          }
+        },
+        {
+          "target": 2,
+          "seconds": 693.3578723144532,
+          "gained": 1,
+          "reward": {
+            "base": 1,
+            "bonus": 0,
+            "total": 1
+          }
+        },
+        {
+          "target": 3,
+          "seconds": 669.4529968261719,
+          "gained": 1,
+          "reward": {
+            "base": 1,
+            "bonus": 0,
+            "total": 1
+          }
+        },
+        {
+          "target": 5,
+          "seconds": 832.8032253417969,
+          "gained": 2,
+          "reward": {
+            "base": 2,
+            "bonus": 0,
+            "total": 2
+          }
+        },
+        {
+          "target": 10,
+          "seconds": 1050.0055859375,
+          "gained": 5,
+          "reward": {
+            "base": 5,
+            "bonus": 0,
+            "total": 5
+          }
+        },
+        {
+          "target": 30,
+          "seconds": 1299.1192192382812,
+          "gained": 20,
+          "reward": {
+            "base": 20,
+            "bonus": 0,
+            "total": 20
+          }
+        },
+        {
+          "target": 60,
+          "seconds": 1173.8330812988281,
+          "gained": 30,
+          "reward": {
+            "base": 30,
+            "bonus": 0,
+            "total": 30
+          }
+        },
+        {
+          "target": 100,
+          "seconds": 2062.4645812988283,
+          "gained": 40,
+          "reward": {
+            "base": 40,
+            "bonus": 0,
+            "total": 40
+          }
+        }
+      ]
+    },
+    "prestige-0cps": {
+      "arenaWins": 0,
+      "seedManualClicks": 4,
+      "eggUnlockSeconds": {
+        "acucarado": 0,
+        "cristalizado": 466.3717731933594,
+        "celestial": 2901.690500488281
+      },
+      "firstEggAffordableSeconds": 395.96103759765623,
+      "firstTeamSeconds": 1358.2440322265625,
+      "totalSeconds": 9032.700891357423,
+      "milestones": [
+        {
+          "target": 1,
+          "seconds": 665.9560634765625,
+          "gained": 1,
+          "reward": {
+            "base": 1,
+            "bonus": 0,
+            "total": 1
+          }
+        },
+        {
+          "target": 2,
+          "seconds": 743.8322001953125,
+          "gained": 1,
+          "reward": {
+            "base": 1,
+            "bonus": 0,
+            "total": 1
+          }
+        },
+        {
+          "target": 3,
+          "seconds": 720.7775590820313,
+          "gained": 1,
+          "reward": {
+            "base": 1,
+            "bonus": 0,
+            "total": 1
+          }
+        },
+        {
+          "target": 5,
+          "seconds": 896.3756374511719,
+          "gained": 2,
+          "reward": {
+            "base": 2,
+            "bonus": 0,
+            "total": 2
+          }
+        },
+        {
+          "target": 10,
+          "seconds": 1129.4058454589845,
+          "gained": 5,
+          "reward": {
+            "base": 5,
+            "bonus": 0,
+            "total": 5
+          }
+        },
+        {
+          "target": 30,
+          "seconds": 1397.0727971191407,
+          "gained": 20,
+          "reward": {
+            "base": 20,
+            "bonus": 0,
+            "total": 20
+          }
+        },
+        {
+          "target": 60,
+          "seconds": 1261.9995212402343,
+          "gained": 30,
+          "reward": {
+            "base": 30,
+            "bonus": 0,
+            "total": 30
+          }
+        },
+        {
+          "target": 100,
+          "seconds": 2217.2812673339845,
+          "gained": 40,
+          "reward": {
+            "base": 40,
+            "bonus": 0,
+            "total": 40
+          }
+        }
+      ]
+    },
+    "arena-0cps": {
+      "arenaWins": 15,
+      "seedManualClicks": 4,
+      "eggUnlockSeconds": {
+        "acucarado": 0,
+        "cristalizado": 238.63523876953124,
+        "celestial": 2294.800740234375
+      },
+      "firstEggAffordableSeconds": 12.001,
+      "firstTeamSeconds": 136.44521142578125,
+      "totalSeconds": 8408.609190917969,
+      "milestones": [
+        {
+          "target": 1,
+          "seconds": 437.7883666992187,
+          "gained": 1,
+          "reward": {
+            "base": 1,
+            "bonus": 0,
+            "total": 1
+          }
+        },
+        {
+          "target": 2,
+          "seconds": 532.9483161621093,
+          "gained": 1,
+          "reward": {
+            "base": 1,
+            "bonus": 0,
+            "total": 1
+          }
+        },
+        {
+          "target": 3,
+          "seconds": 552.9590288085938,
+          "gained": 1,
+          "reward": {
+            "base": 1,
+            "bonus": 0,
+            "total": 1
+          }
+        },
+        {
+          "target": 5,
+          "seconds": 926.2664560546875,
+          "gained": 2,
+          "reward": {
+            "base": 2,
+            "bonus": 0,
+            "total": 2
+          }
+        },
+        {
+          "target": 10,
+          "seconds": 1125.172266357422,
+          "gained": 5,
+          "reward": {
+            "base": 5,
+            "bonus": 0,
+            "total": 5
+          }
+        },
+        {
+          "target": 30,
+          "seconds": 1334.537645263672,
+          "gained": 20,
+          "reward": {
+            "base": 20,
+            "bonus": 0,
+            "total": 20
+          }
+        },
+        {
+          "target": 60,
+          "seconds": 1257.4210563964843,
+          "gained": 30,
+          "reward": {
+            "base": 30,
+            "bonus": 0,
+            "total": 30
+          }
+        },
+        {
+          "target": 100,
+          "seconds": 2241.5160551757813,
+          "gained": 40,
+          "reward": {
+            "base": 40,
+            "bonus": 0,
+            "total": 40
+          }
+        }
+      ]
+    },
+    "casual-0cps": {
+      "arenaWins": 0,
+      "seedManualClicks": 4,
+      "eggUnlockSeconds": {
+        "acucarado": 0,
+        "cristalizado": 24600,
+        "celestial": 178200
+      },
+      "firstEggAffordableSeconds": 1800,
+      "firstTeamSeconds": null,
+      "totalSeconds": 365400,
+      "milestones": [
+        {
+          "target": 1,
+          "seconds": 9600,
+          "gained": 1,
+          "reward": {
+            "base": 1,
+            "bonus": 0,
+            "total": 1
+          }
+        },
+        {
+          "target": 2,
+          "seconds": 15000,
+          "gained": 1,
+          "reward": {
+            "base": 1,
+            "bonus": 0,
+            "total": 1
+          }
+        },
+        {
+          "target": 3,
+          "seconds": 19200,
+          "gained": 1,
+          "reward": {
+            "base": 1,
+            "bonus": 0,
+            "total": 1
+          }
+        },
+        {
+          "target": 5,
+          "seconds": 28800,
+          "gained": 2,
+          "reward": {
+            "base": 2,
+            "bonus": 0,
+            "total": 2
+          }
+        },
+        {
+          "target": 10,
+          "seconds": 43800,
+          "gained": 5,
+          "reward": {
+            "base": 5,
+            "bonus": 0,
+            "total": 5
+          }
+        },
+        {
+          "target": 30,
+          "seconds": 75600,
+          "gained": 20,
+          "reward": {
+            "base": 20,
+            "bonus": 0,
+            "total": 20
+          }
+        },
+        {
+          "target": 60,
+          "seconds": 85800,
+          "gained": 31,
+          "reward": {
+            "base": 31,
+            "bonus": 0,
+            "total": 31
+          }
+        },
+        {
+          "target": 100,
+          "seconds": 87600,
+          "gained": 39,
+          "reward": {
+            "base": 39,
+            "bonus": 0,
+            "total": 39
+          }
+        }
+      ]
+    },
+    "factories-first-2cps": {
+      "arenaWins": 0,
+      "seedManualClicks": 0,
+      "eggUnlockSeconds": {
+        "acucarado": 0,
+        "cristalizado": 273.0552404785156,
+        "celestial": 2571.3571872558596
+      },
+      "firstEggAffordableSeconds": 202.85231591796875,
+      "firstTeamSeconds": null,
+      "totalSeconds": 18864.815110351563,
+      "milestones": [
+        {
+          "target": 1,
+          "seconds": 477.65449658203124,
+          "gained": 1,
+          "reward": {
+            "base": 1,
+            "bonus": 0,
+            "total": 1
+          }
+        },
+        {
+          "target": 2,
+          "seconds": 631.840396484375,
+          "gained": 1,
+          "reward": {
+            "base": 1,
+            "bonus": 0,
+            "total": 1
+          }
+        },
+        {
+          "target": 3,
+          "seconds": 699.623478515625,
+          "gained": 1,
+          "reward": {
+            "base": 1,
+            "bonus": 0,
+            "total": 1
+          }
+        },
+        {
+          "target": 5,
+          "seconds": 943.5547834472657,
+          "gained": 2,
+          "reward": {
+            "base": 2,
+            "bonus": 0,
+            "total": 2
+          }
+        },
+        {
+          "target": 10,
+          "seconds": 1500.2765544433594,
+          "gained": 5,
+          "reward": {
+            "base": 5,
+            "bonus": 0,
+            "total": 5
+          }
+        },
+        {
+          "target": 30,
+          "seconds": 3045.321054199219,
+          "gained": 20,
+          "reward": {
+            "base": 20,
+            "bonus": 0,
+            "total": 20
+          }
+        },
+        {
+          "target": 60,
+          "seconds": 4183.6478344726565,
+          "gained": 30,
+          "reward": {
+            "base": 30,
+            "bonus": 0,
+            "total": 30
+          }
+        },
+        {
+          "target": 100,
+          "seconds": 7382.896512207031,
+          "gained": 40,
+          "reward": {
+            "base": 40,
+            "bonus": 0,
+            "total": 40
+          }
+        }
+      ]
+    },
+    "collector-2cps": {
+      "arenaWins": 0,
+      "seedManualClicks": 0,
+      "eggUnlockSeconds": {
+        "acucarado": 0,
+        "cristalizado": 297.31312866210936,
+        "celestial": 2232.132430419922
+      },
+      "firstEggAffordableSeconds": 202.85231591796875,
+      "firstTeamSeconds": 202.85231591796875,
+      "totalSeconds": 7788.044561279296,
+      "milestones": [
+        {
+          "target": 1,
+          "seconds": 482.4603046875,
+          "gained": 1,
+          "reward": {
+            "base": 1,
+            "bonus": 0,
+            "total": 1
+          }
+        },
+        {
+          "target": 2,
+          "seconds": 552.7446823730469,
+          "gained": 1,
+          "reward": {
+            "base": 1,
+            "bonus": 0,
+            "total": 1
+          }
+        },
+        {
+          "target": 3,
+          "seconds": 566.3928981933594,
+          "gained": 1,
+          "reward": {
+            "base": 1,
+            "bonus": 0,
+            "total": 1
+          }
+        },
+        {
+          "target": 5,
+          "seconds": 747.0365297851563,
+          "gained": 2,
+          "reward": {
+            "base": 2,
+            "bonus": 0,
+            "total": 2
+          }
+        },
+        {
+          "target": 10,
+          "seconds": 963.9465981445312,
+          "gained": 5,
+          "reward": {
+            "base": 5,
+            "bonus": 0,
+            "total": 5
+          }
+        },
+        {
+          "target": 30,
+          "seconds": 1253.8757517089844,
+          "gained": 20,
+          "reward": {
+            "base": 20,
+            "bonus": 0,
+            "total": 20
+          }
+        },
+        {
+          "target": 60,
+          "seconds": 1163.3321928710936,
+          "gained": 30,
+          "reward": {
+            "base": 30,
+            "bonus": 0,
+            "total": 30
+          }
+        },
+        {
+          "target": 100,
+          "seconds": 2058.255603515625,
+          "gained": 40,
+          "reward": {
+            "base": 40,
+            "bonus": 0,
+            "total": 40
+          }
+        }
+      ]
+    },
+    "prestige-2cps": {
+      "arenaWins": 0,
+      "seedManualClicks": 0,
+      "eggUnlockSeconds": {
+        "acucarado": 0,
+        "cristalizado": 273.0552404785156,
+        "celestial": 2353.513984130859
+      },
+      "firstEggAffordableSeconds": 202.85231591796875,
+      "firstTeamSeconds": 1026.2591235351563,
+      "totalSeconds": 8325.814962402344,
+      "milestones": [
+        {
+          "target": 1,
+          "seconds": 472.51692626953127,
+          "gained": 1,
+          "reward": {
+            "base": 1,
+            "bonus": 0,
+            "total": 1
+          }
+        },
+        {
+          "target": 2,
+          "seconds": 594.8360229492188,
+          "gained": 1,
+          "reward": {
+            "base": 1,
+            "bonus": 0,
+            "total": 1
+          }
+        },
+        {
+          "target": 3,
+          "seconds": 608.5840222167968,
+          "gained": 1,
+          "reward": {
+            "base": 1,
+            "bonus": 0,
+            "total": 1
+          }
+        },
+        {
+          "target": 5,
+          "seconds": 802.8165419921875,
+          "gained": 2,
+          "reward": {
+            "base": 2,
+            "bonus": 0,
+            "total": 2
+          }
+        },
+        {
+          "target": 10,
+          "seconds": 1036.066110595703,
+          "gained": 5,
+          "reward": {
+            "base": 5,
+            "bonus": 0,
+            "total": 5
+          }
+        },
+        {
+          "target": 30,
+          "seconds": 1347.8198896484375,
+          "gained": 20,
+          "reward": {
+            "base": 20,
+            "bonus": 0,
+            "total": 20
+          }
+        },
+        {
+          "target": 60,
+          "seconds": 1250.5608615722656,
+          "gained": 30,
+          "reward": {
+            "base": 30,
+            "bonus": 0,
+            "total": 30
+          }
+        },
+        {
+          "target": 100,
+          "seconds": 2212.614587158203,
+          "gained": 40,
+          "reward": {
+            "base": 40,
+            "bonus": 0,
+            "total": 40
+          }
+        }
+      ]
+    },
+    "arena-2cps": {
+      "arenaWins": 15,
+      "seedManualClicks": 0,
+      "eggUnlockSeconds": {
+        "acucarado": 0,
+        "cristalizado": 222.13440966796875,
+        "celestial": 2182.7023029785155
+      },
+      "firstEggAffordableSeconds": 24.501,
+      "firstTeamSeconds": 199.6576767578125,
+      "totalSeconds": 8196.77057373047,
+      "milestones": [
+        {
+          "target": 1,
+          "seconds": 421.1650402832031,
+          "gained": 1,
+          "reward": {
+            "base": 1,
+            "bonus": 0,
+            "total": 1
+          }
+        },
+        {
+          "target": 2,
+          "seconds": 531.7254255371093,
+          "gained": 1,
+          "reward": {
+            "base": 1,
+            "bonus": 0,
+            "total": 1
+          }
+        },
+        {
+          "target": 3,
+          "seconds": 552.2531535644531,
+          "gained": 1,
+          "reward": {
+            "base": 1,
+            "bonus": 0,
+            "total": 1
+          }
+        },
+        {
+          "target": 5,
+          "seconds": 837.1709870605468,
+          "gained": 2,
+          "reward": {
+            "base": 2,
+            "bonus": 0,
+            "total": 2
+          }
+        },
+        {
+          "target": 10,
+          "seconds": 1031.83314453125,
+          "gained": 5,
+          "reward": {
+            "base": 5,
+            "bonus": 0,
+            "total": 5
+          }
+        },
+        {
+          "target": 30,
+          "seconds": 1338.3534697265625,
+          "gained": 20,
+          "reward": {
+            "base": 20,
+            "bonus": 0,
+            "total": 20
+          }
+        },
+        {
+          "target": 60,
+          "seconds": 1257.3130805664061,
+          "gained": 30,
+          "reward": {
+            "base": 30,
+            "bonus": 0,
+            "total": 30
+          }
+        },
+        {
+          "target": 100,
+          "seconds": 2226.9562724609377,
+          "gained": 40,
+          "reward": {
+            "base": 40,
+            "bonus": 0,
+            "total": 40
+          }
+        }
+      ]
+    },
+    "casual-2cps": {
+      "arenaWins": 0,
+      "seedManualClicks": 0,
+      "eggUnlockSeconds": {
+        "acucarado": 0,
+        "cristalizado": 43800,
+        "celestial": 186600
+      },
+      "firstEggAffordableSeconds": 1800,
+      "firstTeamSeconds": null,
+      "totalSeconds": 367800,
+      "milestones": [
+        {
+          "target": 1,
+          "seconds": 10800,
+          "gained": 1,
+          "reward": {
+            "base": 1,
+            "bonus": 0,
+            "total": 1
+          }
+        },
+        {
+          "target": 2,
+          "seconds": 16200,
+          "gained": 1,
+          "reward": {
+            "base": 1,
+            "bonus": 0,
+            "total": 1
+          }
+        },
+        {
+          "target": 3,
+          "seconds": 21600,
+          "gained": 1,
+          "reward": {
+            "base": 1,
+            "bonus": 0,
+            "total": 1
+          }
+        },
+        {
+          "target": 5,
+          "seconds": 30000,
+          "gained": 2,
+          "reward": {
+            "base": 2,
+            "bonus": 0,
+            "total": 2
+          }
+        },
+        {
+          "target": 10,
+          "seconds": 45000,
+          "gained": 5,
+          "reward": {
+            "base": 5,
+            "bonus": 0,
+            "total": 5
+          }
+        },
+        {
+          "target": 30,
+          "seconds": 76800,
+          "gained": 20,
+          "reward": {
+            "base": 20,
+            "bonus": 0,
+            "total": 20
+          }
+        },
+        {
+          "target": 60,
+          "seconds": 83400,
+          "gained": 31,
+          "reward": {
+            "base": 31,
+            "bonus": 0,
+            "total": 31
+          }
+        },
+        {
+          "target": 100,
+          "seconds": 84000,
+          "gained": 39,
+          "reward": {
+            "base": 39,
+            "bonus": 0,
+            "total": 39
+          }
+        }
+      ]
+    }
+  },
+  "species": {
+    "balinha": {
+      "egg": "acucarado",
+      "chance": 0.3,
+      "firstExpectedCost": 5000,
+      "stages": [
+        {
+          "name": "Normal",
+          "copies": 1,
+          "expectedEggs": 3.3333333333333335,
+          "expectedCost": 5000
+        },
+        {
+          "name": "Médio",
+          "copies": 5,
+          "expectedEggs": 16.666666666666668,
+          "expectedCost": 25000
+        },
+        {
+          "name": "Grande",
+          "copies": 25,
+          "expectedEggs": 83.33333333333334,
+          "expectedCost": 125000
+        },
+        {
+          "name": "Gigante",
+          "copies": 125,
+          "expectedEggs": 416.6666666666667,
+          "expectedCost": 625000
+        }
+      ]
+    },
+    "marshmelinho": {
+      "egg": "acucarado",
+      "chance": 0.3,
+      "firstExpectedCost": 5000,
+      "stages": [
+        {
+          "name": "Normal",
+          "copies": 1,
+          "expectedEggs": 3.3333333333333335,
+          "expectedCost": 5000
+        },
+        {
+          "name": "Médio",
+          "copies": 5,
+          "expectedEggs": 16.666666666666668,
+          "expectedCost": 25000
+        },
+        {
+          "name": "Grande",
+          "copies": 25,
+          "expectedEggs": 83.33333333333334,
+          "expectedCost": 125000
+        },
+        {
+          "name": "Gigante",
+          "copies": 125,
+          "expectedEggs": 416.6666666666667,
+          "expectedCost": 625000
+        }
+      ]
+    },
+    "goma": {
+      "egg": "acucarado",
+      "chance": 0.3,
+      "firstExpectedCost": 5000,
+      "stages": [
+        {
+          "name": "Normal",
+          "copies": 1,
+          "expectedEggs": 3.3333333333333335,
+          "expectedCost": 5000
+        },
+        {
+          "name": "Médio",
+          "copies": 5,
+          "expectedEggs": 16.666666666666668,
+          "expectedCost": 25000
+        },
+        {
+          "name": "Grande",
+          "copies": 25,
+          "expectedEggs": 83.33333333333334,
+          "expectedCost": 125000
+        },
+        {
+          "name": "Gigante",
+          "copies": 125,
+          "expectedEggs": 416.6666666666667,
+          "expectedCost": 625000
+        }
+      ]
+    },
+    "raposa_morango": {
+      "egg": "acucarado",
+      "chance": 0.09,
+      "firstExpectedCost": 16666.666666666668,
+      "stages": [
+        {
+          "name": "Normal",
+          "copies": 1,
+          "expectedEggs": 11.11111111111111,
+          "expectedCost": 16666.666666666668
+        },
+        {
+          "name": "Médio",
+          "copies": 5,
+          "expectedEggs": 55.55555555555556,
+          "expectedCost": 83333.33333333334
+        },
+        {
+          "name": "Grande",
+          "copies": 25,
+          "expectedEggs": 277.77777777777777,
+          "expectedCost": 416666.6666666667
+        },
+        {
+          "name": "Gigante",
+          "copies": 125,
+          "expectedEggs": 1388.888888888889,
+          "expectedCost": 2083333.3333333335
+        }
+      ]
+    },
+    "guardiao_pirulito": {
+      "egg": "acucarado",
+      "chance": 0.01,
+      "firstExpectedCost": 150000,
+      "stages": [
+        {
+          "name": "Normal",
+          "copies": 1,
+          "expectedEggs": 100,
+          "expectedCost": 150000
+        },
+        {
+          "name": "Médio",
+          "copies": 5,
+          "expectedEggs": 500,
+          "expectedCost": 750000
+        },
+        {
+          "name": "Grande",
+          "copies": 25,
+          "expectedEggs": 2500,
+          "expectedCost": 3750000
+        },
+        {
+          "name": "Gigante",
+          "copies": 125,
+          "expectedEggs": 12500,
+          "expectedCost": 18750000
+        }
+      ]
+    },
+    "cubinho": {
+      "egg": "cristalizado",
+      "chance": 0.25,
+      "firstExpectedCost": 400000,
+      "stages": [
+        {
+          "name": "Normal",
+          "copies": 1,
+          "expectedEggs": 4,
+          "expectedCost": 400000
+        },
+        {
+          "name": "Médio",
+          "copies": 5,
+          "expectedEggs": 20,
+          "expectedCost": 2000000
+        },
+        {
+          "name": "Grande",
+          "copies": 25,
+          "expectedEggs": 100,
+          "expectedCost": 10000000
+        },
+        {
+          "name": "Gigante",
+          "copies": 125,
+          "expectedEggs": 500,
+          "expectedCost": 50000000
+        }
+      ]
+    },
+    "gotinha": {
+      "egg": "cristalizado",
+      "chance": 0.25,
+      "firstExpectedCost": 400000,
+      "stages": [
+        {
+          "name": "Normal",
+          "copies": 1,
+          "expectedEggs": 4,
+          "expectedCost": 400000
+        },
+        {
+          "name": "Médio",
+          "copies": 5,
+          "expectedEggs": 20,
+          "expectedCost": 2000000
+        },
+        {
+          "name": "Grande",
+          "copies": 25,
+          "expectedEggs": 100,
+          "expectedCost": 10000000
+        },
+        {
+          "name": "Gigante",
+          "copies": 125,
+          "expectedEggs": 500,
+          "expectedCost": 50000000
+        }
+      ]
+    },
+    "coelho_quartzo": {
+      "egg": "cristalizado",
+      "chance": 0.175,
+      "firstExpectedCost": 571428.5714285715,
+      "stages": [
+        {
+          "name": "Normal",
+          "copies": 1,
+          "expectedEggs": 5.714285714285714,
+          "expectedCost": 571428.5714285715
+        },
+        {
+          "name": "Médio",
+          "copies": 5,
+          "expectedEggs": 28.571428571428573,
+          "expectedCost": 2857142.8571428573
+        },
+        {
+          "name": "Grande",
+          "copies": 25,
+          "expectedEggs": 142.85714285714286,
+          "expectedCost": 14285714.285714287
+        },
+        {
+          "name": "Gigante",
+          "copies": 125,
+          "expectedEggs": 714.2857142857143,
+          "expectedCost": 71428571.42857143
+        }
+      ]
+    },
+    "raposa_geada": {
+      "egg": "cristalizado",
+      "chance": 0.175,
+      "firstExpectedCost": 571428.5714285715,
+      "stages": [
+        {
+          "name": "Normal",
+          "copies": 1,
+          "expectedEggs": 5.714285714285714,
+          "expectedCost": 571428.5714285715
+        },
+        {
+          "name": "Médio",
+          "copies": 5,
+          "expectedEggs": 28.571428571428573,
+          "expectedCost": 2857142.8571428573
+        },
+        {
+          "name": "Grande",
+          "copies": 25,
+          "expectedEggs": 142.85714285714286,
+          "expectedCost": 14285714.285714287
+        },
+        {
+          "name": "Gigante",
+          "copies": 125,
+          "expectedEggs": 714.2857142857143,
+          "expectedCost": 71428571.42857143
+        }
+      ]
+    },
+    "coruja_prismatica": {
+      "egg": "cristalizado",
+      "chance": 0.12,
+      "firstExpectedCost": 833333.3333333334,
+      "stages": [
+        {
+          "name": "Normal",
+          "copies": 1,
+          "expectedEggs": 8.333333333333334,
+          "expectedCost": 833333.3333333334
+        },
+        {
+          "name": "Médio",
+          "copies": 5,
+          "expectedEggs": 41.66666666666667,
+          "expectedCost": 4166666.666666667
+        },
+        {
+          "name": "Grande",
+          "copies": 25,
+          "expectedEggs": 208.33333333333334,
+          "expectedCost": 20833333.333333336
+        },
+        {
+          "name": "Gigante",
+          "copies": 125,
+          "expectedEggs": 1041.6666666666667,
+          "expectedCost": 104166666.66666667
+        }
+      ]
+    },
+    "dragao_cristalino": {
+      "egg": "cristalizado",
+      "chance": 0.03,
+      "firstExpectedCost": 3333333.3333333335,
+      "stages": [
+        {
+          "name": "Normal",
+          "copies": 1,
+          "expectedEggs": 33.333333333333336,
+          "expectedCost": 3333333.3333333335
+        },
+        {
+          "name": "Médio",
+          "copies": 5,
+          "expectedEggs": 166.66666666666669,
+          "expectedCost": 16666666.666666668
+        },
+        {
+          "name": "Grande",
+          "copies": 25,
+          "expectedEggs": 833.3333333333334,
+          "expectedCost": 83333333.33333334
+        },
+        {
+          "name": "Gigante",
+          "copies": 125,
+          "expectedEggs": 4166.666666666667,
+          "expectedCost": 416666666.6666667
+        }
+      ]
+    },
+    "estrelinha": {
+      "egg": "celestial",
+      "chance": 0.325,
+      "firstExpectedCost": 30769230.769230768,
+      "stages": [
+        {
+          "name": "Normal",
+          "copies": 1,
+          "expectedEggs": 3.0769230769230766,
+          "expectedCost": 30769230.769230768
+        },
+        {
+          "name": "Médio",
+          "copies": 5,
+          "expectedEggs": 15.384615384615383,
+          "expectedCost": 153846153.84615386
+        },
+        {
+          "name": "Grande",
+          "copies": 25,
+          "expectedEggs": 76.92307692307692,
+          "expectedCost": 769230769.2307692
+        },
+        {
+          "name": "Gigante",
+          "copies": 125,
+          "expectedEggs": 384.6153846153846,
+          "expectedCost": 3846153846.153846
+        }
+      ]
+    },
+    "cometinha": {
+      "egg": "celestial",
+      "chance": 0.325,
+      "firstExpectedCost": 30769230.769230768,
+      "stages": [
+        {
+          "name": "Normal",
+          "copies": 1,
+          "expectedEggs": 3.0769230769230766,
+          "expectedCost": 30769230.769230768
+        },
+        {
+          "name": "Médio",
+          "copies": 5,
+          "expectedEggs": 15.384615384615383,
+          "expectedCost": 153846153.84615386
+        },
+        {
+          "name": "Grande",
+          "copies": 25,
+          "expectedEggs": 76.92307692307692,
+          "expectedCost": 769230769.2307692
+        },
+        {
+          "name": "Gigante",
+          "copies": 125,
+          "expectedEggs": 384.6153846153846,
+          "expectedCost": 3846153846.153846
+        }
+      ]
+    },
+    "coelho_lunar": {
+      "egg": "celestial",
+      "chance": 0.125,
+      "firstExpectedCost": 80000000,
+      "stages": [
+        {
+          "name": "Normal",
+          "copies": 1,
+          "expectedEggs": 8,
+          "expectedCost": 80000000
+        },
+        {
+          "name": "Médio",
+          "copies": 5,
+          "expectedEggs": 40,
+          "expectedCost": 400000000
+        },
+        {
+          "name": "Grande",
+          "copies": 25,
+          "expectedEggs": 200,
+          "expectedCost": 2000000000
+        },
+        {
+          "name": "Gigante",
+          "copies": 125,
+          "expectedEggs": 1000,
+          "expectedCost": 10000000000
+        }
+      ]
+    },
+    "raposa_nebulosa": {
+      "egg": "celestial",
+      "chance": 0.125,
+      "firstExpectedCost": 80000000,
+      "stages": [
+        {
+          "name": "Normal",
+          "copies": 1,
+          "expectedEggs": 8,
+          "expectedCost": 80000000
+        },
+        {
+          "name": "Médio",
+          "copies": 5,
+          "expectedEggs": 40,
+          "expectedCost": 400000000
+        },
+        {
+          "name": "Grande",
+          "copies": 25,
+          "expectedEggs": 200,
+          "expectedCost": 2000000000
+        },
+        {
+          "name": "Gigante",
+          "copies": 125,
+          "expectedEggs": 1000,
+          "expectedCost": 10000000000
+        }
+      ]
+    },
+    "fenix": {
+      "egg": "celestial",
+      "chance": 0.045,
+      "firstExpectedCost": 222222222.22222224,
+      "stages": [
+        {
+          "name": "Normal",
+          "copies": 1,
+          "expectedEggs": 22.22222222222222,
+          "expectedCost": 222222222.22222224
+        },
+        {
+          "name": "Médio",
+          "copies": 5,
+          "expectedEggs": 111.11111111111111,
+          "expectedCost": 1111111111.1111112
+        },
+        {
+          "name": "Grande",
+          "copies": 25,
+          "expectedEggs": 555.5555555555555,
+          "expectedCost": 5555555555.555555
+        },
+        {
+          "name": "Gigante",
+          "copies": 125,
+          "expectedEggs": 2777.777777777778,
+          "expectedCost": 27777777777.77778
+        }
+      ]
+    },
+    "guardiao_aurora": {
+      "egg": "celestial",
+      "chance": 0.045,
+      "firstExpectedCost": 222222222.22222224,
+      "stages": [
+        {
+          "name": "Normal",
+          "copies": 1,
+          "expectedEggs": 22.22222222222222,
+          "expectedCost": 222222222.22222224
+        },
+        {
+          "name": "Médio",
+          "copies": 5,
+          "expectedEggs": 111.11111111111111,
+          "expectedCost": 1111111111.1111112
+        },
+        {
+          "name": "Grande",
+          "copies": 25,
+          "expectedEggs": 555.5555555555555,
+          "expectedCost": 5555555555.555555
+        },
+        {
+          "name": "Gigante",
+          "copies": 125,
+          "expectedEggs": 2777.777777777778,
+          "expectedCost": 27777777777.77778
+        }
+      ]
+    },
+    "dragao_galactico": {
+      "egg": "celestial",
+      "chance": 0.01,
+      "firstExpectedCost": 1000000000,
+      "stages": [
+        {
+          "name": "Normal",
+          "copies": 1,
+          "expectedEggs": 100,
+          "expectedCost": 1000000000
+        },
+        {
+          "name": "Médio",
+          "copies": 5,
+          "expectedEggs": 500,
+          "expectedCost": 5000000000
+        },
+        {
+          "name": "Grande",
+          "copies": 25,
+          "expectedEggs": 2500,
+          "expectedCost": 25000000000
+        },
+        {
+          "name": "Gigante",
+          "copies": 125,
+          "expectedEggs": 12500,
+          "expectedCost": 125000000000
+        }
+      ]
+    }
+  },
+  "rareMonteCarlo": {
+    "firstMythic": {
+      "runs": 4000,
+      "expected": 100,
+      "p10": 11,
+      "p50": 69,
+      "p90": 225,
+      "p99": 453,
+      "mean": 99.10425
+    },
+    "firstMythicFusion": {
+      "runs": 4000,
+      "expected": 500,
+      "p10": 244,
+      "p50": 468,
+      "p90": 795,
+      "p99": 1209,
+      "mean": 501.403
+    },
+    "mythicGiant": {
+      "runs": 4000,
+      "expected": 12500,
+      "p10": 11117,
+      "p50": 12490,
+      "p90": 13927,
+      "p99": 15167,
+      "mean": 12498.91875
+    },
+    "commonGiant": {
+      "runs": 4000,
+      "expected": 416.6666666666667,
+      "p10": 378,
+      "p50": 416,
+      "p90": 457,
+      "p99": 493,
+      "mean": 416.5875
+    }
+  },
+  "observed421MPps": {
+    "pps": 42100000,
+    "eggs": {
+      "acucarado": {
+        "seconds": 0.000035629453681710215,
+        "batchSeconds": 0.00010688836104513064,
+        "sustainable": true
+      },
+      "cristalizado": {
+        "seconds": 0.0023752969121140144,
+        "batchSeconds": 0.007125890736342043,
+        "sustainable": true
+      },
+      "celestial": {
+        "seconds": 0.2375296912114014,
+        "batchSeconds": 0.7125890736342043,
+        "sustainable": true
+      }
+    }
+  }
+}

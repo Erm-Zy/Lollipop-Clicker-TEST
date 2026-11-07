@@ -1,8 +1,12 @@
 # Prestígio, pontos e capacidade das fábricas
 
-> Relato histórico da atualização de Prestígio. O schema atual é 5: [Pets & Eggs](PETS_UPDATE.md) preserva essa economia e encerra a exceção antiga de reset automático. Novos legados incompatíveis ficam protegidos para exportação, sem apagar o primário.
+> Relato histórico da atualização de Prestígio. O schema atual é 6: [Pets & Eggs](PETS_UPDATE.md) e [Balanceamento](BALANCE_REWORK.md) preservam a curva histórica, acrescentam PP de pets com ledger e capacidade equipada, e encerram a exceção antiga de reset automático. Novos legados incompatíveis ficam protegidos para exportação, sem apagar o primário.
 
 Atualização na branch compartilhada `dev`, em 6 de novembro de 2026. A versão do **save** passa a 4; isso é independente da versão do jogo/APK. Não foram acrescentados pets, fábricas, chefes, moedas além dos PP ou novas mecânicas de Arena.
+
+## Regras atuais que estendem o relato histórico
+
+No schema6, `getPrestigeGain` continua retornando níveis base. `getPrestigeReward` expõe base/extra/total: extra = floor(base × min(25%, bônus PP equipados)), com orçamento seguro. `prestigeBonusEarned` acumula apenas extras efetivamente resgatados; o orçamento permanente considera nível histórico + ledger − gastos. UI, confirmação, reload, import/export e rollback usam a mesma contabilidade. Fábricas extras compradas com pets ficam possuídas mas inativas sem a capacidade equipada. [Fórmulas completas, matriz, migração e testes](BALANCE_REWORK.md). As tabelas e exemplos seguintes descrevem o lançamento original de Prestígio, sem pets equipados.
 
 ## Níveis e Pontos de Prestígio
 

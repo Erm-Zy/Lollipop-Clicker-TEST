@@ -25,6 +25,13 @@ jobs:
           python-version: '3.12'
       - run: npm ci
       - run: npm run check && npm test && npm run pwa:build
+      - name: Reproduce game-wide balance evidence
+        run: node scripts/balance-report.mjs > "$RUNNER_TEMP/balance-report.json"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: balance-report
+          path: ${{ runner.temp }}/balance-report.json
+          retention-days: 14
       - name: Install browser test tools (development only)
         run: |
           python -m pip install playwright==1.62.0

@@ -1,4 +1,4 @@
-"""Prestige and safe schema5 migration browser QA. Serve the repo and set LOLLIPOP_BASE_URL.
+"""Prestige and safe schema6 migration browser QA. Serve the repo and set LOLLIPOP_BASE_URL.
 Chromium viewport/touch simulation is not Android hardware validation.
 """
 import copy,json,os,time
@@ -106,7 +106,7 @@ with sync_playwright() as pw:
 
  legacy=seed(version=3,totalEarned=215200000000,prestigeLevel=59,prestigeClaimed=59,upgrades={'maquina':10})
  ctx,p=open_game(b,legacy)
- check(saved(p)['version']==5 and saved(p)['prestigePoints']==59,'compatible schema3 tester progress gains historical PP once')
+ check(saved(p)['version']==6 and saved(p)['prestigePoints']==59,'compatible schema3 tester progress gains historical PP once')
  check(p.locator('.prestige-progress').get_attribute('aria-valuenow')=='0','migration initializes an honest new journey baseline')
  p.reload(wait_until='networkidle');ready(p)
  check(saved(p)['prestigePoints']==59 and p.locator('.beta-reset-notice').count()==0,'compatible migration is not a reset and points are not repeated')

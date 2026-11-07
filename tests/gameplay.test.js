@@ -209,8 +209,7 @@ test("every wheel outcome matches the committed index and grants exactly once", 
       assert.equal(result.type, reward.type);
       assert.equal(state.pendingWheel, null);
       assert.equal(state.wheelSpins, 1);
-      if (reward.type === "pct")
-        assert.equal(state.pirulitos, 10_000 + Math.floor(10_000 * reward.val));
+      if (reward.type === "pct") assert.equal(state.pirulitos, 10_000 + 100);
       if (reward.type === "boost")
         assert.equal(
           state.boostEndTime,
@@ -327,7 +326,9 @@ test("achievement checks require their conditions and never duplicate unlocks", 
   click(state, NOW);
   assert.deepEqual(checkAchievements(state, NOW), ["c1"]);
   assert.deepEqual(checkAchievements(state, NOW), []);
-  state.upgrades.maquina = 1000;
+  state.upgrades.maquina = 40;
+  state.upgrades.calda = 24;
+  state.upgrades.fabrica = 12;
   const unlocked = checkAchievements(state, NOW);
   assert.ok(unlocked.includes("fabrica_doces"));
   assert.ok(unlocked.includes("upgrades_10"));

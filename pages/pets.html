@@ -50,6 +50,9 @@
                 <option value="balanced">Equilibrado</option>
                 <option value="production">Produção</option>
                 <option value="clicks">Cliques</option>
+                <option value="combat">Combate</option>
+                <option value="prestige">Prestígio</option>
+                <option value="capacity">Construção</option>
               </select></label
             ><button
               id="equipBestBtn"
@@ -61,6 +64,20 @@
           </div>
         </div>
         <p id="strategyExplanation" class="pet-hint"></p>
+        <div class="pet-best">
+          <label
+            >Conjunto salvo<select id="petPreset">
+              <option value="production">Produção</option>
+              <option value="combat">Combate</option>
+              <option value="prestige">Prestígio</option>
+              <option value="capacity">Construção</option>
+            </select></label
+          ><button type="button" class="item-preview" id="savePetPreset">
+            Salvar equipe</button
+          ><button type="button" class="item-preview" id="loadPetPreset">
+            Usar conjunto</button
+          ><span id="presetStatus" role="status"></span>
+        </div>
         <div id="petTeam" class="pet-team"></div>
       </section>
       <div class="pet-sections" role="group" aria-label="Explorar pets">
@@ -194,6 +211,54 @@
             Limpar seleção
           </button>
         </div>
+        <details class="pet-bulk">
+          <summary>Fusão em lote e reserva de cópias</summary>
+          <p>
+            Favoritos e bloqueados ficam protegidos. Resultados e fontes serão
+            revisados antes de confirmar. Auto não faz fusões.
+          </p>
+          <label
+            >Guardar ao menos Normais por espécie<input
+              id="petReserve"
+              type="number"
+              min="0"
+              max="125"
+              value="0" /></label
+          ><button id="savePetReserve" class="item-preview" type="button">
+            Salvar reserva
+          </button>
+          <label>Espécie<select id="bulkSpecies"></select></label
+          ><label
+            >Origem<select id="bulkStage">
+              <option value="0">Normal</option>
+              <option value="1">Médio</option>
+              <option value="2">Grande</option>
+            </select></label
+          >
+          <label
+            ><input id="bulkChain" type="checkbox" /> Permitir consumir
+            resultados intermediários até Gigante</label
+          >
+          <label
+            ><input id="bulkEquipped" type="checkbox" /> Incluir equipados na
+            prévia (exige confirmação adicional)</label
+          >
+          <button
+            id="reviewBulkFusion"
+            class="game-button secondary"
+            type="button"
+          >
+            Revisar fusão em lote
+          </button>
+          <button id="releaseSelectedPets" class="item-preview" type="button">
+            Liberar cópias selecionadas…
+          </button>
+          <p>
+            Liberar é permanente, não dá moedas e exige duas confirmações com os
+            IDs. Nunca libera equipados, favoritos, bloqueados nem a reserva.
+            Prefira fusão.
+          </p>
+        </details>
         <p class="pet-hint">
           ★ Favorito e 🔒 Bloqueado protegem contra fusão. Cada cartão é uma
           instância individual. Cinco cópias da mesma espécie e evolução viram
@@ -226,6 +291,20 @@
         <h2 id="petStatsTitle">Nossa história</h2>
         <p id="petLifetimeStats"></p>
       </section>
+      <dialog
+        id="replacePetDialog"
+        class="pet-dialog"
+        aria-labelledby="replacePetTitle"
+      >
+        <h2 id="replacePetTitle">Substituir integrante</h2>
+        <p>
+          A produção anterior será calculada antes da troca. Escolha quem sai:
+        </p>
+        <div id="replacePetOptions"></div>
+        <button id="cancelReplacePet" type="button" class="item-preview">
+          Cancelar
+        </button>
+      </dialog>
       <dialog id="hatchDialog" class="pet-dialog" aria-labelledby="hatchTitle">
         <h2 id="hatchTitle">Novos companheiros!</h2>
         <p id="hatchSummary" role="status" aria-live="polite"></p>

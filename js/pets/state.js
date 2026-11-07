@@ -6,6 +6,7 @@ import {
   PET_SLOTS,
   DISCOVERIES,
   discoveryKey,
+  PRESET_NAMES,
 } from "./catalog.js";
 import { getWorldStage } from "../world.js";
 
@@ -35,6 +36,10 @@ export function createPetState() {
     unlockedEggs: ["acucarado"],
     nextId: 1,
     strategy: "balanced",
+    reserveNormals: 0,
+    presets: Object.fromEntries(
+      Object.keys(PRESET_NAMES).map((id) => [id, []]),
+    ),
     lastHatchAt: 0,
     lastRequestId: "",
     stats: {
@@ -49,7 +54,13 @@ export function syncEggUnlocks(state) {
   const stage = getWorldStage(state);
   const unlocked = new Set(state.pets.unlockedEggs);
   for (const [id, egg] of Object.entries(EGGS))
-    if (stage >= egg.unlockStage) unlocked.add(id);
+    if (
+      stage >= egg.unlockStage &&
+      (!egg.requiredFactory ||
+        (state.upgrades[egg.requiredFactory] >= egg.requiredCount &&
+          state.prestigeLevel >= egg.requiredPrestige))
+    )
+      unlocked.add(id);
   const result = Object.keys(EGGS).filter((id) => unlocked.has(id));
   if (result.join() !== state.pets.unlockedEggs.join())
     state.pets.unlockedEggs = result;
@@ -58,7 +69,12 @@ export function normalizePets(raw, now) {
   const pets = createPetState();
   if (raw === undefined || raw === null) return { pets, invalid: false };
   if (!record(raw)) return { pets, invalid: true };
-  let invalid = raw.inventory !== undefined && !Array.isArray(raw.inventory);
+  let invalid =
+    raw.reserveNormals !== undefined &&
+    (!Number.isInteger(raw.reserveNormals) ||
+      raw.reserveNormals < 0 ||
+      raw.reserveNormals > 125);
+  invalid ||= raw.inventory !== undefined && !Array.isArray(raw.inventory);
   const inventory = Array.isArray(raw.inventory) ? raw.inventory : [];
   const reserved = new Set(
     inventory
@@ -147,6 +163,15 @@ export function normalizePets(raw, now) {
     Object.hasOwn(STRATEGIES, raw.strategy)
   )
     pets.strategy = raw.strategy;
+  pets.reserveNormals = Math.min(125, counter(raw.reserveNormals));
+  for (const name of Object.keys(PRESET_NAMES))
+    pets.presets[name] = [
+      ...new Set(
+        Array.isArray(raw.presets?.[name])
+          ? raw.presets[name].filter((id) => used.has(id))
+          : [],
+      ),
+    ].slice(0, PET_SLOTS);
   pets.lastHatchAt = timestamp(raw.lastHatchAt, 0);
   pets.lastRequestId =
     typeof raw.lastRequestId === "string" ? raw.lastRequestId.slice(0, 96) : "";
