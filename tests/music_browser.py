@@ -220,8 +220,9 @@ with sync_playwright() as p:
         print('Manual music setup:',page.evaluate("({hidden:document.hidden,prefs:localStorage.getItem('lollipopMusic.preferences.v1'),session:sessionStorage.getItem('lollipopMusic.session.v1'),audio:__audio.map(a=>({calls:a.calls,loads:a.loads,paused:a.paused,volume:a.volume})),status:document.getElementById('musicStatus').textContent})"),flush=True)
         raise
     goto(page,'arena');page.locator('#startBossBtn').click()
-    page.wait_for_function("JSON.parse(sessionStorage.getItem('lollipopMusic.session.v1'))?.trackId==='test-vale'")
-    check(preferences(page)['mode']=='manual','Manual mode is preserved even when this boss has a soundtrack')
+    # Observe the battle transition window to detect an unwanted source switch.
+    page.wait_for_timeout(250)
+    check(preferences(page)['mode']=='manual' and page.evaluate("JSON.parse(sessionStorage.getItem('lollipopMusic.session.v1')).trackId==='test-vale'"),'Manual mode is preserved even when this boss has a soundtrack')
     goto(page,'settings');page.locator('#musicBattleOverrides').check()
     goto(page,'arena')
     page.wait_for_function("JSON.parse(sessionStorage.getItem('lollipopMusic.session.v1'))?.trackId==='test-boss'")
