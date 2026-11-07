@@ -508,3 +508,15 @@ test("large Prestige rewards use exact basis-point division, not floating multip
   game.prestige(s, NOW, { expectedReward: reward });
   assert.equal(validateState(clone(s), NOW).prestigeBonusEarned, expected);
 });
+
+test("Equip Best settles pending income before evaluating integer Prestige rewards", () => {
+  const s = game.createState(NOW);
+  s.upgrades.maquina = 2;
+  s.totalEarned = 999999;
+  give(s, "raposa_nebulosa", 0, 3);
+  const income = give(s, "estrelinha", 0, 3);
+  const result = equipBest(s, "prestige", NOW + 2000);
+  assert.deepEqual(result.ids, income);
+  close(s.pirulitos, 2);
+  assert.equal(game.getPrestigeGain(s), 1);
+});

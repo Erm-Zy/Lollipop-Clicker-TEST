@@ -101,7 +101,7 @@ Coeficientes percentuais são somados por canal nos **três equipados válidos**
 
 Marshmelinho: +4/8/16/32% PPS; Estrelinha: +30/60/120/240%; Dragão Galáctico: +60/120/240/480%. Marsh Gigante ainda supera Estrelinha Normal por 2 pontos, mas o Normal avançado preserva excelente valor de slot sem 31 operações de fusão; isso não impõe uma ordem artificial por raridade. Guardião Pirulito Gigante dá +480% combate contra Fênix Normal +300%, preservando especialização acessível. Máximos matemáticos da equipe: clique ×9,4, PPS ×15,4, combate ×73, PP +25%, até12 espaços por categoria elegível. Não se multiplicam pets entre si.
 
-Equipar Melhores: Produção usa PPS **real com ativação** de unidades; Cliques usa renda por clique; Combate usa o getter de dano real, incluindo ativação por capacidade; Prestígio maximiza o PP inteiro do próximo resgate (ou a taxa futura quando não há marco), considerando o teto e arredondamento; coeficiente PPS desempata; Construção usa soma de espaços ponderados pelo PPS base dos tipos; Equilibrado soma variação relativa de produção real e clique. Não depende de raridade. Busca exata de combinações para efeitos conjuntos; agrupa cópias equivalentes e elimina apenas candidatos com três dominadores, preservando IDs estáveis por aquisição. Não roda por tick. Quatro conjuntos guardam IDs; cópias indisponíveis são ignoradas, nunca recriadas. Trocas integram produção anterior uma vez.
+Equipar Melhores: Produção usa PPS **real com ativação** de unidades; Cliques usa renda por clique; Combate usa o getter de dano real, incluindo ativação por capacidade; Prestígio maximiza o PP inteiro do próximo resgate (ou a taxa futura quando não há marco), considerando o teto e arredondamento; coeficiente PPS desempata; Construção usa soma de espaços ponderados pelo PPS base dos tipos; Equilibrado soma variação relativa de produção real e clique. Não depende de raridade. Busca exata de combinações para efeitos conjuntos; agrupa cópias equivalentes e elimina apenas candidatos com três dominadores, preservando IDs estáveis por aquisição. Não roda por tick. Quatro conjuntos guardam IDs; cópias indisponíveis são ignoradas, nunca recriadas. Trocas integram produção anterior uma vez; Equipar Melhores resolve também renda e giros pendentes antes de pontuar o novo time, inclusive se um marco de PP foi cruzado entre frames.
 
 ### Equipes Normais no estado do jogador
 
@@ -193,7 +193,7 @@ Resultados finais de comandos e CI constam no relatório da entrega; somente che
 ## Comandos executados e limites desta validação
 
 - `npm ci`: dependências fixadas instaladas; nenhum pacote novo adicionado.
-- `npm run check` e `npm test`: sintaxe de52 JS/10 HTML;240 testes Node passaram.
+- `npm run check` e `npm test`: sintaxe de52 JS/10 HTML;241 testes Node passaram.
 - `npm run balance`, `node scripts/simulate-pets.mjs` e `node scripts/simulate-prestige.mjs`: cenários, políticas e Monte Carlo concluídos; baseline v5 versionado.
 - `npm run pwa:build`, `npm run test:pwa`: build offline gerado pelo hash automático;32 verificações PWA em Chromium passaram.
 - `npm run test:pets`: hatches, migração, rollback, banco PP, capacidade, auto/update, presets/fusão, layouts e bundle nativo em Chromium. 89 verificações passaram, incluindo rollback do ledger de PP com quota de armazenamento.

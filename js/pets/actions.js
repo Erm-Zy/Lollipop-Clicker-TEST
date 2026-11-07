@@ -138,6 +138,8 @@ export function equipBest(
 ) {
   if (typeof strategy !== "string" || !Object.hasOwn(STRATEGIES, strategy))
     return false;
+  // Resolve income and pending wheel rewards before scoring the new team.
+  advance(state, now);
   // Inject authoritative nonlinear objectives without a gameplay -> bonus -> gameplay cycle.
   const evaluateTeam = ["combat", "prestige"].includes(strategy)
     ? (ids) => {
