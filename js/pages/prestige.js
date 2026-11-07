@@ -80,7 +80,7 @@ function render(state) {
 button.addEventListener("click", () => {
   const gain = getPrestigeGain(runtime.state);
   if (button.disabled || gain <= 0 || runtime.state.pendingWheel) return;
-  if (!confirm(`Renascer e ganhar +${gain} níveis e ${gain} Pontos de Prestígio? Saldo, fábricas, batalha e bônus temporários reiniciam. Pontos disponíveis, Ímpeto Estelar, expansões, coleção, conquistas e histórico ficam com você.`)) return;
+  if (!confirm(`Renascer e ganhar +${gain} níveis e ${gain} Pontos de Prestígio? Saldo, fábricas, batalha e bônus temporários reiniciam. Pontos disponíveis, Ímpeto Estelar, expansões, coleção, conquistas, histórico, todos os pets (inclusive equipados), ovos desbloqueados e descobertas ficam com você.`)) return;
   const result = runtime.act((state, now) => prestige(state, now), { sound: "win", requireSave: true });
   if (result) runtime.notify(`Seu legado brilhou! +${format(result)} níveis e +${format(result)} PP. Uma nova jornada começa em 0%.`);
 });

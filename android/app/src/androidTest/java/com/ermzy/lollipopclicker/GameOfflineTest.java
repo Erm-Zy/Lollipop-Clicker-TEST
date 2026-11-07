@@ -30,7 +30,7 @@ public class GameOfflineTest {
         try(ActivityScenario<MainActivity> scenario=ActivityScenario.launch(MainActivity.class)) {
             ready(scenario);
             js(scenario,"document.getElementById('lollipop').click()");
-            for(String page:new String[]{"shop","collection","arena","prestige","achievements","statistics","rewards","settings"}) {
+            for(String page:new String[]{"shop","collection","pets","arena","prestige","achievements","statistics","rewards","settings"}) {
                 js(scenario,"document.querySelector('a[href$=\""+page+".html\"]').click()");
                 Thread.sleep(600);ready(scenario);
                 assertEquals("\""+page+"\"",js(scenario,"document.body.dataset.page"));

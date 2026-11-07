@@ -2,6 +2,8 @@ import { bootPage, format, setText } from "../ui/shared.js";
 import { FLAVORS_DATA, SKINS_DATA, PRESTIGE_CONFIG } from "../data.js";
 import { getPps, getClickPower, getTotalUpgradesCount, getPrestigeMultiplier } from "../gameplay.js";
 
+import { getPetBonuses } from "../pets/bonuses.js";
+
 const runtime = await bootPage("statistics");
 function playedTime(seconds) {
   const total = Math.floor(seconds);
@@ -11,6 +13,8 @@ function playedTime(seconds) {
 }
 runtime.subscribe((state, info) => {
   const entries = {
+    statPets: `${state.pets.inventory.length} pets · ${state.pets.stats.hatched} ovos · ${state.pets.stats.fused} fusões · ${state.pets.discovered.length}/72 descobertas`,
+    statPetBonus: `+${format(getPetBonuses(state).click*100)}% cliques · +${format(getPetBonuses(state).pps*100)}% PPS`,
     statCurrent: `${format(state.pirulitos)} pirulitos`,
     statTotalEarned: `${format(state.totalEarned)} pirulitos`,
     statPps: `${format(getPps(state, info.now))} / seg`,
