@@ -18,7 +18,7 @@ BASE = os.environ.get("LOLLIPOP_BASE_URL", "http://127.0.0.1:8000/").rstrip("/")
 RESULTS = Path("test-results/v3")
 RESULTS.mkdir(parents=True, exist_ok=True)
 FIXTURE = json.loads((Path(__file__).parent / "fixtures/v2-save.json").read_text())
-PAGES = ["home", "shop", "collection", "arena", "prestige", "achievements", "statistics", "rewards", "settings"]
+PAGES = ["home", "shop", "collection", "pets", "arena", "prestige", "achievements", "statistics", "rewards", "settings"]
 errors = []
 checks = 0
 
@@ -156,7 +156,7 @@ with sync_playwright() as p:
     migrated_fixture = fixture()
     context, page = open_game(browser, migrated_fixture)
     state = saved(page)
-    check(state["version"] == 4, "actual v2 save migrates to schema 4")
+    check(state["version"] == 5, "actual v2 save migrates to schema 5")
     check(state["activeSkin"] == "neon" and state["activeTheme"] == "gold" and state["activeParticles"] == "ice", "migration preserves all three independent cosmetic selections")
     check(state["prestigeLevel"] == 12 and state["prestigeClaimed"] == 12, "migration preserves existing prestige and consumed claims")
     backup = page.evaluate("JSON.parse(localStorage.getItem('lollipopSave.legacy-v2'))")

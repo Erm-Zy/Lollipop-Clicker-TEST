@@ -1,5 +1,7 @@
 # Prestígio, pontos e capacidade das fábricas
 
+> Relato histórico da atualização de Prestígio. O schema atual é 5: [Pets & Eggs](PETS_UPDATE.md) preserva essa economia e encerra a exceção antiga de reset automático. Novos legados incompatíveis ficam protegidos para exportação, sem apagar o primário.
+
 Atualização na branch compartilhada `dev`, em 6 de novembro de 2026. A versão do **save** passa a 4; isso é independente da versão do jogo/APK. Não foram acrescentados pets, fábricas, chefes, moedas além dos PP ou novas mecânicas de Arena.
 
 ## Níveis e Pontos de Prestígio

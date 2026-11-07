@@ -68,6 +68,6 @@ A única permissão normal é INTERNET, mantida pelo runtime WebView/Capacitor c
 A orientação padrão é retrato. Barras do sistema ficam ocultas e podem reaparecer por gesto; recortes da tela recebem padding nativo. Eventos de background suspendem áudio/timers e salvam o estado; foreground retoma o relógio com a produção decorrida. Service worker é usado apenas na web, não como dependência offline do APK.
 
 
-## Atualização da progressão de Prestígio (schema 4)
+## Save atual e histórico do Prestígio
 
-Antes de atualizar, exporte seu save. Dados antigos dentro das capacidades migram com os níveis históricos convertidos em PP. Saves beta antigos com quantidades acima dos novos limites têm o reset único autorizado, com aviso e backup bruto exportável nos Ajustes. Importar um desses saves incompatíveis é recusado para não reintroduzir a progressão antiga; arquivos compatíveis e schema 4 continuam importáveis. O ID/assinatura não mudam. Confira os [limites, migração e novos sistemas](../PRESTIGE_BALANCE.md).
+Antes de atualizar, exporte seu save. O schema atual é **5**, incluindo [Pets & Eggs](../PETS_UPDATE.md), e mantém PP, capacidades, Ímpeto e todo o progresso v4, com backup bruto `lollipopSave.legacy-v4`. A exceção histórica de reset do Prestígio não é repetida: legados incompatíveis ficam protegidos para exportação. O pacote agora inclui dez páginas, inclusive Pets, com abertura/fusão/equipe sem backend. ID e assinatura não foram alterados; atualizações sobre uma instalação existente exigem assinatura compatível. Veja o [relato histórico de Prestígio](../PRESTIGE_BALANCE.md).

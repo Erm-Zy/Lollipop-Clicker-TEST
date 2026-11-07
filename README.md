@@ -21,6 +21,7 @@ Publique **`dist/`**, gerado por `npm run pwa:build`, como pasta estática pelo 
 | --- | --- |
 | `index.html` | Pirulito interativo, saldo, clique, produção, bônus, mundo ilustrado e compra rápida |
 | `pages/shop.html` | Oito engenhocas originais, níveis, contribuição e lotes ×1/×10/×100/MAX |
+| `pages/pets.html` | Três ovos, 18 espécies, equipe de três pets, inventário de 500, fusões e álbum permanente |
 | `pages/collection.html` | Inventário de 11 sabores e sete coleções; pirulito, fundo e partículas independentes |
 | `pages/arena.html` | Três guardiões ilustrados alternados, dano por toque, prazo, vitória e recarga |
 | `pages/prestige.html` | Progresso da jornada, renascimento, Pontos de Prestígio, Ímpeto Estelar e expansões permanentes |
@@ -59,7 +60,8 @@ css/animations.css          Movimento opcional e redução de movimento
 css/responsive.css          Layouts específicos para desktop/tablet/celular
 js/data.js                  Catálogos, constantes e versão do save
 js/gameplay.js              Ações, tempo, compras, eventos e produção
-js/progression.js           Jornada, PP, multiplicadores permanentes e capacidades
+js/progression.js           Jornada, PP, multiplicadores permanentes, capacidades e contagem de fábricas
+js/pets/*.js                Catálogo, IDs, bônus, hatches, inventário, fusões, auto e SVGs
 js/storage.js               Validação, migração, backups e recuperação
 js/core/runtime.js          Único relógio, escritor, lifecycle, áudio e eventos
 js/ui/shared.js             Navegação, HUD, avisos e bootstrap compartilhado
@@ -79,7 +81,7 @@ O runtime recebe regras sem DOM e coordena o estado de cada documento. Cada pág
 
 ## Continuidade do save
 
-A chave principal permanece **`lollipopSave`**. O schema **4** acrescenta PP, Ímpeto Estelar, expansões e o marco inicial da jornada. Saves antigos dentro dos limites são migrados: os níveis históricos viram pontos ainda não gastos, sem mexer nos marcos resgatados. Saves beta antigos com fábricas acima das novas capacidades passam pelo reset único explicitamente autorizado para esta atualização, com aviso e backup exportável; dados corrompidos/futuros continuam protegidos. [Decisão e regras completas](docs/PRESTIGE_BALANCE.md).
+A chave principal permanece **`lollipopSave`**. O schema **5** acrescenta pets permanentes, preservando o progresso do schema 4 (PP, Ímpeto, expansões, jornada, coleções e estatísticas). Antes de migrar, o primeiro v4 bruto é protegido em **`lollipopSave.legacy-v4`**; falha de backup bloqueia a escrita. Não há reset automático nesta expansão: saves mais antigos incompatíveis ficam protegidos para exportação, assim como dados corrompidos/futuros. [Save, validação e regras de pets](docs/PETS_UPDATE.md) · [Relato histórico da atualização de Prestígio](docs/PRESTIGE_BALANCE.md).
 
 - O primeiro save original é preservado em `lollipopSave.legacy-v1`; o primeiro schema 2 em `lollipopSave.legacy-v2`. O schema 3 usa `lollipopSave.legacy-v3`; um reset autorizado preserva o original em `lollipopSave.pre-prestige-v4`. São backups brutos imutáveis da migração.
 - `lollipopSave.backup` guarda a escrita completa anterior. Escritas são feitas a cada cinco segundos, ao ocultar/sair da página, antes de navegar e após transações importantes.
@@ -95,11 +97,12 @@ O save continua local ao navegador/origem, sem conta online. Não há autoridade
 
 ```sh
 npm run check          # sintaxe de todos os módulos e verificação dos HTMLs
+npm run test:pets       # cenários completos Pets/PWA/bundle Android com servidor temporário
 npm test               # regressões de regras, economia e armazenamento (Node24+)
 npm run test:browser   # Chromium real; mantenha o servidor aberto em outro terminal
 ```
 
-O teste de navegador usa Python3, `playwright` e Chromium instalado. O jogo não depende dessas ferramentas. Configure `CHROMIUM_PATH` se o executável não for `/usr/bin/chromium`. Para repetir o teste em subdiretório, gere o artefato em uma pasta `Lollipop-Clicker-TEST` sirva a pasta pai por HTTP e configure `LOLLIPOP_BASE_URL` com o caminho completo (por exemplo, `http://127.0.0.1:8001/Lollipop-Clicker-TEST/`). Veja também o cabeçalho de `tests/browser_smoke.py`. Capturas de Mundo, Loja e Arena em desktop e celular ficam em `test-results/v3/` (ignorado no Git).
+O teste de navegador usa Python3, `playwright` e Chromium instalado. O jogo não depende dessas ferramentas. Configure `CHROMIUM_PATH` se o executável não for `/usr/bin/chromium`. Para repetir o teste em subdiretório, gere o artefato em uma pasta `Lollipop-Clicker-TEST`, sirva a pasta pai por HTTP e configure `LOLLIPOP_BASE_URL` com o caminho completo (por exemplo, `http://127.0.0.1:8001/Lollipop-Clicker-TEST/`). Veja também o cabeçalho de `tests/browser_smoke.py`. Capturas de Mundo, Loja e Arena em desktop e celular ficam em `test-results/v3/` (ignorado no Git).
 
 A fixture `tests/fixtures/v2-save.json` representa o schema real anterior, incluindo pirulito/fundo/partículas distintos e prestígio resgatado. Os testes cobrem esse save, todos os prêmios, preços de lotes, produção, deadlines, recuperação, múltiplas abas, navegação e histórico, páginas offline e caminhos sob um subdiretório de GitHub Pages. [Resultados e limites da validação](docs/VALIDATION.md). Veja também as [capturas de Mundo, Loja e Arena](docs/SCREENSHOTS.md). A [auditoria original](docs/AUDIT.md) registra os problemas encontrados antes da versão 2.0.
 
@@ -107,7 +110,7 @@ A fixture `tests/fixtures/v2-save.json` representa o schema real anterior, inclu
 
 O build identifica automaticamente cada release pelos assets publicados. O worker só instala um shell completo com hashes verificados. Um aviso acessível oferece **Atualizar agora** e **Depois**; o jogo salva com segurança e coordena as janelas antes de ativar e recarregar. Offline e saves são preservados.
 
-**A primeira publicação exige trocar Settings → Pages → Source para GitHub Actions depois do merge**, pois o worker da raiz agora é um template. Usuários do worker antigo precisam visitar online, fechar todas as janelas uma vez e reabrir, sem limpar dados. Consulte o [processo de release, teste sem apagar saves e limites por plataforma](docs/PWA_UPDATES.md). O APK Capacitor continua sendo atualizado por novo APK; o service worker não atualiza seus arquivos embarcados.
+O site publica o artefato pelo workflow de GitHub Actions. A configuração inicial e a migração de instalações com worker legado estão no [guia de PWA](docs/PWA_UPDATES.md); instalações antigas podem precisar fechar todas as janelas uma vez, sem limpar dados. A expansão de Pets usa esse mesmo mecanismo, sem substituir o worker. O APK Capacitor continua sendo atualizado por novo APK; o service worker não atualiza seus arquivos embarcados.
 
 ## Beta Android
 
@@ -132,3 +135,7 @@ A Coleção agora tem filtros e comparação em painel sobre a tela, sem pular p
 ## Prestígio estratégico
 
 O Santuário oferece Ímpeto Estelar (20 níveis, +5% por nível, custos 1–20 PP) e expansões individuais (+10 espaços, custos 2/4/…/20 PP, dez níveis). Capacidades base: **40/25/25/15/15/15/20/20**, na ordem das oito fábricas. A Loja mostra quantidade/capacidade e mantém lotes inteiros; MAX respeita saldo e espaço. A barra mede a produção desde o último renascimento e volta a 0%, preservando o total histórico. [Balanceamento, migração, simulações e testes](docs/PRESTIGE_BALANCE.md).
+
+## Pets e ovos
+
+No **Ninho açucarado**, abra lotes ×1/×2/×3 do Ovo Açucarado (1.500), Cristalizado (100.000) e Celestial (10.000.000 pirulitos), com chances transparentes. Colecione 18 espécies, equipe três companheiros, escolha a estratégia de Equipar melhores e combine explicitamente cinco iguais para evoluir de Normal até Gigante. O inventário aceita 500 instâncias e o álbum tem 72 descobertas. Auto é gratuito, para ao sair/ocultar e não abre ovos durante sua ausência. Pets, ovos desbloqueados e descobertas sobrevivem ao prestígio. [Guia completo, chances, bônus, migração e validação](docs/PETS_UPDATE.md).
