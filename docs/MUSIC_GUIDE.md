@@ -130,7 +130,7 @@ Para subdiretórios como GitHub Pages, use `LOLLIPOP_BASE_URL` com o endereço c
 
 A trilha original continua no cache inicial da PWA. Faixas adicionais são guardadas **quando pedidas pelo player**, sem baixar todo o futuro catálogo ao abrir o jogo. Ouça cada música online antes de depender dela offline. Se uma faixa opcional não estiver no cache ou não abrir, o player tenta outra opção e a original; o jogo continua funcionando. Uma faixa com falha não é pedida de novo a cada tick; reabra o jogo para uma nova tentativa.
 
-O service worker atende também requisições parciais de áudio (`Range`), usadas por navegadores e WebViews. Ao publicar músicas ou alterar o catálogo, incremente `CACHE_NAME` em `sw.js`, como nas outras atualizações. **Não coloque músicas opcionais na lista de instalação obrigatória**: isso poderia quebrar o offline por um arquivo ausente.
+O service worker atende também requisições parciais de áudio (`Range`), usadas por navegadores e WebViews. Ao publicar músicas ou alterar o catálogo, gere `dist/` com `npm run pwa:build`; a release muda automaticamente. Veja [atualizações PWA](PWA_UPDATES.md). **Não coloque músicas opcionais na lista de instalação obrigatória**: isso poderia quebrar o offline por um arquivo ausente.
 
 Para Android, `npm run android:prepare` copia todos os arquivos locais de `assets/audio/` e os módulos musicais para `www/`. Rode `node scripts/check-android.mjs` e depois use o fluxo de build já existente quando quiser gerar outro APK. Não é necessário alterar ID do aplicativo, assinatura ou permissões. O APK tem seus próprios dados locais, separados do navegador.
 

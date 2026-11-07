@@ -1,8 +1,8 @@
 """Real-document integration QA for Lollipop Clicker 3.0.
 
-Serve repository (npm run serve), then npm run test:browser.
-To exercise GitHub Pages paths, serve /workspace on another localhost port and set
-LOLLIPOP_BASE_URL=http://127.0.0.1:8001/Lollipop-Clicker-TEST/ .
+Serve the generated dist artifact (npm run serve), then npm run test:browser.
+To exercise GitHub Pages paths, build into an empty parent/Lollipop-Clicker-TEST
+directory, serve that parent and set LOLLIPOP_BASE_URL to the complete subpath.
 Requires Python Playwright and Chromium; no browser dependency is shipped in-game.
 """
 import copy

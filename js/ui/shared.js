@@ -1,3 +1,4 @@
+import { initializeUpdates } from "../pwa/update.js";
 import { configuredArtworkPaths } from "./assets.js";
 import { createRuntime } from "../core/runtime.js";
 import { getPps, getClickPower } from "../gameplay.js";
@@ -121,7 +122,9 @@ export async function bootPage(page) {
     });
     setText(
       "saveStatus",
-      !runtime.writable
+      runtime.updating
+        ? "Preparando atualização…"
+        : !runtime.writable
         ? "Outra aba está jogando"
         : !runtime.canSave
           ? "Save protegido · veja Ajustes"
@@ -136,7 +139,7 @@ export async function bootPage(page) {
         : `Receita ativa: ${FLAVORS_DATA[state.activeFlavor].name} · +${format(getClickPower(state, now))} por toque`,
     );
     const notice = document.getElementById("ownershipNotice");
-    notice.hidden = runtime.writable && runtime.canSave && !runtime.error;
+    notice.hidden = runtime.updating || (runtime.writable && runtime.canSave && !runtime.error);
     const message = !runtime.writable
       ? `Este mundo está aberto em outra aba. Feche a outra aba e <a href="${location.href}">recarregue aqui</a> para jogar. Você ainda pode consultar sua coleção e exportar o save.`
       : `O salvamento está bloqueado ou protegido. Exporte esta sessão antes de sair ou trocar de página. <button id="exportSessionBtn" class="game-button secondary">Exportar esta sessão ↓</button> Abra <a href="${hrefFor("settings")}">Ajustes</a> para recuperar o save original.`;
@@ -162,16 +165,7 @@ export async function bootPage(page) {
         "Sessão exportada. Você pode importar esse arquivo quando o armazenamento estiver disponível.",
       );
     });
-  if (
-    "serviceWorker" in navigator &&
-    !globalThis.Capacitor?.isNativePlatform?.()
-  ) {
-    navigator.serviceWorker
-      .register(new URL("../../sw.js", import.meta.url), {
-        scope: new URL("../../", import.meta.url).pathname,
-      })
-      .catch(() => {});
-  }
+  initializeUpdates(runtime);
   const artworkPaths = configuredArtworkPaths();
   if (
     artworkPaths.length &&

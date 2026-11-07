@@ -1,0 +1,64 @@
+name: Web PWA / GitHub Pages
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24.11.0'
+          cache: npm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: npm ci
+      - run: npm run check && npm test && npm run pwa:build
+      - name: Install browser test tools (development only)
+        run: |
+          python -m pip install playwright==1.62.0
+          python -m playwright install --with-deps chromium
+          echo "CHROMIUM_PATH=$(python -c 'from playwright.sync_api import sync_playwright; p=sync_playwright().start(); print(p.chromium.executable_path); p.stop()')" >> "$GITHUB_ENV"
+      - run: npm run test:pwa
+      - name: Validate all existing browser suites against the deployed artifact
+        run: |
+          python -m http.server 8000 --bind 127.0.0.1 --directory dist > "$RUNNER_TEMP/web-server.log" 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid"' EXIT
+          for attempt in $(seq 1 30); do
+            curl --fail --silent http://127.0.0.1:8000/ > /dev/null && break
+            sleep 1
+          done
+          python tests/music_browser.py
+          npm run test:browser
+          python tests/qol_browser.py
+          python tests/prestige_browser.py
+          python tests/artwork_browser.py
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+  deploy:
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-24.04
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy verified PWA artifact
+        id: deployment
+        uses: actions/deploy-pages@v4

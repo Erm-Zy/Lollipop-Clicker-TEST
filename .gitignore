@@ -10,3 +10,5 @@ android/.gradle/
 *.keystore
 *.jks
 android/app/src/main/res/drawable*/splash.png.tmp
+
+dist/

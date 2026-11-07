@@ -205,10 +205,24 @@ with sync_playwright() as p:
     context.close()
 
     context,page=open_game(browser,seed(upgrades={'maquina':25}),mock=True,extra=True)
+    page.bring_to_front()
+    page.wait_for_function('!document.hidden')
+    # Settle the first-gesture status/layout before selecting a track by pointer.
+    # This case tests Manual continuity; autoplay gestures are covered above.
+    page.locator('#musicPlayBtn').click()
+    page.wait_for_function('__audio[0].paused===false')
     page.locator('[data-music-track="test-vale"]').click()
+    # Selecting a track fades out asynchronously; navigation must wait for the
+    # actual source/session, not merely the immediately updated target label.
+    try:
+        page.wait_for_function("JSON.parse(sessionStorage.getItem('lollipopMusic.session.v1'))?.trackId==='test-vale'")
+    except Exception:
+        print('Manual music setup:',page.evaluate("({hidden:document.hidden,prefs:localStorage.getItem('lollipopMusic.preferences.v1'),session:sessionStorage.getItem('lollipopMusic.session.v1'),audio:__audio.map(a=>({calls:a.calls,loads:a.loads,paused:a.paused,volume:a.volume})),status:document.getElementById('musicStatus').textContent})"),flush=True)
+        raise
     goto(page,'arena');page.locator('#startBossBtn').click()
+    # Observe the battle transition window to detect an unwanted source switch.
     page.wait_for_timeout(250)
-    check(page.evaluate("JSON.parse(sessionStorage.getItem('lollipopMusic.session.v1')).trackId==='test-vale'"),'Manual mode is preserved even when this boss has a soundtrack')
+    check(preferences(page)['mode']=='manual' and page.evaluate("JSON.parse(sessionStorage.getItem('lollipopMusic.session.v1')).trackId==='test-vale'"),'Manual mode is preserved even when this boss has a soundtrack')
     goto(page,'settings');page.locator('#musicBattleOverrides').check()
     goto(page,'arena')
     page.wait_for_function("JSON.parse(sessionStorage.getItem('lollipopMusic.session.v1'))?.trackId==='test-boss'")
