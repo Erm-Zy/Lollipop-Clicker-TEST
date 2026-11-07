@@ -9,7 +9,7 @@ O site e a PWA instalada usam o mesmo mecanismo. Nenhum save foi migrado ou apag
 3. O workflow `.github/workflows/pages.yml` testa e gera `dist/`, depois publica somente esse artefato. Execuções em `dev` e PRs validam o build, sem publicar. Não publique a raiz do repositório: `sw.js` nela é um template deliberadamente não instalável.
 4. Confira o deployment e `<URL-do-jogo>/pwa-release.json`. Compare seu `id` com o artefato da execução. A CDN do GitHub Pages pode levar alguns minutos para propagar os arquivos; uma tentativa incompleta é rejeitada e pode ser repetida ao voltar ao jogo após um minuto.
 
-O build `npm run pwa:build` usa apenas APIs nativas do Node 24+. O ID SHA-256 depende dos bytes e nomes dos assets publicados, do template SW e do próprio gerador, sem timestamps. Alterações em HTML/JS/CSS, ícones, fontes, áudio ou imagens mudam a release automaticamente. Documentação/testes/Android não mudam o ID. Não incremente nomes de cache manualmente, nem edite `dist/`. O gerador inclui meta de release nos nove HTMLs e hashes dos bytes finais no worker. `dist/` é ignorado no Git. Um build repetido com os mesmos arquivos gera o mesmo ID.
+O build `npm run pwa:build` usa apenas APIs nativas do Node 24+. O ID SHA-256 depende dos bytes e nomes dos assets publicados, do template SW e do próprio gerador, sem timestamps. Alterações em HTML/JS/CSS, ícones, fontes, áudio ou imagens mudam a release automaticamente. Documentação/testes/Android não mudam o ID. Não incremente nomes de cache manualmente, nem edite `dist/`. O gerador inclui meta de release nos dez HTMLs e hashes dos bytes finais no worker. `dist/` é ignorado no Git. Um build repetido com os mesmos arquivos gera o mesmo ID.
 
 ## Experiência do jogador
 
@@ -22,7 +22,7 @@ O build `npm run pwa:build` usa apenas APIs nativas do Node 24+. O ID SHA-256 de
 
 ## Cache e offline
 
-O worker baixa e verifica os hashes de todo o shell obrigatório antes de concluir a instalação: nove documentos, módulos, CSS, ícones, manifesto, fontes e trilha original. Downloads usam a rede sem cache HTTP e rejeitam arquivos de outra release, inclusive respostas HTTP 200 com conteúdo antigo da CDN. Instalação com erro não substitui o worker funcional. HTML/JS de uma release são servidos em conjunto, sem misturar um HTML antigo com módulos novos. Um arquivo obrigatório perdido do cache só pode ser reparado com bytes do mesmo hash.
+O worker baixa e verifica os hashes de todo o shell obrigatório antes de concluir a instalação: dez documentos, módulos, CSS, ícones, manifesto, fontes e trilha original. Downloads usam a rede sem cache HTTP e rejeitam arquivos de outra release, inclusive respostas HTTP 200 com conteúdo antigo da CDN. Instalação com erro não substitui o worker funcional. HTML/JS de uma release são servidos em conjunto, sem misturar um HTML antigo com módulos novos. Um arquivo obrigatório perdido do cache só pode ser reparado com bytes do mesmo hash.
 
 O worker não intercepta `sw.js` nem `pwa-release.json`. O navegador pode buscar o novo worker pela rede, mesmo quando o shell atual funciona offline. Imagens opcionais e músicas extras continuam em cache sob demanda, preservando os fallbacks existentes. Após atualizar, mídias opcionais precisam ser aquecidas novamente online.
 
@@ -65,8 +65,10 @@ python3 tests/prestige_browser.py
 
 Use `CHROMIUM_PATH` para escolher o executável. Para testar outro subdiretório manualmente, gere um artefato com `node scripts/build-pwa.mjs --out <pasta-vazia>/Lollipop-Clicker-TEST` e sirva a pasta pai. Os testes de PWA fazem isso automaticamente, simulando também HTTP cache de 600 segundos, respostas inconsistentes da CDN e falhas de save/download.
 
-## Resultado desta implementação
+## Resultado histórico da implementação PWA (antes de Pets)
 
 Validação local em 7 de novembro de 2026: `npm ci`, verificação de sintaxe dos 40 arquivos JS e nove documentos, **113 testes Node**, build determinístico e sintaxe do worker gerado concluídos. Em Chromium real passaram **32 cenários PWA**, **107 verificações gerais**, **122 de QoL**, **62 de música**, **60 de prestígio** e **13 de arte opcional** (396 verificações de navegador). Incluem a migração do worker legado, instalação inicial sem reload, adiamento, save com quota bloqueada, confirmação simultânea, janela sem resposta, ativação em duas abas, cache com 404/conteúdo obsoleto, nova tentativa, offline, ausência de loops e isolamento de caches/Capacitor.
 
 `npm run android:sync` e `node scripts/check-android.mjs` também passaram para os nove documentos e assets locais. Isso valida preparação/sincronização do pacote; **não houve compilação de APK nem teste em emulador/aparelho localmente nesta tarefa**. O teste musical aguarda a transição real da faixa antes de navegar, em vez de depender de um atraso fixo. Os testes locais não publicam nem alteram a configuração do Pages; confira a execução do workflow do PR antes da release e realize a troca de Source descrita acima após o merge.
+
+A expansão [Pets & Eggs](PETS_UPDATE.md) usa o mesmo protocolo e build, agora com dez documentos. Seus testes também confirmam que uma atualização real interrompe auto e preserva o último lote salvo.

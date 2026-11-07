@@ -1,7 +1,8 @@
 import { mountJukebox } from "../ui/jukebox.js";
 import { bootPage, setText } from "../ui/shared.js";
 import { createState } from "../gameplay.js";
-import { validateState, PRE_PRESTIGE_BACKUP_KEY } from "../storage.js";
+import { SAVE_VERSION } from "../data.js";
+import { validateState, V4_BACKUP_KEY, PET_QUARANTINE_KEY, PRE_PRESTIGE_BACKUP_KEY } from "../storage.js";
 const runtime = await bootPage("settings");
 mountJukebox(runtime);
 const settings = [
@@ -43,7 +44,7 @@ document.getElementById("exportSaveBtn").addEventListener("click", () => {
     url = URL.createObjectURL(blob),
     a = document.createElement("a");
   a.href = url;
-  a.download = `lollipop-${runtime.canSave ? "save-v4" : "recuperacao-bruta"}-${new Date().toISOString().slice(0, 10)}.json`;
+  a.download = `lollipop-${runtime.canSave ? `save-v${SAVE_VERSION}` : "recuperacao-bruta"}-${new Date().toISOString().slice(0, 10)}.json`;
   a.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
   runtime.notify("Seu backup está pronto. Guarde-o com carinho!");
@@ -121,7 +122,7 @@ document.getElementById("resetDataBtn").addEventListener("click", () => {
     return;
   if (
     !confirm(
-      "Confirmação final: zerar saldo, prestígio, coleção, conquistas e máquinas?",
+      "Confirmação final: zerar saldo, prestígio, coleção, conquistas, máquinas, pets, ovos e descobertas?",
     )
   )
     return;
@@ -148,3 +149,19 @@ legacyExport.addEventListener("click", () => {
     runtime.notify("O backup anterior à atualização foi exportado.");
   } catch { runtime.notify("Não foi possível exportar o backup antigo."); }
 });
+
+for (const [id,key,file] of [
+  ['exportLegacyV4Btn',V4_BACKUP_KEY,'lollipop-original-v4.json'],
+  ['exportPetQuarantineBtn',PET_QUARANTINE_KEY,'lollipop-pets-protegidos-v5.json'],
+]) {
+  const button=document.getElementById(id);
+  try { button.hidden=!runtime.storage.getItem(key); } catch { button.hidden=true; }
+  button.addEventListener('click',()=>{
+    try {
+      const raw=runtime.storage.getItem(key);if(!raw)return;
+      const url=URL.createObjectURL(new Blob([raw],{type:'application/json'}));
+      const link=document.createElement('a');link.href=url;link.download=file;link.click();
+      setTimeout(()=>URL.revokeObjectURL(url),1000);
+    } catch { runtime.notify('Não foi possível exportar este backup.'); }
+  });
+}

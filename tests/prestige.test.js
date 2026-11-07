@@ -106,20 +106,20 @@ test("capacity failure has a distinct UI quote and no affordability countdown",(
 test("schema 3 within capacity migrates points once, retains cosmetics and creates a raw backup",()=>{
  const raw=JSON.stringify({version:3,totalEarned:215200000000,prestigeLevel:59,prestigeClaimed:59,upgrades:{maquina:10},lastTick:NOW,activeFlavor:'blueberry',activeSkin:'neon',activeTheme:'gold',activeParticles:'ice',unlockedSkins:['classic','neon','gold','ice']});
  const storage=memory({[SAVE_KEY]:raw});const loaded=loadGame(storage,NOW);
- assert.equal(loaded.canSave,true);assert.equal(loaded.state.version,4);assert.equal(loaded.state.prestigePoints,59);assert.equal(loaded.state.prestigeBaseline,215200000000);
+ assert.equal(loaded.canSave,true);assert.equal(loaded.state.version,SAVE_VERSION);assert.equal(loaded.state.prestigePoints,59);assert.equal(loaded.state.prestigeBaseline,215200000000);
  assert.equal(loaded.state.activeTheme,'gold');assert.equal(loaded.state.activeParticles,'ice');assert.equal(storage.getItem(V3_BACKUP_KEY),raw);
  game.buyStellarBoost(loaded.state,NOW);saveGame(storage,loaded.state);
  const again=loadGame(storage,NOW).state;assert.equal(again.prestigePoints,58);assert.equal(again.stellarBoostLevel,1);
 });
-test("only incompatible old factory quantities trigger the authorized one-time beta reset",()=>{
+test("incompatible older quantities are protected without repeating the historical beta reset",()=>{
  const raw=JSON.stringify({version:3,pirulitos:999,totalEarned:999,upgrades:{maquina:1000}});
  const storage=memory({[SAVE_KEY]:raw,unrelated:'keep'});const result=loadGame(storage,NOW);
- assert.equal(result.prestigeReset,true);assert.equal(result.canSave,true);assert.equal(result.state.version,4);assert.equal(result.state.pirulitos,0);
- assert.equal(storage.getItem(PRE_PRESTIGE_BACKUP_KEY),raw);assert.equal(storage.getItem('unrelated'),'keep');assert.equal(JSON.parse(storage.getItem(SAVE_KEY)).version,4);
- assert.ok(result.warnings[0].includes('reiniciada'));const again=loadGame(storage,NOW);assert.equal(again.prestigeReset,undefined);assert.equal(again.warnings.length,0);
+ assert.equal(result.prestigeReset,undefined);assert.equal(result.canSave,false);assert.equal(result.state.pirulitos,999);
+ assert.equal(storage.getItem(SAVE_KEY),raw);assert.equal(storage.getItem('unrelated'),'keep');assert.equal(storage.getItem(PRE_PRESTIGE_BACKUP_KEY),null);
+ assert.ok(result.warnings[0].includes('sem reset'));assert.equal(loadGame(storage,NOW).canSave,false);
  assert.throws(()=>validateState(JSON.parse(raw),NOW),IncompatibleLegacySaveError);
 });
-test("reset storage failure or read-only loading preserves the raw primary",()=>{
+test("incompatible saves with unavailable storage or read-only loading preserves the raw primary",()=>{
  const raw=JSON.stringify({version:3,upgrades:{maquina:1000}});
  for(const setItem of [()=>{},()=>{throw Error('quota')}]){
   const storage={getItem:k=>k===SAVE_KEY?raw:null,setItem};const result=loadGame(storage,NOW);

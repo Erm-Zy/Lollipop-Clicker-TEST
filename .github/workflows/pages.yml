@@ -41,6 +41,7 @@ jobs:
             sleep 1
           done
           python tests/music_browser.py
+          npm run test:pets
           npm run test:browser
           python tests/qol_browser.py
           python tests/prestige_browser.py

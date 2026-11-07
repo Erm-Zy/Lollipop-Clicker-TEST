@@ -1,0 +1,557 @@
+.pets-page {
+  max-width: 1420px;
+  margin: auto;
+  padding-bottom: 115px;
+}
+.pets-page h2 {
+  font-size: 22px;
+  margin: 0 0 10px;
+}
+.pets-page h3 {
+  margin: 8px 0;
+}
+.pet-team-panel,
+.pet-hatch-panel,
+.pet-probabilities,
+.pet-lifetime {
+  background: #34213d;
+  border: 2px solid #886084;
+  border-radius: 20px;
+  padding: 20px;
+  margin: 18px 0;
+  box-shadow: 0 5px 0 #21142c;
+}
+.pet-section-heading,
+.pet-selection-tools,
+.pet-auto-controls,
+.pet-dialog-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.pet-section-heading p {
+  margin: 6px 0;
+}
+.pet-best {
+  display: flex;
+  gap: 10px;
+  align-items: end;
+  flex-wrap: wrap;
+}
+.pets-page label {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 13px;
+}
+.pets-page :is(select, input[type="search"]) {
+  color: var(--cream);
+  background: #291b36;
+  border: 1px solid #bb8fae;
+  border-radius: 10px;
+  min-height: 44px;
+  padding: 9px;
+  font: inherit;
+  max-width: 100%;
+}
+.pets-page :is(button, input, select):focus-visible {
+  outline: 3px solid var(--mint);
+  outline-offset: 3px;
+}
+.pet-team {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+.pet-team-slot {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  padding: 10px;
+  background: #281a32;
+  border: 1px solid #a0789d;
+  border-radius: 16px;
+}
+.pet-team-slot .pet-art {
+  width: 76px;
+  flex: none;
+}
+.pet-team-slot p {
+  margin: 4px 0;
+  font-size: 12px;
+}
+.pet-team-slot strong {
+  display: block;
+  font-size: 14px;
+}
+.pet-team-slot.empty {
+  min-height: 118px;
+  justify-content: center;
+  text-align: center;
+  border-style: dashed;
+  color: var(--muted);
+}
+.pet-hint {
+  color: #e1c7db;
+  font-size: 12px;
+}
+.pet-sections {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 28px 0;
+}
+.pet-sections button[aria-pressed="true"] {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+}
+.pet-eggs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+.pet-egg {
+  position: relative;
+  padding: 18px;
+  border: 2px solid #896181;
+  border-radius: 24px;
+  background: linear-gradient(160deg, #583a60, #30213f);
+  color: var(--cream);
+  font: inherit;
+  cursor: pointer;
+}
+.pet-egg svg {
+  display: block;
+  width: 130px;
+  height: 150px;
+  margin: auto;
+}
+.pet-egg strong,
+.pet-egg span,
+.pet-egg small {
+  display: block;
+}
+.pet-egg strong {
+  font-size: 19px;
+}
+.pet-egg small {
+  font-size: 12px;
+  color: #ead3e4;
+  margin-top: 5px;
+}
+.pet-egg[aria-pressed="true"] {
+  border-color: var(--mint);
+  box-shadow:
+    inset 0 0 0 2px #95d8c366,
+    0 5px 0 #21142c;
+}
+.pet-egg[data-locked="true"] svg {
+  opacity: 0.6;
+}
+.pet-hatch-buttons {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 18px 0;
+}
+.pet-hatch-buttons button span {
+  display: block;
+  font-size: 12px;
+  font-weight: 500;
+}
+.pets-page .pet-animation-setting {
+  flex-direction: row;
+  align-items: center;
+  margin: 18px 0;
+}
+.pets-page input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  accent-color: #c7f6df;
+  flex: none;
+}
+.pet-auto-controls {
+  justify-content: flex-start;
+  align-items: end;
+}
+#autoStatus {
+  font-size: 13px;
+  color: #e8d0e4;
+}
+.pet-probabilities summary {
+  cursor: pointer;
+  font-weight: 800;
+  min-height: 44px;
+  padding: 10px 0;
+}
+.pet-table-wrap {
+  overflow-x: auto;
+}
+.pet-probabilities table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 13px;
+}
+.pet-probabilities :is(td, th) {
+  padding: 9px 6px;
+  border-bottom: 1px solid #79576d;
+}
+.pet-probabilities caption {
+  padding: 10px;
+  text-align: left;
+  font-weight: 800;
+}
+.pet-filters {
+  display: grid;
+  grid-template-columns: 2fr repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin: 18px 0;
+}
+.pet-selection-tools {
+  justify-content: flex-start;
+  margin-bottom: 12px;
+}
+.pet-inventory {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+.pet-card {
+  border: 2px solid var(--rarity-color, #aa8dab);
+  border-radius: 18px;
+  padding: 12px;
+  background: #36243f;
+  min-width: 0;
+}
+.pet-card[data-rarity="uncommon"] {
+  --rarity-color: #9ed7aa;
+}
+.pet-card[data-rarity="rare"] {
+  --rarity-color: #98c9f6;
+}
+.pet-card[data-rarity="epic"] {
+  --rarity-color: #d6a8f0;
+}
+.pet-card[data-rarity="legendary"] {
+  --rarity-color: #edc57a;
+}
+.pet-card[data-rarity="mythic"] {
+  --rarity-color: #ff9dbd;
+  border-style: double;
+  border-width: 4px;
+}
+.pet-card .pet-art {
+  display: block;
+  width: 100%;
+  height: 120px;
+}
+.pet-card h3 {
+  font-size: 15px;
+  min-height: 2.6em;
+}
+.pet-card p {
+  font-size: 12px;
+  margin: 6px 0;
+}
+.pet-card .pet-stage,
+.pet-rarity {
+  font-weight: 800;
+  color: #fff1d8;
+}
+.pet-card small {
+  overflow-wrap: anywhere;
+  font-size: 10px;
+  color: #d5bfd7;
+}
+.pet-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 10px;
+}
+.pet-card .item-preview {
+  min-height: 44px;
+  flex: 1;
+}
+.pet-card button[aria-pressed="true"] {
+  background: #65404f;
+  border-color: var(--gold);
+}
+.pet-card .pet-select {
+  flex-direction: row;
+  align-items: center;
+  min-height: 44px;
+}
+.pet-card.equipped {
+  background: #3c3b46;
+}
+.pet-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 24px;
+}
+.pet-catalog-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+.pet-catalog-entry {
+  border: 1px solid #9c789a;
+  border-radius: 16px;
+  background: #35243e;
+  padding: 14px;
+}
+.pet-catalog-entry.complete {
+  border-color: var(--mint);
+}
+.pet-catalog-entry .pet-art {
+  width: 80px;
+  height: 90px;
+  display: block;
+  margin: auto;
+}
+.pet-evolutions {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 5px;
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+}
+.pet-evolutions li {
+  font-size: 10px;
+  text-align: center;
+  padding: 7px 3px;
+  border: 1px dashed #a88dba;
+  border-radius: 8px;
+  color: #d0b9d8;
+}
+.pet-evolutions li.found {
+  background: #38554f;
+  border-style: solid;
+  color: #efffdd;
+}
+.pet-dialog {
+  width: min(840px, calc(100vw - 24px));
+  max-height: 88dvh;
+  overflow-y: auto;
+  border: 2px solid #c48da9;
+  border-radius: 22px;
+  padding: 24px;
+  background: #35203f;
+  color: var(--cream);
+}
+.pet-dialog::backdrop {
+  background: #140a24bf;
+}
+.pet-results {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
+  gap: 14px;
+  margin: 20px 0;
+}
+.pet-results .pet-card h3 {
+  min-height: 0;
+}
+.pet-dialog #equippedFusionWarning {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  align-items: start;
+  padding: 14px;
+  border: 1px solid var(--gold);
+  border-radius: 12px;
+}
+.pet-dialog #equippedFusionWarning[hidden] {
+  display: none;
+}
+.pet-result {
+  position: relative;
+}
+.pet-opening-shell {
+  display: none;
+}
+.pet-hatching .pet-result > .pet-art {
+  animation: pet-reveal 0.45s ease-out both;
+}
+.pet-hatching .pet-opening-shell {
+  display: grid;
+  place-items: center;
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: #36243f;
+  border-radius: 15px;
+  animation: pet-shell-open 0.45s ease-in both;
+}
+.pet-opening-shell svg {
+  width: 120px;
+  height: 140px;
+}
+@keyframes pet-shell-open {
+  0% {
+    transform: rotate(-4deg);
+    opacity: 1;
+  }
+  35% {
+    transform: rotate(4deg);
+  }
+  60% {
+    transform: rotate(-3deg) scale(1.05);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.2);
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+@keyframes pet-reveal {
+  0% {
+    opacity: 0;
+    transform: translateY(12px) scale(0.75) rotate(-8deg);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(-4px) scale(1.03);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+body[data-motion="off"] .pet-hatching .pet-art {
+  animation: none;
+}
+body[data-motion="off"] .pet-opening-shell {
+  display: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .pet-hatching .pet-art {
+    animation: none;
+  }
+  .pet-hatching .pet-opening-shell {
+    display: none;
+  }
+}
+@media (max-width: 1000px) {
+  .pet-inventory {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .pet-filters {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .pet-team-slot {
+    flex-direction: column;
+    text-align: center;
+  }
+}
+@media (max-width: 640px) {
+  .pet-eggs {
+    gap: 8px;
+  }
+  .pet-egg {
+    padding: 12px 5px;
+  }
+  .pet-egg svg {
+    width: 85px;
+    height: 105px;
+    max-width: 100%;
+  }
+  .pet-egg strong {
+    font-size: 12px;
+  }
+  .pet-egg small {
+    font-size: 10px;
+  }
+  .pet-egg span {
+    font-size: 11px;
+  }
+  .pet-team {
+    gap: 7px;
+  }
+  .pet-team-slot {
+    padding: 8px 4px;
+  }
+  .pet-team-slot .pet-art {
+    width: 58px;
+  }
+  .pet-team-slot strong {
+    font-size: 11px;
+  }
+  .pet-team-slot button {
+    font-size: 11px;
+  }
+  .pet-inventory,
+  .pet-catalog-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .pet-filters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .pet-filters label:first-child {
+    grid-column: 1/-1;
+  }
+  .pet-hatch-buttons {
+    grid-template-columns: 1fr;
+  }
+  .pet-team-panel,
+  .pet-hatch-panel,
+  .pet-probabilities {
+    padding: 14px;
+  }
+  .pet-evolutions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .pet-dialog {
+    padding: 16px;
+  }
+}
+@media (max-width: 360px) {
+  .pet-inventory,
+  .pet-catalog-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .pet-team-slot.empty {
+    min-height: 95px;
+  }
+  .pet-best {
+    align-items: stretch;
+  }
+  .pet-results {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .pet-team-slot button {
+    width: 100%;
+    min-width: 0;
+    padding: 6px 2px;
+  }
+}
+@media (max-width: 360px) {
+  .pet-eggs {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .pet-egg {
+    min-height: 120px;
+    text-align: left;
+    padding: 15px;
+  }
+  .pet-egg svg {
+    float: left;
+    margin-right: 14px;
+    height: 90px;
+  }
+  .pet-egg strong {
+    font-size: 16px;
+  }
+}

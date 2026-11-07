@@ -14,8 +14,8 @@ test('release build is deterministic, verifies actual deployed bytes and exclude
     for (const file of ['index.html','manifest.json','icon-192.png','icon-512.png','.nojekyll','pages','css','js','assets','sw.js']) cpSync(file,join(root,file),{recursive:true});
     const first=buildPwa({root,out});
     assert.equal(buildPwa({root,out}).id,first.id);
-    assert.equal(first.assets.filter(a=>a.path.endsWith('.html')).length,9);
-    assert.ok(first.assets.some(a=>a.path==='js/pwa/update.js' && a.required));
+    assert.equal(first.assets.filter(a=>a.path.endsWith('.html')).length,10);
+    for (const path of ['js/pwa/update.js','pages/pets.html','css/pets.css','js/pages/pets.js','js/pets/actions.js']) assert.ok(first.assets.some(a=>a.path===path && a.required));
     assert.ok(!existsSync(join(out,'js/native/android.js')));
     for (const asset of first.assets) assert.equal(createHash('sha256').update(readFileSync(join(out,asset.path))).digest('hex'),asset.hash);
     assert.ok(readFileSync(join(out,'index.html'),'utf8').includes(first.id));

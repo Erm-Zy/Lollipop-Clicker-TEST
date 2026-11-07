@@ -30,6 +30,7 @@ export function icon(name, className = "nav-icon") {
   const paths = {
     home: '<path d="m4 11 8-8 8 8v10h-6v-6h-4v6H4Z"/>',
     shop: '<path d="M3 8h18l-2-5H5ZM5 8v13h14V8M9 21v-7h6v7M3 8c0 4 5 4 5 0 0 4 4 4 4 0 0 4 4 4 4 0 0 4 5 4 5 0"/>',
+    pets: '<circle cx="7" cy="6" r="2"/><circle cx="17" cy="6" r="2"/><circle cx="3" cy="12" r="2"/><circle cx="21" cy="12" r="2"/><path d="M6 19c0-9 12-9 12 0 0 5-4 1-6 1s-6 4-6-1Z"/>',
     collection: '<path d="M4 4h16v17H4Z M8 4V2h8v2M8 9h8M8 13h8M8 17h5"/>',
     arena:
       '<path d="m4 3 17 17M20 3 3 20M3 3l1 6 5-5ZM21 3l-1 6-5-5ZM2 17l5 5M17 22l5-5"/>',
@@ -49,6 +50,7 @@ const labels = {
   home: "Mundo",
   shop: "Loja",
   collection: "Coleção",
+  pets: "Pets",
   arena: "Arena",
   prestige: "Prestígio",
   achievements: "Conquistas",

@@ -1,4 +1,4 @@
-import { getTotalUpgradesCount } from "./gameplay.js";
+import { getTotalUpgradesCount } from "./progression.js";
 
 // The existing visual chapters, shared by the world scene and its soundtrack.
 export const WORLD_CHAPTERS = [

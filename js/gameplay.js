@@ -1,3 +1,7 @@
+import { createPetState, syncEggUnlocks } from "./pets/state.js";
+import { getPetBonuses } from "./pets/bonuses.js";
+import { getTotalUpgradesCount } from "./progression.js";
+export { getTotalUpgradesCount } from "./progression.js";
 import {
   getPrestigeTarget, getPrestigeGain, getPrestigeMultiplier,
   getFactoryCapacity, getStellarCost, getExpansionCost,
@@ -27,6 +31,7 @@ import {
 export function createState(now = Date.now()) {
   return {
     version: SAVE_VERSION,
+    pets: createPetState(),
     pirulitos: 0,
     totalEarned: 0,
     totalClicks: 0,
@@ -76,8 +81,6 @@ export function createState(now = Date.now()) {
 }
 
 const cap = (value) => Math.min(MAX_VALUE, Math.max(0, value));
-export const getTotalUpgradesCount = (state) =>
-  Object.values(state.upgrades).reduce((a, b) => a + b, 0);
 export const getBossMaxHp = (state) =>
   Math.min(MAX_VALUE, Math.floor(100 * Math.pow(1.6, state.bossesKilled)));
 
@@ -90,6 +93,7 @@ export function getPps(state, now = Date.now()) {
   return cap(
     base *
       FLAVORS_DATA[state.activeFlavor].ppsMult *
+      getPetBonuses(state).ppsMultiplier *
       getPrestigeMultiplier(state) *
       (now < state.boostEndTime ? 2 : 1),
   );
@@ -99,6 +103,7 @@ export function getClickPower(state, now = Date.now()) {
   now = Math.max(now, state.lastTick);
   return cap(
     (1 + FLAVORS_DATA[state.activeFlavor].clickBonus + state.wheelClickBonus) *
+      getPetBonuses(state).clickMultiplier *
       getPrestigeMultiplier(state) *
       (now < state.boostEndTime ? 2 : 1),
   );
@@ -160,6 +165,7 @@ export function settleWheel(state, now = Date.now()) {
 
 /** Advance once from lastTick; all interactions use this same clock. */
 export function advance(state, now = Date.now(), { offline = false } = {}) {
+  syncEggUnlocks(state);
   const from = state.lastTick;
   const effectiveNow = Math.max(from, now);
   const to = Math.min(effectiveNow, from + OFFLINE_CAP_MS);
@@ -241,6 +247,7 @@ export function buyBulk(state, key, quantity = 1, now = Date.now()) {
     return false;
   state.pirulitos = Math.max(0, state.pirulitos - quote.cost);
   state.upgrades[key] += quote.quantity;
+  syncEggUnlocks(state);
   state.maxPps = Math.max(state.maxPps, getPps(state, now));
   return quote;
 }

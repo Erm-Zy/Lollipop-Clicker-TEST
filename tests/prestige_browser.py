@@ -1,4 +1,4 @@
-"""Prestige/schema4 browser QA. Serve the repo and set LOLLIPOP_BASE_URL.
+"""Prestige and safe schema5 migration browser QA. Serve the repo and set LOLLIPOP_BASE_URL.
 Chromium viewport/touch simulation is not Android hardware validation.
 """
 import copy,json,os,time
@@ -106,7 +106,7 @@ with sync_playwright() as pw:
 
  legacy=seed(version=3,totalEarned=215200000000,prestigeLevel=59,prestigeClaimed=59,upgrades={'maquina':10})
  ctx,p=open_game(b,legacy)
- check(saved(p)['version']==4 and saved(p)['prestigePoints']==59,'compatible schema3 tester progress gains historical PP once')
+ check(saved(p)['version']==5 and saved(p)['prestigePoints']==59,'compatible schema3 tester progress gains historical PP once')
  check(p.locator('.prestige-progress').get_attribute('aria-valuenow')=='0','migration initializes an honest new journey baseline')
  p.reload(wait_until='networkidle');ready(p)
  check(saved(p)['prestigePoints']==59 and p.locator('.beta-reset-notice').count()==0,'compatible migration is not a reset and points are not repeated')
@@ -114,16 +114,15 @@ with sync_playwright() as pw:
 
  legacy=seed(version=3,totalEarned=215200000000,prestigeLevel=59,prestigeClaimed=59,upgrades={'maquina':1000})
  ctx,p=open_game(b,legacy)
- check(saved(p)['version']==4 and saved(p)['prestigeLevel']==0,'incompatible quantities trigger authorized beta reset')
- check(p.locator('.beta-reset-notice').is_visible(),'beta reset has a persistent Portuguese notice')
- backup=p.evaluate("JSON.parse(localStorage.getItem('lollipopSave.pre-prestige-v4'))")
- check(backup==legacy,'raw incompatible save is backed up exactly')
+ check(saved(p)==legacy,'incompatible old progression stays untouched instead of being reset')
+ check(p.locator('#ownershipNotice').is_visible() and p.locator('#prestigeBtn').is_disabled(),'incompatible save stays protected with a Portuguese recovery notice')
+ check(p.locator('.beta-reset-notice').count()==0,'Pets migration does not trigger the old beta reset')
  p.reload(wait_until='networkidle');ready(p)
- check(p.locator('.beta-reset-notice').count()==0 and saved(p)['version']==4,'controlled reset does not repeat on reload')
+ check(saved(p)==legacy,'reload keeps the incompatible original untouched')
  go(p,'settings')
- with p.expect_download() as download:p.locator('#exportPrePrestigeBtn').click()
- target=RESULTS/'pre-prestige-backup.json';download.value.save_as(target)
- check(json.loads(target.read_text())==legacy,'settings can export the untouched pre-update backup')
+ with p.expect_download() as download:p.locator('#exportSaveBtn').click()
+ target=RESULTS/'protected-original.json';download.value.save_as(target)
+ check(json.loads(target.read_text())==legacy,'settings exports the untouched protected original')
  ctx.close()
 
  for width in [280,320,390,768,1440]:
