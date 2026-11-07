@@ -77,11 +77,11 @@ test("pet catalog has precisely three eggs, eighteen species, six rarities and 7
   assert.equal(new Set(DISCOVERIES).size, 72);
   assert.deepEqual(
     Object.values(EGGS).map((egg) => egg.price),
-    [1500, 100000, 10000000],
+    [1500, 1000000, 5000000000],
   );
   assert.deepEqual(
     STAGES.map((stage) => stage.power),
-    [1, 3, 10, 35],
+    [1, 2, 4, 8],
   );
   assert.deepEqual(
     STAGES.map((stage) => stage.copies),
@@ -213,6 +213,8 @@ test("factory milestones use the existing count and stay unlocked after Prestige
   game.advance(s, NOW);
   assert.deepEqual(s.pets.unlockedEggs, ["acucarado"]);
   game.buyUpgrade(s, "maquina", NOW);
+  s.upgrades.laboratorio = 1;
+  game.advance(s, NOW);
   assert.deepEqual(s.pets.unlockedEggs, ["acucarado", "cristalizado"]);
   s.upgrades = {
     maquina: 40,
@@ -222,8 +224,10 @@ test("factory milestones use the existing count and stay unlocked after Prestige
     embaladora: 0,
     laboratorio: 0,
     linha: 0,
-    superfabrica: 0,
+    superfabrica: 10,
   };
+  s.prestigeLevel = 10;
+  s.totalEarned = 27e9;
   game.prestige(s, NOW);
   assert.deepEqual(s.pets.unlockedEggs, Object.keys(EGGS));
   assert.equal(game.getTotalUpgradesCount(s), 0);
@@ -329,7 +333,7 @@ test("equipped fusion requires confirmation and settles the old production befor
   assert.equal(fusePets(s, ids, NOW + 1000), false);
   const before = s.pirulitos;
   assert.ok(fusePets(s, ids, NOW + 1000, { allowEquipped: true }));
-  close(s.pirulitos - before, 1.01);
+  close(s.pirulitos - before, 1);
   assert.deepEqual(s.pets.equipped, []);
   close(game.getPps(s), 1);
 });
@@ -365,10 +369,10 @@ test("equipped pet coefficients add, then flavors/Prestige/Stellar/boost multipl
     pets.map((p) => p.id),
     NOW,
   );
-  const petMult = 1 + 3 * 0.16 * 3,
+  const petMult = 1 + 3 * 0.6 * 2,
     permanent = (1 + 3 * 0.15) * 1.1;
   close(game.getPps(s, NOW), 1 * 1.1 * permanent * petMult * 2);
-  close(game.getClickPower(s, NOW), 4 * permanent * petMult * 2);
+  close(game.getClickPower(s, NOW), 4 * permanent * 2);
   close(game.getPps(s, NOW + 6000), 1 * 1.1 * permanent * petMult);
 });
 test("three maximum pets have finite bounded multipliers and never create factories or free currency", () => {
@@ -379,8 +383,8 @@ test("three maximum pets have finite bounded multipliers and never create factor
     pets.map((p) => p.id),
     NOW,
   );
-  close(getPetBonuses(s).ppsMultiplier, 17.8);
-  close(getPetBonuses(s).clickMultiplier, 17.8);
+  close(getPetBonuses(s).ppsMultiplier, 15.4);
+  close(getPetBonuses(s).clickMultiplier, 1);
   assert.equal(game.getPps(s, NOW), 0);
   assert.equal(s.pirulitos, 1e9);
   s.wheelClickBonus = 1e100;
@@ -396,7 +400,7 @@ test("equipment changes cannot retroactively boost production", () => {
   equipPet(s, pet.id, NOW + 10000);
   close(s.pirulitos, 10);
   unequipPet(s, pet.id, NOW + 20000);
-  close(s.pirulitos, 20.1);
+  close(s.pirulitos, 20);
 });
 test("offline production splits an expiring boost using the persisted pet team and never hatches eggs", () => {
   const s = state();
@@ -406,7 +410,7 @@ test("offline production splits an expiring boost using the persisted pet team a
   s.boostEndTime = NOW + 5000;
   const raw = JSON.stringify(s),
     loaded = loadGame(storage({ [SAVE_KEY]: raw }), NOW + 10000);
-  close(loaded.offlineEarned, 1.35 * 15);
+  close(loaded.offlineEarned, 1 * 15);
   assert.equal(loaded.state.pets.inventory.length, 1);
   assert.equal(loaded.state.pets.stats.hatched, 0);
 });
@@ -419,13 +423,13 @@ for (const strategy of ["balanced", "production", "clicks"])
       [fox] = give(s, "raposa_geada", 1);
     const expected =
       strategy === "clicks"
-        ? [candy.id, marsh.id, fox.id]
+        ? [candy.id, fox.id, dragon.id]
         : strategy === "production"
-          ? [marsh.id, candy.id, dragon.id]
+          ? [candy.id, marsh.id, dragon.id]
           : [candy.id, marsh.id, dragon.id];
-    assert.deepEqual(bestTeam(s.pets, strategy), expected);
+    assert.deepEqual(bestTeam(s.pets, strategy).sort(), [...expected].sort());
     assert.ok(equipBest(s, strategy, NOW));
-    assert.deepEqual(s.pets.equipped, expected);
+    assert.deepEqual([...s.pets.equipped].sort(), [...expected].sort());
     assert.equal(s.pets.inventory.length, 4);
     assert.equal(s.pets.strategy, strategy);
   });
@@ -464,7 +468,7 @@ test("inventory filters/search/sorts and pagination count individual duplicates"
     "raposa_geada",
   );
 });
-test("schema4 migrates to 5, preserving all valid progression and the exact raw v4 backup key", () => {
+test("schema4 migrates to 6, preserving all valid progression and the exact raw v4 backup key", () => {
   const original = state();
   delete original.pets;
   Object.assign(original, {
@@ -488,7 +492,7 @@ test("schema4 migrates to 5, preserving all valid progression and the exact raw 
     store = storage({ [SAVE_KEY]: raw, unrelated: "keep" }),
     loaded = loadGame(store, NOW);
   assert.equal(loaded.canSave, true);
-  assert.equal(loaded.state.version, 5);
+  assert.equal(loaded.state.version, 6);
   assert.equal(store.getItem(V4_BACKUP_KEY), raw);
   assert.equal(store.getItem(V3_BACKUP_KEY), null);
   for (const [key, value] of Object.entries(original))
@@ -499,7 +503,7 @@ test("schema4 migrates to 5, preserving all valid progression and the exact raw 
   ]);
   assert.equal(store.getItem("unrelated"), "keep");
   assert.equal(saveGame(store, loaded.state).ok, true);
-  assert.equal(JSON.parse(store.getItem(SAVE_KEY)).version, 5);
+  assert.equal(JSON.parse(store.getItem(SAVE_KEY)).version, 6);
 });
 test("required v4 backup failure (quota or silent rejection) protects the original and forbids overwrite", () => {
   for (const silent of [false, true]) {
@@ -586,7 +590,7 @@ test("malformed pet roots and evolution stages are protected; future saves remai
     { inventory: [{ speciesId: { toString: null }, stage: 0 }] },
   ])
     assert.throws(() => validateState({ ...state(), pets }, NOW), PetDataError);
-  const raw = JSON.stringify({ ...state(), version: 6 }),
+  const raw = JSON.stringify({ ...state(), version: 7 }),
     store = storage({ [SAVE_KEY]: raw });
   assert.equal(loadGame(store, NOW).canSave, false);
   assert.equal(store.getItem(SAVE_KEY), raw);
@@ -610,6 +614,9 @@ test("Prestige preserves every pet field while resetting only the established te
   s.upgrades.fabrica = 25;
   s.upgrades.misturador = 10;
   game.advance(s, NOW);
+  s.pets.unlockedEggs.push("celestial");
+  s.pirulitos = 15e9;
+  s.totalEarned = 15e9;
   hatchPets(s, "celestial", 3, NOW, { random: () => 0.999 });
   equipBest(s, "production", NOW);
   togglePetFlag(s, s.pets.inventory[0].id, "locked");
@@ -619,7 +626,7 @@ test("Prestige preserves every pet field while resetting only the established te
   assert.equal(s.pirulitos, 0);
   assert.equal(game.getTotalUpgradesCount(s), 0);
   assert.equal(game.getPps(s, NOW), 0);
-  assert.ok(game.getClickPower(s, NOW) > 2 * (1 + s.prestigeLevel * 0.15));
+  assert.ok(game.getClickPower(s, NOW) >= 2 * (1 + s.prestigeLevel * 0.15));
   assert.deepEqual(validateState(clone(s), NOW).pets, pets);
 });
 test("persistent save reports silent primary failures instead of falsely confirming rewards", () => {

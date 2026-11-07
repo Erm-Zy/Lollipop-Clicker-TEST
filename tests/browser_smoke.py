@@ -156,7 +156,7 @@ with sync_playwright() as p:
     migrated_fixture = fixture()
     context, page = open_game(browser, migrated_fixture)
     state = saved(page)
-    check(state["version"] == 5, "actual v2 save migrates to schema 5")
+    check(state["version"] == 6, "actual v2 save migrates to schema 6")
     check(state["activeSkin"] == "neon" and state["activeTheme"] == "gold" and state["activeParticles"] == "ice", "migration preserves all three independent cosmetic selections")
     check(state["prestigeLevel"] == 12 and state["prestigeClaimed"] == 12, "migration preserves existing prestige and consumed claims")
     backup = page.evaluate("JSON.parse(localStorage.getItem('lollipopSave.legacy-v2'))")

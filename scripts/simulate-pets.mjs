@@ -10,6 +10,8 @@ import { simulateJourney } from "./simulate-prestige.mjs";
 import { hatchPets, equipBest } from "../js/pets/actions.js";
 import { getPetBonuses } from "../js/pets/bonuses.js";
 import { EGGS, STAGES, SPECIES } from "../js/pets/catalog.js";
+import { balanceReport } from "./balance-report.mjs";
+import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
 export function petJourneySimulation(collect = false) {
@@ -90,6 +92,15 @@ if (process.argv[1] === fileURLToPath(import.meta.url))
       {
         model:
           "2 cliques/s esperados, política de fábricas/sabores por retorno marginal. Sem Arena, roleta, boost ou eventos. Colecionador compra até um lote ×3 com saldo real ao fim de cada marco, antes do prestígio; sem fusão automática. Amostra determinística, não sorte média garantida.",
+        rework: {
+          before: JSON.parse(
+            readFileSync(
+              new URL("../tests/fixtures/balance-v5.json", import.meta.url),
+              "utf8",
+            ),
+          ),
+          after: balanceReport(),
+        },
         baseline: petJourneySimulation(false),
         collector: petJourneySimulation(true),
         snapshots: balanceSnapshots(),

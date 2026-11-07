@@ -289,11 +289,11 @@ test("wheel commitment survives refresh and settles once without rerolling", () 
   assert.equal(after.state.pendingWheel, null);
   assert.equal(after.state.lastWheelReward.index, 5);
   assert.equal(after.state.wheelSpins, 1);
-  assert.equal(after.state.pirulitos, 15_000);
+  assert.equal(after.state.pirulitos, 10_100);
   saveGame(storage, after.state);
   const again = loadGame(storage, NOW + WHEEL_DURATION_MS + 1000);
   assert.equal(again.state.wheelSpins, 1);
-  assert.equal(again.state.pirulitos, 15_000);
+  assert.equal(again.state.pirulitos, 10_100);
 });
 
 test("boss progress survives refresh but an expired battle cannot be resumed", () => {
