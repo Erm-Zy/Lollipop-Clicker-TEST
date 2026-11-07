@@ -85,6 +85,13 @@ export function normalizePets(raw, now) {
       invalid = true;
       continue;
     }
+    // Unknown protection flags must not silently turn a protected copy consumable.
+    if (
+      [pet.favorite, pet.locked].some(
+        (value) => value !== undefined && typeof value !== "boolean",
+      )
+    )
+      invalid = true;
     let id = pet.id;
     if (
       typeof id !== "string" ||

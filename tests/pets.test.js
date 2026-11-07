@@ -829,3 +829,18 @@ test("combined legacy overflow and malformed pets still return a protected previ
   assert.equal(result.state.totalEarned, 1e9);
   assert.equal(result.state.pirulitos, 1e9);
 });
+
+test("malformed favorite/lock flags cannot silently make protected-looking pets consumable", () => {
+  for (const flag of ["favorite", "locked"]) {
+    const s = state();
+    give(s, "balinha", 0, 5);
+    s.pets.inventory[0][flag] = "true";
+    const raw = JSON.stringify(s),
+      store = storage({ [SAVE_KEY]: raw });
+    assert.throws(() => validateState(s, NOW), PetDataError);
+    const result = loadGame(store, NOW);
+    assert.equal(result.canSave, false);
+    assert.equal(result.state.pets.inventory.length, 5);
+    assert.equal(store.getItem(SAVE_KEY), raw);
+  }
+});

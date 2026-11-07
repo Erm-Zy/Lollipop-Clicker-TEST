@@ -97,7 +97,7 @@ A chave continua **`lollipopSave`**. O schema 5 acrescenta `pets` com inventári
 1. **v4 válido → v5:** mantém o progresso anterior, PP, Ímpeto, expansões, coleções, cosméticos, estatísticas e cooldowns. Pets começam com valores seguros; ovos da jornada atual são reconhecidos.
 2. Antes da escrita migrada, o primeiro original v4 bruto fica em **`lollipopSave.legacy-v4`**, sem confundir com `legacy-v3`. A gravação do backup é conferida por leitura. Se falhar (inclusive rejeição silenciosa), o original continua no primário e autosave/transações ficam protegidos. O primeiro backup é imutável; o backup normal também guarda a escrita completa anterior.
 3. `saveGame` verifica a leitura do primário depois de escrever. Compras, fusões, equipamento e flags passam pelo escritor existente com `runtime.act(..., {requireSave:true})`, mantendo rollback de saldo, IDs, inventário e equipe. Não existe segundo escritor.
-4. Dados de propriedade desconhecidos/inválidos não apagam progresso: o primário é preservado e o estado fica protegido para exportação. Uma cópia bruta pode ficar em **`lollipopSave.pets-v5-quarantine`**. A visualização mantém os pets reconhecidos e demais campos legítimos; importação inválida é recusada. Ajustes oferece exportação do original v4, da cópia protegida e do save atual/bruto.
+4. Dados de propriedade desconhecidos/inválidos, incluindo flags de proteção com tipo incorreto, não apagam progresso: o primário é preservado e o estado fica protegido para exportação. Uma cópia bruta pode ficar em **`lollipopSave.pets-v5-quarantine`**. A visualização mantém os pets reconhecidos e demais campos legítimos; importação inválida é recusada. Ajustes oferece exportação do original v4, da cópia protegida e do save atual/bruto.
 5. IDs inválidos/duplicados são reparados sem descartar instâncias reconhecidas; referências de equipamento são normalizadas. Um import acima de 500 pets preserva todos os válidos e bloqueia novos hatches até liberar espaço por fusão — não corta o inventário.
 6. Saves futuros/JSON corrompido continuam protegidos. Importação/restauração/substituição exigem confirmação e preservam a cópia anterior em `lollipopSave.recovery`. Export/import retém o sistema de pets inteiro.
 7. **Nenhum reset automático nesta expansão.** A exceção antiga de reset beta não é repetida. Legados anteriores ao v4 que excedem capacidades ficam protegidos para exportação; a prévia aplica os limites de visualização e não sobrescreve o original. Backups históricos `pre-prestige-v4` continuam exportáveis.
@@ -165,7 +165,7 @@ O preparador Android agora relata/valida dez documentos, incluindo Pets. ID, per
 | --- | --- |
 | `npm ci` | Dependências fixadas instaladas |
 | `npm run check` | 51 JS e dez HTMLs verificados |
-| `npm test` | **183 testes passaram**, 70 novos de pets |
+| `npm test` | **184 testes passaram**, 71 novos de pets |
 | `node scripts/simulate-pets.mjs` | Cenários acima, sem valores não finitos |
 | `npm run pwa:build` | Artefato com dez páginas e hashes verificados |
 | `npm run test:pets` | **70 verificações Chromium passaram** |
