@@ -207,6 +207,10 @@ with sync_playwright() as p:
     context,page=open_game(browser,seed(upgrades={'maquina':25}),mock=True,extra=True)
     page.bring_to_front()
     page.wait_for_function('!document.hidden')
+    # Settle the first-gesture status/layout before selecting a track by pointer.
+    # This case tests Manual continuity; autoplay gestures are covered above.
+    page.locator('#musicPlayBtn').click()
+    page.wait_for_function('__audio[0].paused===false')
     page.locator('[data-music-track="test-vale"]').click()
     # Selecting a track fades out asynchronously; navigation must wait for the
     # actual source/session, not merely the immediately updated target label.
