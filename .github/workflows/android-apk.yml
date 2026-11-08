@@ -135,20 +135,36 @@ jobs:
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
+      - name: Precompile isolated application and instrumentation APKs
+        run: |
+          sdkmanager 'build-tools;34.0.0' 'platforms;android-35'
+          android/gradlew -p android :app:assembleDebug :app:assembleDebugAndroidTest --no-daemon --max-workers=2
+      - name: Initialize smoke diagnostics
+        run: |
+          mkdir -p "$RUNNER_TEMP/android-smoke"
+          echo 'phase=emulator-runner-not-entered' > "$RUNNER_TEMP/android-smoke/result.txt"
+          free -m > "$RUNNER_TEMP/android-smoke/memory-before.txt"
       - uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 35
           arch: x86_64
           target: google_apis
           disable-animations: true
-          script: |
-            adb shell svc wifi disable
-            adb shell svc data disable
-            sdkmanager 'build-tools;34.0.0' 'platforms;android-35'
-            cd android && ./gradlew :app:connectedDebugAndroidTest --no-daemon
+          emulator-options: -no-window -no-snapshot -noaudio -no-boot-anim -gpu swiftshader_indirect
+          ram-size: 2048
+          cores: 2
+          script: bash scripts/android-smoke.sh
+      - name: Record device state after runner cleanup
+        if: always()
+        run: |
+          mkdir -p "$RUNNER_TEMP/android-smoke"
+          timeout 10 adb devices -l > "$RUNNER_TEMP/android-smoke/devices-after-runner.txt" 2>&1 || echo 'ADB unavailable after teardown' >> "$RUNNER_TEMP/android-smoke/devices-after-runner.txt"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: android-webview-test-report
-          path: android/app/build/reports/androidTests/
+          path: |
+            android/app/build/reports/androidTests/
+            android/app/build/outputs/androidTest-results/
+            ${{ runner.temp }}/android-smoke/
           if-no-files-found: warn
