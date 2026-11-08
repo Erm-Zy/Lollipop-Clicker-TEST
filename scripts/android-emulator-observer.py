@@ -40,7 +40,7 @@ def install():
         raise RuntimeError("refusing to replace an unknown emulator backup")
     out = output_dir()
     version = subprocess.run([str(original if installed else binary), "-version"], capture_output=True, text=True, timeout=10)
-    (out / "emulator-version.txt").write_text(version.stdout[:4096])
+    (out / "emulator-version.txt").write_text((version.stdout + version.stderr)[:4096])
     if not installed:
         binary.rename(original)
     binary.write_text("#!/usr/bin/env bash\nexec python3 " + shlex.quote(str(Path(__file__).resolve()))
