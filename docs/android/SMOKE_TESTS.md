@@ -4,15 +4,15 @@ O job `android-smoke` é isolado, sem secrets de distribuição e sem artifact A
 
 ## Evidência inicial
 
-Execução42433588369, job128587561097, commit33a89ac: console do emulador falhou às01:20:22Z; instrumentação iniciou às01:20:27Z; teste marcado como falho às01:21:12Z; dispositivo indisponível na limpeza às01:21:22Z. O log não contém a exceção original. Download do artifact antigo pela sessão retornou403; não foi possível recuperar mais evidência. Push e PR são invocações separadas do mesmo commit, não prova de duas causas.
+Execução 42433588369, job 128587561097, commit 33a89ac: console do emulador falhou às 01:20:22Z; instrumentação iniciou às 01:20:27Z; teste marcado como falho às 01:21:12Z; dispositivo indisponível na limpeza às 01:21:22Z. O log não contém a exceção original. Download do artifact antigo pela sessão retornou 403; não foi possível recuperar mais evidência. Push e PR são invocações separadas do mesmo commit, não prova de duas causas.
 
 **Causa original ainda não comprovada.** Sumiço do dispositivo é confirmado; não se concluiu se ocorreu antes de uma asserção ou depois dela. Fragilidades verificadas do teste antigo: `ready()` aceitava qualquer documento writable, sleeps fixos e scripts sem tratamento contextual. Nenhum defeito de produção foi confirmado; gameplay/runtime, UI, assinatura e versão não foram alterados.
 
 ## Mudanças e limites
 
-Esperas agora verificam WebView existente, documento esperado, readyState completo, bootstrap/writable e HUD, até30s. Callback JS tem limite5s, distingue exceção/selector/callback; erro não é aceito como sucesso. Navegação abre More quando necessário e usa âncoras reais; não injeta `location` como atalho. Marcadores `LollipopSmoke STAGE/READY` contêm só rota/estado/HUD, nunca save bruto.
+Esperas agora verificam WebView existente, documento esperado, readyState completo, bootstrap/writable e HUD, até 30 s. Callback JS tem limite 5 s, distingue exceção/selector/callback; erro não é aceito como sucesso. Navegação abre More quando necessário e usa âncoras reais; não injeta `location` como atalho. Marcadores `LollipopSmoke STAGE/READY` contêm só rota/estado/HUD, nunca save bruto.
 
-Pré-compilação ocorre antes de iniciar o emulador, reduzindo competição durante o teste. Boot sem snapshots, dois cores/RAM2048 explícitos; Gradle limitado a dois workers. Não há retries de asserções nem supressão de crashes. Esses são controles de reprodutibilidade/recursos, não uma causa comprovada de queda do emulador.
+Pré-compilação ocorre antes de iniciar o emulador, reduzindo competição durante o teste. Boot sem snapshots, dois cores/RAM 2048 explícitos; Gradle limitado a dois workers. Não há retries de asserções nem supressão de crashes. Esses são controles de reprodutibilidade/recursos, não uma causa comprovada de queda do emulador.
 
 ## Artifact sempre enviado
 
@@ -39,6 +39,14 @@ Primeira revisão de CI (5b4dbc4): push/PR interromperam no setup, antes de inic
 
 ## Evidência recuperada na execução API35
 
-O artifact13600385644 da execuçãoPR42436654720 (2378a47) foi recuperado pelo conector GitHub, apesar do403 do download direto. `live-logcat.txt` registra READYhome às02:05:14Z, READYshop às02:05:16Z e STAGEnavigatehome. O processo QEMU não aparece no snapshot antes do teardown; ADB sem dispositivo. Não foi registrado FATAL EXCEPTION do app. JUnit contém failure vazio por perda da instrumentação. Isso confirma desaparecimento do emulador, mas não estabelece o motivo da saída. O push42436650129 também falhou nessa rodada.
+O artifact 13600385644 da execução PR 42436654720 (2378a47) foi recuperado pelo conector GitHub, apesar do 403 do download direto. `live-logcat.txt` registra READY home às 02:05:14Z, READY shop às 02:05:16Z e STAGE navigate home. O processo QEMU não aparece no snapshot antes do teardown; ADB sem dispositivo. Não foi registrado FATAL EXCEPTION do app. JUnit contém failure vazio por perda da instrumentação. Isso confirma desaparecimento do emulador, mas não estabelece o motivo da saída. O push 42436650129 também falhou nessa rodada.
 
 Há avisos Chromium de limites de memória de tiles antes da navegação. Desativar Vulkan é um experimento isolado de backend gráfico (mesmo API35, imagem e asserções), não diagnóstico definitivo; coleta host-kernel procura indícios de crash/OOM. Nenhum código do jogo foi alterado para esconder o problema. Se continuar falhando, comparar última etapa, versão/backend do emulador, host-kernel e saída do QEMU, mantendo a validação pendente.
+
+## Resultado do experimento e verificações
+
+Commit `f06614e`: tanto [push 42437262170](https://github.com/Erm-Zy/Lollipop-Clicker-TEST/actions/runs/42437262170) quanto [PR 42437267816](https://github.com/Erm-Zy/Lollipop-Clicker-TEST/actions/runs/42437267816) falharam na instrumentação; validate passou e distribute foi ignorado. Desativar Vulkan não resolveu: o artifact 13599997137 do push mostra READY home, READY shop e STAGE navigate home, seguido por ausência de QEMU/ADB. Não há FATAL EXCEPTION do app no log capturado. O kernel ficou indisponível ou sem entradas correspondentes. A opção experimental foi removida; a coleta agora tenta `sudo -n dmesg` no runner Ubuntu antes do fallback sem privilégios, com timeout e filtro. A causa da saída do processo continua pendente.
+
+Verificações locais: `npm run check` (54 JS/10 HTML), `npm test` (253/253), `bash -n scripts/android-smoke.sh`, parse YAML, `npm run android:sync`, `node scripts/check-android.mjs` e Gradle `:app:assembleDebug :app:assembleDebugAndroidTest` passaram com JDK21/SDK35. Não há emulador/KVM local. Testes browser não foram repetidos: código de produção, navegação e runtime não mudaram. Compilar não prova execução WebView.
+
+Próxima evidência específica: `host-kernel.txt` com saída de QEMU/segfault/OOM e último marcador de `live-logcat.txt`, comparados ao log do emulator-runner (emulador 37.2.13.0 observado). Se o kernel também não registrar o motivo, investigar crash report/exit do emulador em ambiente controlado; não atribuir os avisos de tiles à causa sem evidência. Manter a instrumentação obrigatória e sem retries até os três testes realmente concluírem.
