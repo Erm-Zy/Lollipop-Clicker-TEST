@@ -75,6 +75,15 @@ def open_game(browser,value=None,width=1440,base=BASE):
     page=context.new_page();page.goto(urljoin(base,'pages/pets.html'),wait_until='networkidle');page.bring_to_front();ready(page)
     return context,page
 
+def team_bonus(page):
+    if not page.locator(".team-summary").get_attribute("open")=="":page.locator(".team-summary summary").click()
+    return page.locator("#teamBonus")
+
+def pet_control(page,selector):
+    # Team controls intentionally moved to their own nursery panel.
+    if page.locator('#panel-team').is_hidden():page.locator('[data-panel="team"]').click()
+    return page.locator(selector)
+
 def panel(page,name):page.locator(f'[data-panel="{name}"]').click()
 def hatch(page,count,keyboard=False):
     button=page.locator(f'[data-hatch="{count}"]')
@@ -130,8 +139,8 @@ try:
     page.locator(f'[data-pet="{first_id}"] [data-action="locked"]').click()
     check(stored(page)['pets']['inventory'][0]['locked'],'lock action persists independently')
     page.locator(f'[data-pet="{first_id}"] [data-action="equip"]').click()
-    check(stored(page)['pets']['equipped']==[first_id] and '+6%' in page.locator('#teamBonus').inner_text(),'manual equip changes the authoritative click bonus')
-    page.locator('#teamStrategy').select_option('clicks');page.locator('#equipBestBtn').click()
+    check(stored(page)['pets']['equipped']==[first_id] and '+6%' in team_bonus(page).inner_text(),'manual equip changes the authoritative click bonus')
+    pet_control(page,'#teamStrategy').select_option('clicks');pet_control(page,'#equipBestBtn').click()
     check(len(stored(page)['pets']['equipped'])==3 and stored(page)['pets']['strategy']=='clicks','Equip Best equips three distinct owned pets under the selected strategy')
     page.reload(wait_until='networkidle');ready(page)
     check(stored(page)['pets']['inventory'][0]['favorite'] and len(stored(page)['pets']['equipped'])==3,'flags and team survive reload')
@@ -156,7 +165,7 @@ try:
     initial=pets([('balinha',0),('marshmelinho',1),('goma',2),('dragao_galactico',0)])
     context,page=open_game(browser,seed(pets=initial,upgrades={'maquina':2}),width=390)
     for strategy in ['balanced','production','clicks']:
-        page.locator('#teamStrategy').select_option(strategy);page.locator('#equipBestBtn').click()
+        pet_control(page,'#teamStrategy').select_option(strategy);pet_control(page,'#equipBestBtn').click()
         check(stored(page)['pets']['strategy']==strategy and len(set(stored(page)['pets']['equipped']))==3,f'{strategy} strategy is a working persistent UI action')
     before=stored(page)
     page.goto(BASE+'index.html',wait_until='networkidle');page.locator('#lollipop').click();page.wait_for_timeout(1200)
@@ -253,7 +262,7 @@ try:
     original=seed(version=4,upgrades={'maquina':25},prestigeLevel=3,prestigeClaimed=3,prestigePoints=2,stellarBoostLevel=1,totalEarned=27000000,prestigeBaseline=27000000)
     context,page=open_game(browser,original)
     check(page.evaluate("JSON.parse(localStorage.getItem('lollipopSave.legacy-v4'))")==original and stored(page)['version']==6,'real bootstrap creates the correct original v4 backup before writing schema6')
-    hatch(page,3);close_hatch(page);page.locator('#equipBestBtn').click()
+    hatch(page,3);close_hatch(page);pet_control(page,'#equipBestBtn').click()
     team=copy.deepcopy(stored(page)['pets'])
     # Increase the fixture's historical threshold through the normal confirmed import UI.
     current=stored(page);current.update(totalEarned=64000000,pirulitos=1000000)
@@ -268,7 +277,7 @@ try:
     check('pets' in confirmation[0] and 'ovos' in confirmation[0],'Prestige confirmation explicitly preserves pets, eggs and discoveries')
     check(stored(page)['pets']==team and stored(page)['upgrades']['maquina']==0,'Prestige preserves exact pet IDs/team/stats and permanent egg unlocks')
     page.goto(BASE+'pages/pets.html',wait_until='networkidle');ready(page)
-    check('+18%' in page.locator('#teamBonus').inner_text(),'equipped pet bonus is still applied after Prestige')
+    check('+18%' in team_bonus(page).inner_text(),'equipped pet bonus is still applied after Prestige')
     page.goto(BASE+'pages/settings.html',wait_until='networkidle')
     with page.expect_download() as download:page.locator('#exportSaveBtn').click()
     exported=RESULTS/'pets-export.json';download.value.save_as(exported)
@@ -296,13 +305,14 @@ try:
     check(stored(page)['pets']['stats']['hatched']==count+2,'all Pets modules and transactions remain playable offline in a subpath PWA')
     for name in ['collection','pets']:
         page.goto(BASE+f'pages/{name}.html',wait_until='networkidle')
+    page.locator('[data-panel=team]').click()
     check(page.locator('#petTeam').is_visible(),'offline cross-document navigation returns to Pets successfully')
     context.close()
 
     context,page=open_game(browser,base=ORIGIN+'/native/',width=390)
     remote=[]
     page.on('request',lambda request:remote.append(request.url) if not request.url.startswith(ORIGIN) else None)
-    hatch(page,3);close_hatch(page);page.locator('#equipBestBtn').click();native_team=stored(page)['pets']['equipped']
+    hatch(page,3);close_hatch(page);pet_control(page,'#equipBestBtn').click();native_team=stored(page)['pets']['equipped']
     page.reload(wait_until='networkidle');ready(page)
     check(len(native_team)==3 and stored(page)['pets']['equipped']==native_team,'Android web bundle includes Pets and retains hatches/equipment across restart navigation')
     check(page.locator('#pwaUpdate').count()==0 and not remote,'Android bundle uses its local files and never registers the browser/PWA updater')
@@ -312,11 +322,11 @@ try:
     context,page=open_game(browser,seed(version=5,pets=initial),width=390)
     check(stored(page)['version']==6 and page.evaluate("JSON.parse(localStorage.getItem('lollipopSave.legacy-v5')).version")==5,'v5 migrates to v6 only after preserving the original raw save')
     for mode in ['combat','prestige','capacity']:
-        page.locator('#teamStrategy').select_option(mode);page.locator('#equipBestBtn').click()
+        pet_control(page,'#teamStrategy').select_option(mode);pet_control(page,'#equipBestBtn').click()
         check(stored(page)['pets']['strategy']==mode and len(set(stored(page)['pets']['equipped']))==3,mode+' specialization is a working Equip Best action')
-    page.locator('#petPreset').select_option('capacity');page.locator('#savePetPreset').click()
+    pet_control(page,'#petPreset').select_option('capacity');pet_control(page,'#savePetPreset').click()
     saved_team=stored(page)['pets']['equipped'];check(stored(page)['pets']['presets']['capacity']==saved_team,'equipment preset saves actual instance IDs')
-    page.locator('#teamStrategy').select_option('combat');page.locator('#equipBestBtn').click();page.locator('#loadPetPreset').click()
+    pet_control(page,'#teamStrategy').select_option('combat');pet_control(page,'#equipBestBtn').click();pet_control(page,'#loadPetPreset').click()
     check(stored(page)['pets']['equipped']==saved_team,'preset restores the team in one persistent action')
     panel(page,'inventory')
     other=next(pet['id'] for pet in stored(page)['pets']['inventory'] if pet['id'] not in saved_team)
@@ -324,7 +334,8 @@ try:
     expect(page.locator('#replacePetDialog')).to_be_visible();page.locator('[data-replace]').first.click()
     check(other in stored(page)['pets']['equipped'] and len(stored(page)['pets']['equipped'])==3,'Substituir swaps a full team without a manual unequip gap')
     # Leave candy sources unequipped to protect the no-consent default.
-    page.locator('#teamStrategy').select_option('capacity');page.locator('#equipBestBtn').click()
+    pet_control(page,'#teamStrategy').select_option('capacity');pet_control(page,'#equipBestBtn').click()
+    panel(page,'inventory')
     page.locator('.pet-bulk summary').click();page.locator('#petReserve').fill('5');page.locator('#savePetReserve').click()
     check(stored(page)['pets']['reserveNormals']==5,'Normal reserve is persisted explicitly')
     page.locator('#bulkSpecies').select_option('balinha');page.locator('#bulkChain').check();page.locator('#reviewBulkFusion').click()
@@ -358,7 +369,7 @@ try:
     # Purchased capacity never disappears or produces without the equipped specialist.
     initial=pets([('guardiao_aurora',3)],['pet-1'])
     context,page=open_game(browser,seed(version=6,pets=initial,upgrades={'superfabrica':24},totalEarned=1e12,pirulitos=1e12))
-    page.locator('[data-unequip]').click();page.goto(BASE+'pages/shop.html',wait_until='networkidle')
+    pet_control(page,'[data-unequip]').click();page.goto(BASE+'pages/shop.html',wait_until='networkidle')
     check('20 ativas / 24 possuídas' in page.locator('[data-upgrade="superfabrica"]').inner_text(),'shop distinguishes owned and active units and explains inactive extras')
     page.reload(wait_until='networkidle')
     check(stored(page)['upgrades']['superfabrica']==24 and 'inativas' in page.locator('[data-upgrade="superfabrica"]').inner_text(),'inactive ownership survives reload without becoming permanent free production')

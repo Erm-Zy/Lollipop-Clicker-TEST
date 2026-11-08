@@ -9,6 +9,7 @@ Jogo incremental independente em português brasileiro, feito com HTML, CSS e Ja
 - `js/storage.js`: schema 6, validação e backups de `lollipopSave`; v5 bruto em `lollipopSave.legacy-v5` e v4 em `lollipopSave.legacy-v4`. Migração nunca repete o reset histórico de beta: legados incompatíveis/dados de pets desconhecidos ficam protegidos para exportação. Leia `docs/PETS_UPDATE.md`. `js/core/runtime.js`: relógio, ownership, autosave e lifecycle compartilhados.
 - `js/pets/`: catálogo de três ovos/18 espécies, IDs, bônus, ações transacionais, inventário paginado, fusão explícita/em lote com reserva, quatro conjuntos e auto apenas em primeiro plano. `pages/pets.html` / `js/pages/pets.js` usam o mesmo bootstrap; não adicione um segundo escritor.
 
+- `css/ui-system.css`: sistema de interface compartilhado (HUD, navegação, painéis, estados e responsividade). Leia `docs/UI_SYSTEM_UPDATE.md`; `python3 tests/ui_system_browser.py` valida resoluções, menus, temas e subpath/offline. Pets usa quatro áreas, com Equipe separada.
 - `js/ui/art.js`: ilustrações SVG atuais. `js/ui/assets.js`: registro opcional de PNG/WebP locais e fallback. Leia `docs/ART_GUIDE.md` antes de integrar desenhos.
 - `js/ui/shared.js`: HUD/navegação/notificações. `css/`: paleta, temas, layout e animações atuais. Fundo, partículas e aparência são escolhas independentes; sabores dão bônus.
 - `js/world.js`: capítulos e identidade dos guardiões compartilhados com a cena e a música; não duplique os limites 0/5/25/100.

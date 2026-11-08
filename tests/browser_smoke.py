@@ -73,7 +73,7 @@ def navigate(page, name):
     destination = "index.html" if name == "home" else f"{name}.html"
     candidates = page.locator(f'a[href$="{destination}"]:visible')
     if candidates.count() == 0:
-        summary = page.locator("#bottomNav .more-menu summary")
+        summary = page.locator(".more-menu summary:visible").first
         if summary.is_visible():
             summary.click()
         candidates = page.locator(f'a[href$="{destination}"]:visible')

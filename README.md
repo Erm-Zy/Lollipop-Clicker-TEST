@@ -139,3 +139,7 @@ O Santuário oferece Ímpeto Estelar (20 níveis, +5% por nível, custos 1–20 
 ## Pets e ovos
 
 No **Ninho açucarado**, abra lotes ×1/×2/×3 do Ovo Açucarado (1.500), Cristalizado (1.000.000) e Celestial (5.000.000.000 pirulitos), com chances transparentes. As mesmas 18 espécies oferecem clique, PPS, combate, PP futuro e capacidade equipada conforme seu ovo. Três slots, 500 instâncias e 72 descobertas permanecem. Fusão em lote com reserva e prévia, substituição direta, seis estratégias e quatro conjuntos reduzem o atrito. Auto gratuito apenas em primeiro plano, sem hatches offline. Pets e desbloqueios sobrevivem ao prestígio. [Guia](docs/PETS_UPDATE.md) · [Balanceamento e métricas](docs/BALANCE_REWORK.md). Rode `npm run balance` para o relatório reproduzível.
+
+## Interface do mundo de doces
+
+HUD compacto, navegação Mundo/Loja/Pets/Arena + Mais, Equipe separada no Ninho e galeria das melhorias reais de Prestígio. [Mapa de UX, componentes, screenshots e limites](docs/UI_SYSTEM_UPDATE.md). Teste dedicado: `python3 tests/ui_system_browser.py` após `npm run pwa:build`.
