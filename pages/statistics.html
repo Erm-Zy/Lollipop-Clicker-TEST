@@ -20,6 +20,7 @@
     <link rel="stylesheet" href="../css/animations.css" />
     <link rel="stylesheet" href="../css/pages.css" />
     <link rel="stylesheet" href="../css/responsive.css" />
+    <link rel="stylesheet" href="../css/ui-system.css" />
   </head>
   <body data-page="statistics">
     <a class="skip-link" href="#pageContent">Pular para o conteúdo</a>
@@ -29,10 +30,13 @@
         <a class="back-link" href="../index.html">← Voltar ao mundo</a>
         <p class="eyebrow">DIÁRIO DA AVENTURA</p>
         <h1 class="page-title">Histórias escritas em açúcar</h1>
-        <p class="page-lead">
-          Do primeiro pirulito ao maior império. Aqui ficam os feitos de quem
-          nunca deixou de clicar.
-        </p>
+        <details class="page-intro">
+          <summary>Sobre este lugar ⌄</summary>
+          <p class="page-lead">
+            Do primeiro pirulito ao maior império. Aqui ficam os feitos de quem
+            nunca deixou de clicar.
+          </p>
+        </details>
       </div>
       <section class="journal-sheet" aria-labelledby="journalTitle">
         <div class="journal-heading">
@@ -123,10 +127,22 @@
             <dt>Níveis de prestígio</dt>
             <dd id="statPrestige">0</dd>
           </div>
-          <div class="journal-entry stat-row"><dt>Pontos de Prestígio disponíveis</dt><dd id="statPrestigePoints">0</dd></div>
-          <div class="journal-entry stat-row"><dt>Ímpeto Estelar</dt><dd id="statStellar">0 / 20</dd></div>
-          <div class="journal-entry stat-row"><dt>Companheiros permanentes</dt><dd id="statPets"></dd></div>
-          <div class="journal-entry stat-row"><dt>Bônus da equipe equipada</dt><dd id="statPetBonus"></dd></div>
+          <div class="journal-entry stat-row">
+            <dt>Pontos de Prestígio disponíveis</dt>
+            <dd id="statPrestigePoints">0</dd>
+          </div>
+          <div class="journal-entry stat-row">
+            <dt>Ímpeto Estelar</dt>
+            <dd id="statStellar">0 / 20</dd>
+          </div>
+          <div class="journal-entry stat-row">
+            <dt>Companheiros permanentes</dt>
+            <dd id="statPets"></dd>
+          </div>
+          <div class="journal-entry stat-row">
+            <dt>Bônus da equipe equipada</dt>
+            <dd id="statPetBonus"></dd>
+          </div>
         </dl>
         <p class="page-note">
           O tempo de jogo conta sua presença ativa. Sua fábrica também produz

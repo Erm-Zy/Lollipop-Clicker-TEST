@@ -20,6 +20,7 @@
     <link rel="stylesheet" href="css/animations.css" />
     <link rel="stylesheet" href="css/pages.css" />
     <link rel="stylesheet" href="css/responsive.css" />
+    <link rel="stylesheet" href="css/ui-system.css" />
   </head>
   <body data-page="home">
     <header id="gameHeader"></header>
@@ -51,7 +52,7 @@
             ><span class="flavor-dot" aria-hidden="true"></span
             ><span
               ><small>RECEITA DA VEZ</small><b id="flavorName">Morango</b></span
-            ><span aria-hidden="true">↗</span></a
+            ><span aria-hidden="true">→</span></a
           >
           <button id="adBoostBtn" class="boost-button game-button" data-action>
             <span aria-hidden="true">ϟ</span
@@ -62,6 +63,10 @@
               ></span
             ><span id="boostAction">ATIVAR</span>
           </button>
+          <nav class="stage-shortcuts" aria-label="Continuar aventura">
+            <a href="pages/shop.html">Loja →</a
+            ><a href="pages/prestige.html">Prestígio ✦</a>
+          </nav>
           <a href="pages/rewards.html" class="reward-link"
             >Uma pitada de sorte? Visite a roleta →</a
           >
@@ -105,7 +110,10 @@
             ><span aria-hidden="true">→</span></a
           >
         </section>
-        <aside class="shop-zone" aria-label="Compra rápida de melhorias">
+        <details open class="shop-zone" aria-label="Compra rápida de melhorias">
+          <summary class="quick-shop-summary">
+            Compra rápida · engenhocas ⌄
+          </summary>
           <div class="shop-heading">
             <span class="chapter-label">BALCÃO DE ENGENHOCAS</span>
             <h2>Mais açúcar. Menos trabalho.</h2>
@@ -128,7 +136,7 @@
             Cada engenhoca trabalha por você.<br />Mesmo quando a aventura faz
             uma pausa.
           </p>
-        </aside>
+        </details>
       </div>
       <a class="world-glimpse" href="pages/shop.html"
         ><span id="mobileWorldName">Colina de Açúcar</span

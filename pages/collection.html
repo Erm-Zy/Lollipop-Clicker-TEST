@@ -20,6 +20,7 @@
     <link rel="stylesheet" href="../css/animations.css" />
     <link rel="stylesheet" href="../css/pages.css" />
     <link rel="stylesheet" href="../css/responsive.css" />
+    <link rel="stylesheet" href="../css/ui-system.css" />
   </head>
   <body data-page="collection">
     <a class="skip-link" href="#mainContent">Pular para a coleção</a>
@@ -29,15 +30,25 @@
         <div>
           <span class="eyebrow">SEU BAÚ DE TESOUROS</span>
           <h1 class="page-title">Coleção açucarada</h1>
-          <p class="page-lead">
-            Uma receita, infinitas combinações. Deixe este mundo com a sua cara.
-          </p>
+          <details class="page-intro">
+            <summary>Sobre este lugar ⌄</summary>
+            <p class="page-lead">
+              Uma receita, infinitas combinações. Deixe este mundo com a sua
+              cara.
+            </p>
+          </details>
         </div>
         <a class="game-button secondary" href="../index.html"
           >Voltar ao mundo</a
         >
       </div>
-      <a class="game-button secondary pets-shortcut" href="pets.html">Pets e ovos · conhecer meus companheiros →</a>
+      <a class="game-button secondary pets-shortcut" href="pets.html"
+        >Pets e ovos · conhecer meus companheiros →</a
+      >
+      <section class="loadout-panel" aria-label="Seu conjunto atual">
+        <h2>Seu conjunto</h2>
+        <div id="collectionLoadout" class="loadout-chips"></div>
+      </section>
       <div
         class="inventory-tabs"
         role="group"
@@ -81,24 +92,54 @@
         quiser.
       </p>
       <div class="collection-filters" role="group" aria-label="Filtrar coleção">
-        <button type="button" data-filter="all" aria-pressed="true">Todos</button>
-        <button type="button" data-filter="unlocked" aria-pressed="false">Desbloqueados</button>
-        <button type="button" data-filter="locked" aria-pressed="false">Bloqueados</button>
-        <button type="button" data-filter="affordable" aria-pressed="false">Posso comprar</button>
+        <button type="button" data-filter="all" aria-pressed="true">
+          Todos
+        </button>
+        <button type="button" data-filter="unlocked" aria-pressed="false">
+          Desbloqueados
+        </button>
+        <button type="button" data-filter="locked" aria-pressed="false">
+          Bloqueados
+        </button>
+        <button type="button" data-filter="affordable" aria-pressed="false">
+          Posso comprar
+        </button>
       </div>
       <div
         id="inventoryGrid"
         class="inventory-grid"
         aria-label="Itens da coleção"
       ></div>
-      <p id="inventoryEmpty" class="inventory-empty" role="status" hidden>Nenhum item neste filtro por enquanto. Experimente Todos.</p>
-      <dialog id="flavorComparison" class="flavor-comparison" aria-labelledby="comparisonTitle" tabindex="-1">
-        <div class="comparison-heading"><h2 id="comparisonTitle">Comparar sabores</h2><button type="button" id="closeComparison" class="item-preview">Fechar comparação</button></div>
-        <div class="comparison-values">
-          <div><h3 id="comparisonCurrent">Equipado</h3><strong id="currentClick"></strong><span id="currentPps"></span></div>
-          <div><h3 id="comparisonPreview">Prévia</h3><strong id="previewClick"></strong><span id="previewPps"></span></div>
+      <p id="inventoryEmpty" class="inventory-empty" role="status" hidden>
+        Nenhum item neste filtro por enquanto. Experimente Todos.
+      </p>
+      <dialog
+        id="flavorComparison"
+        class="flavor-comparison"
+        aria-labelledby="comparisonTitle"
+        tabindex="-1"
+      >
+        <div class="comparison-heading">
+          <h2 id="comparisonTitle">Comparar sabores</h2>
+          <button type="button" id="closeComparison" class="item-preview">
+            Fechar comparação
+          </button>
         </div>
-        <p>Só uma prévia: nenhum doce é gasto e nenhum item é trocado. Valores atuais com prestígio e bônus temporários; não incluem uma frequência de cliques futura.</p>
+        <div class="comparison-values">
+          <div>
+            <h3 id="comparisonCurrent">Equipado</h3>
+            <strong id="currentClick"></strong><span id="currentPps"></span>
+          </div>
+          <div>
+            <h3 id="comparisonPreview">Prévia</h3>
+            <strong id="previewClick"></strong><span id="previewPps"></span>
+          </div>
+        </div>
+        <p>
+          Só uma prévia: nenhum doce é gasto e nenhum item é trocado. Valores
+          atuais com prestígio e bônus temporários; não incluem uma frequência
+          de cliques futura.
+        </p>
       </dialog>
       <p class="inventory-footnote">
         Os itens comprados ficam com você após o prestígio. Cada coleção visual

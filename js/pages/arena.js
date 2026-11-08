@@ -58,6 +58,19 @@ function render(state, info = {}) {
   document.getElementById("bossReward").title =
     `Recompensa de vitória: ${exact.format(reward)} doces, limitada ao espaço disponível no saldo.`;
   const cooldown = Math.max(0, (state.bossCooldownUntil || 0) - now);
+  setText(
+    "battleState",
+    boss
+      ? "⚔ Em combate"
+      : cooldown > 0
+        ? "⌛ Intervalo entre desafios"
+        : "✦ Pronto para desafiar",
+  );
+  document.querySelector(".arena-stage").dataset.battle = boss
+    ? "active"
+    : cooldown > 0
+      ? "cooldown"
+      : "ready";
   start.disabled = !runtime.writable || Boolean(boss) || cooldown > 0;
   avatar.disabled = !runtime.writable || !boss;
   avatar.classList.toggle("fighting", Boolean(boss));

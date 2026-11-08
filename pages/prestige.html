@@ -20,6 +20,7 @@
     <link rel="stylesheet" href="../css/animations.css" />
     <link rel="stylesheet" href="../css/pages.css" />
     <link rel="stylesheet" href="../css/responsive.css" />
+    <link rel="stylesheet" href="../css/ui-system.css" />
   </head>
   <body data-page="prestige">
     <a class="skip-link" href="#mainContent">Pular para o santuário</a>
@@ -29,110 +30,169 @@
         <div>
           <span class="eyebrow">ONDE OS SONHOS VIRAM ESTRELAS</span>
           <h1 class="page-title">Santuário do açúcar</h1>
-          <p class="page-lead">
-            Toda grande aventura merece um novo começo. O seu legado torna o
-            próximo ainda mais doce.
-          </p>
+          <details class="page-intro">
+            <summary>Sobre este lugar ⌄</summary>
+            <p class="page-lead">
+              Toda grande aventura merece um novo começo. O seu legado torna o
+              próximo ainda mais doce.
+            </p>
+          </details>
         </div>
         <a class="game-button secondary" href="../index.html"
           >Voltar ao mundo</a
         >
       </div>
-      <section class="prestige-shrine" aria-label="Renascer com prestígio">
-        <div class="prestige-orb" aria-hidden="true">
-          <svg viewBox="0 0 240 220" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <radialGradient id="starGlow">
-                <stop stop-color="#fff5b0" />
-                <stop offset="1" stop-color="#ee9b44" />
-              </radialGradient>
-            </defs>
-            <ellipse
-              cx="120"
-              cy="191"
-              rx="79"
-              ry="16"
-              fill="#1e1039"
-              opacity=".4"
-            />
-            <path
-              d="M52 172h136l-11 26H63Z"
-              fill="#a47bc8"
-              stroke="#542e79"
-              stroke-width="5"
-            />
-            <path
-              d="M79 155h82l12 18H67Z"
-              fill="#d8a7e9"
-              stroke="#542e79"
-              stroke-width="5"
-            />
-            <circle
-              cx="120"
-              cy="89"
-              r="65"
-              fill="#71539a"
-              stroke="#c7a0ee"
-              stroke-width="4"
-            />
-            <circle
-              cx="120"
-              cy="89"
-              r="52"
-              fill="#4a316b"
-              stroke="#f5cc86"
-              stroke-width="2"
-              stroke-dasharray="4 7"
-            />
-            <path
-              d="m120 45 13 28 31 4-23 22 6 31-27-15-27 15 6-31-23-22 31-4Z"
-              fill="url(#starGlow)"
-              stroke="#f9e4b4"
-              stroke-width="3"
-            />
-            <path d="m120 55 8 22 23 4-27 2Z" fill="#fff5d5" opacity=".8" />
-            <path
-              d="m36 54 4 8 8 4-8 4-4 8-4-8-8-4 8-4m166 39 4 8 8 4-8 4-4 8-4-8-8-4 8-4"
-              fill="#fbeab5"
-            />
-          </svg>
+      <div class="sanctuary-layout">
+        <section class="prestige-shrine" aria-label="Renascer com prestígio">
+          <div class="prestige-orb" aria-hidden="true">
+            <svg viewBox="0 0 240 220" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <radialGradient id="starGlow">
+                  <stop stop-color="#fff5b0" />
+                  <stop offset="1" stop-color="#ee9b44" />
+                </radialGradient>
+              </defs>
+              <ellipse
+                cx="120"
+                cy="191"
+                rx="79"
+                ry="16"
+                fill="#1e1039"
+                opacity=".4"
+              />
+              <path
+                d="M52 172h136l-11 26H63Z"
+                fill="#a47bc8"
+                stroke="#542e79"
+                stroke-width="5"
+              />
+              <path
+                d="M79 155h82l12 18H67Z"
+                fill="#d8a7e9"
+                stroke="#542e79"
+                stroke-width="5"
+              />
+              <circle
+                cx="120"
+                cy="89"
+                r="65"
+                fill="#71539a"
+                stroke="#c7a0ee"
+                stroke-width="4"
+              />
+              <circle
+                cx="120"
+                cy="89"
+                r="52"
+                fill="#4a316b"
+                stroke="#f5cc86"
+                stroke-width="2"
+                stroke-dasharray="4 7"
+              />
+              <path
+                d="m120 45 13 28 31 4-23 22 6 31-27-15-27 15 6-31-23-22 31-4Z"
+                fill="url(#starGlow)"
+                stroke="#f9e4b4"
+                stroke-width="3"
+              />
+              <path d="m120 55 8 22 23 4-27 2Z" fill="#fff5d5" opacity=".8" />
+              <path
+                d="m36 54 4 8 8 4-8 4-4 8-4-8-8-4 8-4m166 39 4 8 8 4-8 4-4 8-4-8-8-4 8-4"
+                fill="#fbeab5"
+              />
+            </svg>
+          </div>
+          <span class="eyebrow">SEU LEGADO PERMANENTE</span>
+          <h2>Estrelas que ficam com você</h2>
+          <div class="prestige-overview">
+            <p>Nível histórico <strong id="prestigeLevel">0</strong></p>
+            <p>Pontos disponíveis <strong id="prestigePoints">0 PP</strong></p>
+            <p>Bônus base <strong id="prestigeBase">×1</strong></p>
+            <p>Ímpeto Estelar <strong id="prestigeStellar">×1</strong></p>
+            <p>
+              Multiplicador combinado <strong id="prestigeCombined">×1</strong>
+            </p>
+            <p>Produção e clique <strong id="prestigeBonus">+0%</strong></p>
+          </div>
+          <h3 class="journey-title">Sua jornada atual</h3>
+          <p id="prestigeJourney">0 doces produzidos nesta jornada</p>
+          <div
+            class="prestige-progress"
+            role="progressbar"
+            aria-label="Produção da jornada atual até o próximo marco de Prestígio"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            aria-valuenow="0"
+          >
+            <span id="prestigeProgressFill"></span>
+          </div>
+          <p id="prestigeRequirement"></p>
+          <p id="prestigeLifetime" class="prestige-lifetime"></p>
+          <p class="prestige-gain" id="prestigeGainText">+0 níveis · +0 PP</p>
+          <details class="context-details">
+            <summary>Detalhes dos Pontos de Prestígio</summary>
+            <p id="prestigeRewardDetails"></p>
+          </details>
+          <p class="rebirth-note">
+            Renascer reinicia saldo, fábricas e bônus temporários. Pets, PP e
+            melhorias permanentes ficam com você.
+          </p>
+          <button id="prestigeBtn" type="button" class="game-button" disabled>
+            Renascer com prestígio
+          </button>
+          <p id="prestigePending" class="inventory-hint" hidden>
+            Aguarde o giro da roleta terminar antes de renascer.
+          </p>
+          <p class="prestige-save-warning" id="prestigeSaveWarning" hidden>
+            Exporte ou recupere seu save nos Ajustes para usar os pontos com
+            segurança.
+          </p>
+        </section>
+        <div
+          class="upgrade-gallery"
+          aria-label="Melhorias permanentes independentes"
+        >
+          <p class="gallery-caption">
+            ✦ Seu céu de melhorias · escolha livremente, sem pré-requisitos
+            entre opções.
+          </p>
+          <section class="permanent-section" aria-labelledby="stellarTitle">
+            <div class="permanent-heading">
+              <h2 id="stellarTitle">Ímpeto Estelar</h2>
+              <span>Somente Pontos de Prestígio</span>
+            </div>
+            <div class="stellar-card permanent-card">
+              <p>
+                Um brilho permanente para cada toque e cada fábrica. O bônus
+                multiplica o prestígio base.
+              </p>
+              <p id="stellarLevel"></p>
+              <p id="stellarBonus"></p>
+              <p id="stellarNext"></p>
+              <button
+                id="buyStellarBtn"
+                type="button"
+                class="game-button secondary"
+                disabled
+              >
+                Comprar Ímpeto Estelar
+              </button>
+              <small id="stellarStatus"></small>
+            </div>
+          </section>
+          <section class="permanent-section" aria-labelledby="expansionTitle">
+            <div class="permanent-heading">
+              <h2 id="expansionTitle">Espaço para sonhar</h2>
+              <span>Expansões individuais e permanentes</span>
+            </div>
+            <p class="permanent-intro">
+              Escolha qual fábrica pode crescer. Expandir libera espaços; as
+              novas unidades continuam custando doces na Loja.
+            </p>
+            <div id="factoryExpansions" class="expansion-grid"></div>
+          </section>
         </div>
-        <span class="eyebrow">SEU LEGADO PERMANENTE</span>
-        <h2>Estrelas que ficam com você</h2>
-        <div class="prestige-overview">
-          <p>Nível histórico <strong id="prestigeLevel">0</strong></p>
-          <p>Pontos disponíveis <strong id="prestigePoints">0 PP</strong></p>
-          <p>Bônus base <strong id="prestigeBase">×1</strong></p>
-          <p>Ímpeto Estelar <strong id="prestigeStellar">×1</strong></p>
-          <p>Multiplicador combinado <strong id="prestigeCombined">×1</strong></p>
-          <p>Produção e clique <strong id="prestigeBonus">+0%</strong></p>
-        </div>
-        <h3 class="journey-title">Sua jornada atual</h3>
-        <p id="prestigeJourney">0 doces produzidos nesta jornada</p>
-        <div class="prestige-progress" role="progressbar" aria-label="Produção da jornada atual até o próximo marco de Prestígio" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
-          <span id="prestigeProgressFill"></span>
-        </div>
-        <p id="prestigeRequirement"></p>
-        <p id="prestigeLifetime" class="prestige-lifetime"></p>
-        <p class="prestige-gain" id="prestigeGainText">+0 níveis · +0 PP</p>
-        <button id="prestigeBtn" type="button" class="game-button" disabled>Renascer com prestígio</button>
-        <p id="prestigePending" class="inventory-hint" hidden>Aguarde o giro da roleta terminar antes de renascer.</p>
-        <p class="prestige-save-warning" id="prestigeSaveWarning" hidden>Exporte ou recupere seu save nos Ajustes para usar os pontos com segurança.</p>
-      </section>
-      <section class="permanent-section" aria-labelledby="stellarTitle">
-        <div class="permanent-heading"><h2 id="stellarTitle">Ímpeto Estelar</h2><span>Somente Pontos de Prestígio</span></div>
-        <div class="stellar-card permanent-card">
-          <p>Um brilho permanente para cada toque e cada fábrica. O bônus multiplica o prestígio base.</p>
-          <p id="stellarLevel"></p><p id="stellarBonus"></p><p id="stellarNext"></p>
-          <button id="buyStellarBtn" type="button" class="game-button secondary" disabled>Comprar Ímpeto Estelar</button>
-          <small id="stellarStatus"></small>
-        </div>
-      </section>
-      <section class="permanent-section" aria-labelledby="expansionTitle">
-        <div class="permanent-heading"><h2 id="expansionTitle">Espaço para sonhar</h2><span>Expansões individuais e permanentes</span></div>
-        <p class="permanent-intro">Escolha qual fábrica pode crescer. Expandir libera espaços; as novas unidades continuam custando doces na Loja.</p>
-        <div id="factoryExpansions" class="expansion-grid"></div>
-      </section>
+      </div>
       <div class="prestige-rules">
         <section class="journal-sheet">
           <h2>Um novo começo</h2>
@@ -144,9 +204,10 @@
         <section class="journal-sheet">
           <h2>Um legado para sempre</h2>
           <p>
-            Você mantém pets, ovos desbloqueados, descobertas, sabores, visuais, conquistas, estatísticas e níveis de
-            prestígio, pontos disponíveis, Ímpeto Estelar e expansões. Cada nível concede +15% à produção e ao clique; Ímpeto multiplica esse bônus. Cooldowns
-            continuam correndo.
+            Você mantém pets, ovos desbloqueados, descobertas, sabores, visuais,
+            conquistas, estatísticas e níveis de prestígio, pontos disponíveis,
+            Ímpeto Estelar e expansões. Cada nível concede +15% à produção e ao
+            clique; Ímpeto multiplica esse bônus. Cooldowns continuam correndo.
           </p>
         </section>
       </div>

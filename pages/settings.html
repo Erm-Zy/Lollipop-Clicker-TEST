@@ -16,6 +16,7 @@
     <link rel="stylesheet" href="../css/animations.css" />
     <link rel="stylesheet" href="../css/pages.css" />
     <link rel="stylesheet" href="../css/responsive.css" />
+    <link rel="stylesheet" href="../css/ui-system.css" />
   </head>
   <body data-page="settings">
     <header id="gameHeader"></header>
@@ -23,10 +24,14 @@
       <div class="page-heading">
         <span class="chapter-label">O CANTINHO DO VIAJANTE</span>
         <h1 class="page-title">Do seu jeitinho</h1>
-        <p class="page-lead">Ajuste sua aventura. Cuide das suas memórias.</p>
+        <details class="page-intro">
+          <summary>Sobre este lugar ⌄</summary>
+          <p class="page-lead">Ajuste sua aventura. Cuide das suas memórias.</p>
+        </details>
       </div>
       <div class="settings-layout">
-        <section class="settings-sheet" aria-label="Áudio e movimento">
+        <section class="settings-sheet" aria-label="Som e música">
+          <h2>Som e música</h2>
           <div class="setting-row">
             <div>
               <h2>Música do vale</h2>
@@ -54,6 +59,9 @@
               Ligado
             </button>
           </div>
+        </section>
+        <section class="settings-sheet" aria-label="Visuais e desempenho">
+          <h2>Visuais e desempenho</h2>
           <div class="setting-row">
             <div>
               <h2>Partículas de açúcar</h2>
@@ -139,9 +147,14 @@
             Exportar backup anterior ao Prestígio ↓
           </button>
           <hr />
-          <button id="resetDataBtn" class="game-button danger">
-            Começar do zero</button
-          ><small>Requer duas confirmações. Exporte um backup primeiro.</small>
+          <div class="danger-zone">
+            <h3>Recomeçar do zero</h3>
+            <button id="resetDataBtn" class="game-button danger">
+              Começar do zero</button
+            ><small
+              >Requer duas confirmações. Exporte um backup primeiro.</small
+            >
+          </div>
         </section>
         <section
           id="candyJukebox"

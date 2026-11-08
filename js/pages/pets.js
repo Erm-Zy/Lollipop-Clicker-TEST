@@ -182,7 +182,7 @@ function renderControls(state) {
     card.setAttribute("aria-pressed", String(id === eggId));
     card.querySelector("[data-egg-state]").textContent = found
       ? "✓ Desbloqueado"
-      : `🔒 ${eggRequirement(EGGS[id])}`;
+      : "🔒 Ver requisitos";
   }
   const quote = eggQuote(state, eggId, 1);
   setText(
@@ -751,3 +751,7 @@ byId("reviewBulkFusion").addEventListener("click", (event) => {
 });
 showOdds();
 runtime.subscribe(render);
+
+byId("openTeamBtn").addEventListener("click", () =>
+  document.querySelector("[data-panel=team]").click(),
+);
