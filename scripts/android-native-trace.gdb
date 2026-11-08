@@ -9,20 +9,17 @@ handle SIGUSR2 nostop noprint pass
 python
 import datetime
 import gdb
-faulted = False
 def native_stop(event):
-    global faulted
     if isinstance(event, gdb.SignalEvent) and event.stop_signal in ('SIGSEGV', 'SIGABRT'):
-        faulted = True
-        print('SMOKE_NATIVE_FAULT utc=' + datetime.datetime.now(datetime.timezone.utc).isoformat() + ' signal=' + event.stop_signal)
+        print('SMOKE_NATIVE_SIGNAL utc=' + datetime.datetime.now(datetime.timezone.utc).isoformat() + ' signal=' + event.stop_signal)
         gdb.execute('bt 20')
         gdb.execute('info symbol $pc')
         print('SMOKE_NATIVE_TRACE_END')
 gdb.events.stop.connect(native_stop)
 gdb.execute('run')
-if faulted:
-    # Deliver the actual fault after recording it; don't turn the crash into success.
-    gdb.execute('handle SIGSEGV nostop noprint pass')
-    gdb.execute('handle SIGABRT nostop noprint pass')
+# QEMU/JIT may handle a signal intentionally. Resume with its original delivery,
+# observing every stop until the inferior actually exits. Only an unhandled
+# terminal signal plus the final stack establishes a native crash.
+while gdb.selected_inferior().pid:
     gdb.execute('continue')
 end
