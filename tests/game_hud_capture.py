@@ -56,6 +56,6 @@ try:
    page=ctx.new_page();page.goto(BASE);page.wait_for_function("document.body.dataset.theme==='neon' && document.body.dataset.readonly==='false'");page.screenshot(path=str(OUT/'390x844-mid-neon-home.png'));ctx.close()
   browser.close()
 finally:server.shutdown()
-(OUT/'layout.json').write_text(json.dumps({'metrics':metrics,'errors':errors},ensure_ascii=False,indent=2))
+(OUT/'layout.json').write_text('{\n"metrics":[\n'+',\n'.join(json.dumps(m,ensure_ascii=False,separators=(',',':')) for m in metrics)+'\n],\n"errors":'+json.dumps(errors)+'\n}\n')
 assert not errors,errors
 print(f'{len(metrics)} renderings; {len(list(OUT.glob("*.png")))} screenshots; errors={len(errors)}',flush=True)
