@@ -15,12 +15,11 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /** Tests own a disposable emulator sandbox, never a tester's installed save. */
-@RunWith(AndroidJUnit4.class)
-public class GameOfflineTest {
-    private static final String TAG = "LollipopSmoke";
-    private String stage = "launch", lastSnapshot = "no callback yet";
+class WebViewSmokeSupport {
+    protected static final String TAG = "LollipopSmoke";
+    protected String stage = "launch", lastSnapshot = "no callback yet";
 
-    private JSONObject js(ActivityScenario<MainActivity> scenario, String code) throws Exception {
+    protected JSONObject js(ActivityScenario<MainActivity> scenario, String code) throws Exception {
         CountDownLatch latch = new CountDownLatch(1);
         AtomicReference<String> result = new AtomicReference<>();
         String wrapped = "(()=>{try{return {ok:true,value:(()=>{" + code + "})()}}catch(e){return {ok:false,error:String(e.name)+': '+String(e.message)}}})()";
@@ -35,8 +34,8 @@ public class GameOfflineTest {
         assertTrue(stage + ": script threw: " + envelope.optString("error"), envelope.optBoolean("ok"));
         return envelope;
     }
-    private void mark(String label) { stage = label; Log.i(TAG, "STAGE " + label); }
-    private void ready(ActivityScenario<MainActivity> scenario, String page) throws Exception {
+    protected void mark(String label) { stage = label; Log.i(TAG, "STAGE " + label); }
+    protected void ready(ActivityScenario<MainActivity> scenario, String page) throws Exception {
         long deadline = SystemClock.elapsedRealtime() + 30000;
         while (SystemClock.elapsedRealtime() < deadline) {
             AtomicBoolean available = new AtomicBoolean();
@@ -51,21 +50,28 @@ public class GameOfflineTest {
         }
         fail(stage + ": expected writable completed document " + page + "; last " + lastSnapshot);
     }
-    private void navigate(ActivityScenario<MainActivity> scenario, String page) throws Exception {
+    protected void navigate(ActivityScenario<MainActivity> scenario, String page) throws Exception {
         mark("navigate " + page);
         String suffix = page.equals("home") ? "index.html" : page + ".html";
+        navigationSnapshot(scenario,"before " + page);
         // Open the visible More menu when necessary, rather than click hidden links.
         js(scenario, "const links=[...document.querySelectorAll('nav a')];const a=links.find(a=>a.getAttribute('href')?.endsWith('"+suffix+"')&&a.getClientRects().length);if(!a){const menu=[...document.querySelectorAll('.more-menu')].find(m=>m.getClientRects().length);if(!menu)throw Error('visible More selector missing');menu.open=true;}return true;");
         js(scenario, "const a=[...document.querySelectorAll('nav a')].find(a=>a.getAttribute('href')?.endsWith('"+suffix+"')&&a.getClientRects().length);if(!a)throw Error('navigation anchor missing: "+page+"');if(a.getAttribute('aria-disabled')==='true')throw Error('navigation disabled');a.click();return true;");
         ready(scenario,page);
+        navigationSnapshot(scenario,"after " + page);
     }
-    private void click(ActivityScenario<MainActivity> scenario) throws Exception {
+    protected void navigationSnapshot(ActivityScenario<MainActivity> scenario, String label) throws Exception {
+        scenario.onActivity(activity -> Log.i(TAG,"NAV " + label + " wall_ms=" + System.currentTimeMillis()
+            + " activity=" + System.identityHashCode(activity) + " webview=" + System.identityHashCode(activity.getBridge().getWebView())));
+        Log.i(TAG,"DOCUMENT " + label + " " + js(scenario,"return {page:document.body?.dataset.page||'',path:location.pathname,loaded:document.readyState,timeOrigin:performance.timeOrigin}").getJSONObject("value"));
+    }
+    protected void click(ActivityScenario<MainActivity> scenario) throws Exception {
         js(scenario,"const b=document.getElementById('lollipop');if(!b)throw Error('lollipop selector missing');if(b.disabled)throw Error('lollipop disabled');b.click();return true;");
     }
-    private long savedClicks(ActivityScenario<MainActivity> scenario) throws Exception {
+    protected long savedClicks(ActivityScenario<MainActivity> scenario) throws Exception {
         return js(scenario,"const raw=localStorage.getItem('lollipopSave');if(!raw)throw Error('persistent save missing');const n=JSON.parse(raw).totalClicks;if(!Number.isSafeInteger(n))throw Error('invalid persistent click count');return n;").getLong("value");
     }
-    private void waitSaved(ActivityScenario<MainActivity> scenario, long expected) throws Exception {
+    protected void waitSaved(ActivityScenario<MainActivity> scenario, long expected) throws Exception {
         long deadline=SystemClock.elapsedRealtime()+10000;
         while(SystemClock.elapsedRealtime()<deadline) {
             if(savedClicks(scenario)==expected)return;
@@ -73,6 +79,10 @@ public class GameOfflineTest {
         }
         fail(stage+": persistent totalClicks differs from expected delta");
     }
+}
+
+@RunWith(AndroidJUnit4.class)
+public class GameOfflineTest extends WebViewSmokeSupport {
     @Test public void offlineBundledNavigation() throws Exception {
         mark("offline navigation launch");
         try(ActivityScenario<MainActivity> scenario=ActivityScenario.launch(MainActivity.class)) {

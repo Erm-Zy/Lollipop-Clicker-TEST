@@ -139,6 +139,7 @@ jobs:
         with:
           packages: platform-tools
       - name: Precompile isolated application and instrumentation APKs
+        id: smoke-build
         run: |
           sdkmanager 'build-tools;34.0.0' 'platforms;android-35'
           android/gradlew -p android :app:assembleDebug :app:assembleDebugAndroidTest --no-daemon --max-workers=2
@@ -147,7 +148,28 @@ jobs:
           mkdir -p "$RUNNER_TEMP/android-smoke"
           echo 'phase=emulator-runner-not-entered' > "$RUNNER_TEMP/android-smoke/result.txt"
           free -m > "$RUNNER_TEMP/android-smoke/memory-before.txt"
-      - uses: reactivecircus/android-emulator-runner@v2
+      # Temporary comparison is opt-in; never changes the mandatory API 35 check.
+      - name: Focused API 34 comparison (opt-in)
+        id: comparison34
+        if: github.event_name == 'push' && contains(github.event.head_commit.message, '[android-compare-api34]')
+        uses: reactivecircus/android-emulator-runner@v2
+        env:
+          ANDROID_SMOKE_API: '34'
+        with:
+          api-level: 34
+          arch: x86_64
+          target: google_apis
+          disable-animations: true
+          emulator-options: -no-window -no-snapshot -noaudio -no-boot-anim -gpu swiftshader_indirect
+          ram-size: 2048
+          cores: 2
+          pre-emulator-launch-script: python3 scripts/android-emulator-observer.py install
+          script: bash scripts/android-smoke.sh focus
+      - name: Mandatory API 35 reproduction and three-scenario suite
+        if: ${{ !cancelled() && steps.smoke-build.outcome == 'success' }}
+        uses: reactivecircus/android-emulator-runner@v2
+        env:
+          ANDROID_SMOKE_API: '35'
         with:
           api-level: 35
           arch: x86_64
@@ -156,6 +178,7 @@ jobs:
           emulator-options: -no-window -no-snapshot -noaudio -no-boot-anim -gpu swiftshader_indirect
           ram-size: 2048
           cores: 2
+          pre-emulator-launch-script: python3 scripts/android-emulator-observer.py install
           script: bash scripts/android-smoke.sh
       - name: Record device state after runner cleanup
         if: always()
