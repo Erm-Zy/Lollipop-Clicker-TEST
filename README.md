@@ -19,10 +19,10 @@ Publique **`dist/`**, gerado por `npm run pwa:build`, como pasta estática pelo 
 
 | Documento real | O que acontece nele |
 | --- | --- |
-| `index.html` | Pirulito interativo, saldo, clique, produção, bônus, mundo ilustrado e compra rápida |
+| `index.html` | Campo de jogo com pirulito central, HUD ilustrado, Loja e Roleta em painéis, cena e bônus |
 | `pages/shop.html` | Oito engenhocas originais, níveis, contribuição e lotes ×1/×10/×100/MAX |
 | `pages/pets.html` | Três ovos, 18 espécies, equipe de três pets, inventário de 500, fusões e álbum permanente |
-| `pages/collection.html` | Inventário de 11 sabores e sete coleções; pirulito, fundo e partículas independentes |
+| `pages/collection.html` | Receitas: 11 sabores com bônus e sete conjuntos visuais; pirulito, mundo e partículas independentes |
 | `pages/arena.html` | Três guardiões ilustrados alternados, dano por toque, prazo, vitória e recarga |
 | `pages/prestige.html` | Progresso da jornada, renascimento, Pontos de Prestígio, Ímpeto Estelar e expansões permanentes |
 | `pages/achievements.html` | Álbum das 13 conquistas, categorias, progresso e estado de desbloqueio |
@@ -30,7 +30,9 @@ Publique **`dist/`**, gerado por `npm run pwa:build`, como pasta estática pelo 
 | `pages/rewards.html` | Roleta persistente e bônus grátis de produção/clique |
 | `pages/settings.html` | Música, efeitos, partículas, movimento do mundo e recuperação de saves |
 
-Os locais são links reais, com URLs e histórico do navegador. Não são seções escondidas de um único HTML. No celular, Mundo, Loja, Coleção e Arena ficam na barra inferior; **Mais** abre os outros locais.
+O Mundo é o hub do jogo: Conquistas/Ajustes nos cantos superiores, Loja/Pets/Roleta nas laterais e Prestígio/Arena/Receitas/Diário na base. Loja e Roleta abrem painéis sobre o mesmo runtime; Escape, Voltar e o botão Fechar devolvem o foco ao atalho. O giro continua salvo ao fechar. Os links reais `pages/shop.html` e `pages/rewards.html` continuam disponíveis, inclusive como fallback em tela inteira e offline. As outras telas são documentos próprios; o explorador “Mais” usa tiles compactos. A rota técnica de Receitas continua sendo `pages/collection.html` e o save mantém os mesmos campos.
+
+[Auditoria, mapa, capturas antes/depois e validação do HUD](docs/GAME_HUD_REDESIGN.md).
 
 O pirulito reage a mouse, toque e Espaço/Enter. As ilustrações mudam conforme o sabor e a aparência equipada. As máquinas têm identidade própria, engrenagens animadas e detalhes adicionais a partir de dez e cem unidades. O cenário avança em quatro capítulos conforme a coleção de máquinas cresce (0, 5, 25 e 100 unidades). Cristais de açúcar dourado aparecem em janelas curtas durante o jogo; precisam ser coletados, não são uma recompensa automática.
 
@@ -67,6 +69,9 @@ js/core/runtime.js          Único relógio, escritor, lifecycle, áudio e event
 js/ui/shared.js             Navegação, HUD, avisos e bootstrap compartilhado
 js/ui/art.js                Pirulitos, máquinas, cenários e chefes SVG originais
 js/ui/shop.js               Componente reutilizável de compra e lotes
+js/ui/panels.js             Painéis do hub, foco e histórico (um único runtime)
+js/ui/wheel.js              Roleta compartilhada entre hub e documento real
+js/format.js                Números pt-BR compactos, custos conservadores e valores exatos
 js/ui/qol.js                Prévias e estimativas de interface sem mutar progresso
 js/pages/*.js               Somente o controlador do documento visitado
 js/world.js                Capítulos/guardiões compartilhados pela cena e pela música
