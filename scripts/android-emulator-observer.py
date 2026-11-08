@@ -54,8 +54,12 @@ def supervise(command, out, deadline_seconds=1200):
     logger.setLevel(logging.INFO)
     handler = logging.handlers.RotatingFileHandler(out / "emulator.log", maxBytes=256*1024, backupCount=1)
     logger.addHandler(handler)
+    traced = os.environ.get("ANDROID_SMOKE_NATIVE_TRACE") == "true"
+    if traced:
+        command = ["gdb", "-nx", "--batch", "--return-child-result", "-x",
+                   str(Path(__file__).with_name("android-native-trace.gdb")), "--args"] + command
     child = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    status = {"started_utc": now(), "launcher_pid": child.pid, "exit_observable": True}
+    status = {"started_utc": now(), "launcher_pid": child.pid, "exit_observable": True, "debugger_parent": traced}
     # The SDK launcher normally execs QEMU. Record the executable to verify this;
     # don't label the direct child's status as QEMU's if it forks instead.
     def save():
@@ -68,7 +72,7 @@ def supervise(command, out, deadline_seconds=1200):
             if not line:
                 break
             text = line.decode("utf-8", errors="replace").rstrip()
-            if any(word in text.lower() for word in ("adb.pubkey", "token", "private key", "authorization")):
+            if any(word in text.lower() for word in ("adb.pubkey", "public key", "token", "private key", "authorization")):
                 text = "[authentication metadata omitted]"
             logger.info("%s %s", now(), text)
     reader = threading.Thread(target=drain, daemon=True)

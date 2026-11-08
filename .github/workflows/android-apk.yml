@@ -119,6 +119,8 @@ jobs:
       contents: read
     runs-on: ubuntu-24.04
     timeout-minutes: 30
+    env:
+      ANDROID_SMOKE_NATIVE_TRACE: ${{ github.event_name == 'push' && contains(github.event.head_commit.message, '[android-native-trace]') && 'true' || 'false' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -143,6 +145,11 @@ jobs:
         run: |
           sdkmanager 'build-tools;34.0.0' 'platforms;android-35'
           android/gradlew -p android :app:assembleDebug :app:assembleDebugAndroidTest --no-daemon --max-workers=2
+      - name: Install native debugger (opt-in diagnostic only)
+        if: env.ANDROID_SMOKE_NATIVE_TRACE == 'true'
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends gdb
       - name: Initialize smoke diagnostics
         run: |
           mkdir -p "$RUNNER_TEMP/android-smoke"
