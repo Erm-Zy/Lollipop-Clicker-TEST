@@ -5,6 +5,7 @@ To exercise GitHub Pages paths, build into an empty parent/Lollipop-Clicker-TEST
 directory, serve that parent and set LOLLIPOP_BASE_URL to the complete subpath.
 Requires Python Playwright and Chromium; no browser dependency is shipped in-game.
 """
+from hud_helpers import open_shop, close_panel
 import copy
 import json
 import math
@@ -70,6 +71,14 @@ def saved(page):
 
 def navigate(page, name):
     # Use actual anchors and browser navigation, including the mobile More drawer.
+    if page.locator('body').get_attribute('data-page')=='home' and name in ['shop','rewards']:
+        close_panel(page)
+        page.locator(f'[data-game-panel="{name}"]:visible').first.click()
+        page.locator(f'[data-panel-page="{name}"]').click()
+        page.wait_for_url(route(name));ready(page)
+        assert page.locator('body').get_attribute('data-page')==name
+        return
+    close_panel(page)
     destination = "index.html" if name == "home" else f"{name}.html"
     candidates = page.locator(f'a[href$="{destination}"]:visible')
     if candidates.count() == 0:
@@ -107,6 +116,7 @@ with sync_playwright() as p:
     for _ in range(9):
         page.locator("#lollipop").click()
     check(page.locator("#scoreDisplay").inner_text() == "20", "keyboard and rapid pointer clicks preserve flavor power")
+    open_shop(page)
     page.locator('[data-upgrade="maquina"]').click()
     check(saved(page)["upgrades"]["maquina"] == 1, "world quick shop buys an affordable building")
     navigate(page, "shop")
@@ -182,12 +192,15 @@ with sync_playwright() as p:
 
     context, page = open_game(browser, fixture(version=4, pirulitos=1e15, totalEarned=1e15, prestigeLevel=110, prestigeClaimed=110, factoryExpansions={"maquina":10}, activeFlavor="morango", upgrades={}), name="shop")
     page.locator('[data-buy="10"]').click()
+    open_shop(page)
     page.locator('[data-upgrade="maquina"]').click()
     check(saved(page)["upgrades"]["maquina"] == 10, "shop buys a fixed lot of ten in one action")
     page.locator('[data-buy="100"]').click()
+    open_shop(page)
     page.locator('[data-upgrade="maquina"]').click()
     check(saved(page)["upgrades"]["maquina"] == 110, "shop buys a fixed lot of one hundred")
     page.locator('[data-buy="max"]').click()
+    open_shop(page)
     page.locator('[data-upgrade="maquina"]').click()
     state = saved(page)
     next_price = math.floor(15 * 1.15 ** state["upgrades"]["maquina"])

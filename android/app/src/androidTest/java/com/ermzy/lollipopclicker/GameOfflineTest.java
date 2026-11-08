@@ -54,6 +54,15 @@ class WebViewSmokeSupport {
         mark("navigate " + page);
         String suffix = page.equals("home") ? "index.html" : page + ".html";
         navigationSnapshot(scenario,"before " + page);
+        // Home tools now open a modal; still visit every real bundled document
+        // through its explicit fallback link, rather than bypassing navigation.
+        if ("home".equals(js(scenario,"return document.body.dataset.page;").getString("value"))
+                && (page.equals("shop") || page.equals("rewards"))) {
+            openHomePanel(scenario,page);
+            mark("open fallback document " + page);
+            js(scenario,"const a=document.querySelector('[data-panel-page=\""+page+"\"]');if(!a)throw Error('panel fallback missing');a.click();return true;");
+            ready(scenario,page);navigationSnapshot(scenario,"after fallback " + page);return;
+        }
         // Open the visible More menu when necessary, rather than click hidden links.
         js(scenario, "const links=[...document.querySelectorAll('nav a')];const a=links.find(a=>a.getAttribute('href')?.endsWith('"+suffix+"')&&a.getClientRects().length);if(!a){const menu=[...document.querySelectorAll('.more-menu')].find(m=>m.getClientRects().length);if(!menu)throw Error('visible More selector missing');menu.open=true;}return true;");
         js(scenario, "const a=[...document.querySelectorAll('nav a')].find(a=>a.getAttribute('href')?.endsWith('"+suffix+"')&&a.getClientRects().length);if(!a)throw Error('navigation anchor missing: "+page+"');if(a.getAttribute('aria-disabled')==='true')throw Error('navigation disabled');a.click();return true;");
@@ -64,6 +73,21 @@ class WebViewSmokeSupport {
         scenario.onActivity(activity -> Log.i(TAG,"NAV " + label + " wall_ms=" + System.currentTimeMillis()
             + " activity=" + System.identityHashCode(activity) + " webview=" + System.identityHashCode(activity.getBridge().getWebView())));
         Log.i(TAG,"DOCUMENT " + label + " " + js(scenario,"return {page:document.body?.dataset.page||'',path:location.pathname,loaded:document.readyState,timeOrigin:performance.timeOrigin}").getJSONObject("value"));
+    }
+    protected void panelReady(ActivityScenario<MainActivity> scenario, String page, boolean open) throws Exception {
+        long deadline=SystemClock.elapsedRealtime()+10000;
+        while(SystemClock.elapsedRealtime()<deadline) {
+            String condition=open ? "!!d?.open && d.dataset.panel==='"+page+"'" : "!d?.open && !history.state?.lollipopPanel";
+            boolean done=js(scenario,"const d=document.getElementById('gamePanel');return " + condition + ";").getBoolean("value");
+            if(done)return;
+            SystemClock.sleep(100);
+        }
+        fail(stage+": panel " + page + " did not become " + open);
+    }
+    protected void openHomePanel(ActivityScenario<MainActivity> scenario, String page) throws Exception {
+        mark("home panel " + page);
+        js(scenario,"const a=document.querySelector('[data-game-panel=\""+page+"\"]');if(!a)throw Error('home tool missing');a.click();return true;");
+        panelReady(scenario,page,true);
     }
     protected void click(ActivityScenario<MainActivity> scenario) throws Exception {
         js(scenario,"const b=document.getElementById('lollipop');if(!b)throw Error('lollipop selector missing');if(b.disabled)throw Error('lollipop disabled');b.click();return true;");
@@ -96,6 +120,18 @@ public class GameOfflineTest extends WebViewSmokeSupport {
             ready(scenario,"home");navigate(scenario,"shop");mark("native Back shop to home");
             scenario.onActivity(activity -> activity.getOnBackPressedDispatcher().onBackPressed());
             ready(scenario,"home");
+        }
+    }
+    @Test public void androidBackClosesHomePanelsBeforeLeavingGame() throws Exception {
+        mark("home panel native Back launch");
+        try(ActivityScenario<MainActivity> scenario=ActivityScenario.launch(MainActivity.class)) {
+            ready(scenario,"home");
+            for(String page:new String[]{"shop","rewards"}) {
+                openHomePanel(scenario,page);mark("native Back closes panel " + page);
+                scenario.onActivity(activity -> activity.getOnBackPressedDispatcher().onBackPressed());
+                panelReady(scenario,page,false);ready(scenario,"home");
+            }
+            long expected=savedClicks(scenario)+1;click(scenario);waitSaved(scenario,expected);
         }
     }
     @Test public void lifecycleAndActivityRelaunchRetainExactClickDelta() throws Exception {

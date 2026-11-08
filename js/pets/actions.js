@@ -1,3 +1,4 @@
+import { cost as formatCost } from "../format.js";
 import {
   advance,
   getPps,
@@ -57,7 +58,7 @@ export function eggQuote(state, eggId, count = 1, now = Date.now()) {
   const cost = egg.price * count;
   if (state.pirulitos < cost)
     return fail(
-      `Faltam ${Math.ceil(cost - state.pirulitos).toLocaleString("pt-BR")} pirulitos.`,
+      `Faltam ${formatCost(Math.ceil(cost - state.pirulitos))} pirulitos.`,
     );
   return { ok: true, cost, egg, count };
 }

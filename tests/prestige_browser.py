@@ -1,6 +1,7 @@
 """Prestige and safe schema6 migration browser QA. Serve the repo and set LOLLIPOP_BASE_URL.
 Chromium viewport/touch simulation is not Android hardware validation.
 """
+from hud_helpers import select_expansion
 import copy,json,os,time
 from pathlib import Path
 from urllib.parse import urljoin
@@ -44,6 +45,7 @@ with sync_playwright() as pw:
  check(s['prestigeLevel']==59 and s['prestigePoints']==1 and s['totalEarned']==215200000000,'rebirth grants one point and preserves lifetime history')
  check(s['prestigeBaseline']==215200000000,'rebirth baseline is persisted atomically')
  check(p.locator('.prestige-progress').get_attribute('aria-valuenow')=='0','215.2B regression: immediate zero bar after rebirth')
+ p.locator('.prestige-math > summary').click()
  check('800 mi' in p.locator('#prestigeRequirement').inner_text(),'next milestone shows 800 million remaining')
  p.reload(wait_until='networkidle');ready(p)
  check(p.locator('.prestige-progress').get_attribute('aria-valuenow')=='0' and saved(p)['prestigePoints']==1,'refresh preserves zero bar and does not duplicate points')
@@ -53,7 +55,7 @@ with sync_playwright() as pw:
  p.locator('#buyStellarBtn').click()
  check(saved(p)['stellarBoostLevel']==1 and saved(p)['prestigePoints']==2,'Stellar debits exact PP cost')
  check(saved(p)['prestigeLevel']==3 and saved(p)['prestigeClaimed']==3,'spending does not lower level or claimed milestones')
- p.locator('[data-expand=maquina]').click()
+ select_expansion(p,'maquina').click()
  check(saved(p)['factoryExpansions']['maquina']==1 and saved(p)['prestigePoints']==0,'factory expansion debits two PP')
  check('50' in p.locator('[data-expansion=maquina] .expansion-capacity').inner_text(),'expansion preview reflects increased capacity')
  check(p.locator('[data-expand=calda]').is_disabled(),'other expansion remains independent and unaffordable')
@@ -63,7 +65,7 @@ with sync_playwright() as pw:
  go(p,'shop')
  check(p.locator('[data-upgrade=maquina] .owned').inner_text()=='0 / 50','new journey starts at zero with expanded capacity')
  go(p,'statistics')
- check('×1,7' in p.locator('#statPrestige').inner_text(),'statistics show combined permanent multiplier')
+ check('×1,68' in p.locator('#statPrestige').inner_text(),'statistics show combined permanent multiplier')
  ctx.close()
 
  ctx,p=open_game(b,seed(totalEarned=27000000,prestigeLevel=3,prestigeClaimed=3,prestigePoints=3))

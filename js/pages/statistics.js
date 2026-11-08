@@ -1,3 +1,4 @@
+import { multiplier, exact } from "../format.js";
 import { bootPage, format, setText } from "../ui/shared.js";
 import { FLAVORS_DATA, SKINS_DATA, PRESTIGE_CONFIG } from "../data.js";
 import {
@@ -18,8 +19,12 @@ function playedTime(seconds) {
   return hours ? `${hours} h ${minutes} min` : `${minutes} min ${total % 60} s`;
 }
 runtime.subscribe((state, info) => {
+  setText("statExactCurrent", exact(state.pirulitos));
+  setText("statExactPps", exact(getPps(state, info.now)));
+  setText("statExactClick", exact(getClickPower(state, info.now)));
+  setText("statExactHistory", exact(state.totalEarned));
   const entries = {
-    statPets: `${state.pets.inventory.length} pets · ${state.pets.stats.hatched} ovos · ${state.pets.stats.fused} fusões · ${state.pets.discovered.length}/72 descobertas`,
+    statPets: `${state.pets.inventory.length} pets · ${format(state.pets.stats.hatched)} ovos · ${format(state.pets.stats.fused)} fusões · ${state.pets.discovered.length}/72 descobertas`,
     statPetBonus: bonusLabel(getPetBonuses(state)),
     statCurrent: `${format(state.pirulitos)} pirulitos`,
     statTotalEarned: `${format(state.totalEarned)} pirulitos`,
@@ -35,7 +40,7 @@ runtime.subscribe((state, info) => {
     statMaxScore: `${format(state.maxScore)} pirulitos`,
     statMaxPps: `${format(state.maxPps)} / seg`,
     statBossesKilled: format(state.bossesKilled),
-    statPrestige: `${format(state.prestigeLevel)} níveis · ×${format(getPrestigeMultiplier(state))}`,
+    statPrestige: `${format(state.prestigeLevel)} níveis · ${multiplier(getPrestigeMultiplier(state))}`,
     statPrestigePoints: `${format(state.prestigePoints)} disponíveis · ${format(state.prestigeBonusEarned)} extras históricos de pets`,
     statStellar: `${state.stellarBoostLevel} / ${PRESTIGE_CONFIG.stellar.maxLevel}`,
   };

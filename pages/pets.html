@@ -29,9 +29,9 @@
       <div class="page-heading">
         <div>
           <span class="eyebrow">AMIGOS PARA TODAS AS JORNADAS</span>
-          <h1 class="page-title">Ninho açucarado</h1>
+          <h1 class="page-title">Ninho dos pets</h1>
           <details class="page-intro">
-            <summary>Sobre este lugar ⌄</summary>
+            <summary aria-label="Sobre este lugar">i</summary>
             <p class="page-lead">
               Pequenos companheiros. Grandes aventuras. Seus pets ficam com você
               após o prestígio.
@@ -39,7 +39,7 @@
           </details>
         </div>
         <a class="game-button secondary" href="collection.html"
-          >Voltar à coleção</a
+          >Voltar às receitas</a
         >
       </div>
       <aside class="team-strip" aria-label="Equipe ativa">
@@ -89,48 +89,52 @@
         hidden
         aria-labelledby="teamTitle"
       >
-        <div class="pet-section-heading">
-          <div>
-            <h2 id="teamTitle">Minha equipe</h2>
+        <h2 id="teamTitle">Minha equipe</h2>
+        <div id="petTeam" class="pet-team"></div>
+        <details id="teamTools" class="team-tools">
+          <summary>Estratégia e conjuntos</summary>
+          <div class="pet-section-heading">
+            <div>
+              <h3>Preparar equipe</h3>
+            </div>
+            <div class="pet-best">
+              <label for="teamStrategy"
+                >Estratégia<select id="teamStrategy">
+                  <option value="balanced">Equilibrado</option>
+                  <option value="production">Produção</option>
+                  <option value="clicks">Cliques</option>
+                  <option value="combat">Combate</option>
+                  <option value="prestige">Prestígio</option>
+                  <option value="capacity">Construção</option>
+                </select></label
+              ><button
+                id="equipBestBtn"
+                type="button"
+                class="game-button secondary"
+              >
+                Equipar melhores
+              </button>
+            </div>
           </div>
+          <details class="context-details">
+            <summary>Como esta estratégia escolhe?</summary>
+            <p id="strategyExplanation" class="pet-hint"></p>
+          </details>
           <div class="pet-best">
-            <label for="teamStrategy"
-              >Estratégia<select id="teamStrategy">
-                <option value="balanced">Equilibrado</option>
+            <label
+              >Conjunto salvo<select id="petPreset">
                 <option value="production">Produção</option>
-                <option value="clicks">Cliques</option>
                 <option value="combat">Combate</option>
                 <option value="prestige">Prestígio</option>
                 <option value="capacity">Construção</option>
               </select></label
-            ><button
-              id="equipBestBtn"
-              type="button"
-              class="game-button secondary"
-            >
-              Equipar melhores
-            </button>
+            ><button type="button" class="item-preview" id="savePetPreset">
+              Salvar equipe</button
+            ><button type="button" class="item-preview" id="loadPetPreset">
+              Usar conjunto</button
+            ><span id="presetStatus" role="status"></span>
           </div>
-        </div>
-        <details class="context-details">
-          <summary>Como esta estratégia escolhe?</summary>
-          <p id="strategyExplanation" class="pet-hint"></p>
         </details>
-        <div class="pet-best">
-          <label
-            >Conjunto salvo<select id="petPreset">
-              <option value="production">Produção</option>
-              <option value="combat">Combate</option>
-              <option value="prestige">Prestígio</option>
-              <option value="capacity">Construção</option>
-            </select></label
-          ><button type="button" class="item-preview" id="savePetPreset">
-            Salvar equipe</button
-          ><button type="button" class="item-preview" id="loadPetPreset">
-            Usar conjunto</button
-          ><span id="presetStatus" role="status"></span>
-        </div>
-        <div id="petTeam" class="pet-team"></div>
       </section>
       <section id="panel-eggs" aria-labelledby="eggsTitle">
         <h2 id="eggsTitle">Escolha seu próximo amigo</h2>

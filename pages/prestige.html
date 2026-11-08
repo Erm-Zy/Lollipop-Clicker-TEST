@@ -29,9 +29,9 @@
       <div class="page-heading">
         <div>
           <span class="eyebrow">ONDE OS SONHOS VIRAM ESTRELAS</span>
-          <h1 class="page-title">Santuário do açúcar</h1>
+          <h1 class="page-title">Prestígio</h1>
           <details class="page-intro">
-            <summary>Sobre este lugar ⌄</summary>
+            <summary aria-label="Sobre este lugar">i</summary>
             <p class="page-lead">
               Toda grande aventura merece um novo começo. O seu legado torna o
               próximo ainda mais doce.
@@ -102,20 +102,13 @@
               />
             </svg>
           </div>
-          <span class="eyebrow">SEU LEGADO PERMANENTE</span>
-          <h2>Estrelas que ficam com você</h2>
+          <span class="eyebrow">SANTUÁRIO DO AÇÚCAR</span>
+          <h2>Seu próximo renascer</h2>
           <div class="prestige-overview">
             <p>Nível histórico <strong id="prestigeLevel">0</strong></p>
             <p>Pontos disponíveis <strong id="prestigePoints">0 PP</strong></p>
-            <p>Bônus base <strong id="prestigeBase">×1</strong></p>
-            <p>Ímpeto Estelar <strong id="prestigeStellar">×1</strong></p>
-            <p>
-              Multiplicador combinado <strong id="prestigeCombined">×1</strong>
-            </p>
-            <p>Produção e clique <strong id="prestigeBonus">+0%</strong></p>
           </div>
-          <h3 class="journey-title">Sua jornada atual</h3>
-          <p id="prestigeJourney">0 doces produzidos nesta jornada</p>
+
           <div
             class="prestige-progress"
             role="progressbar"
@@ -126,13 +119,9 @@
           >
             <span id="prestigeProgressFill"></span>
           </div>
-          <p id="prestigeRequirement"></p>
-          <p id="prestigeLifetime" class="prestige-lifetime"></p>
+
           <p class="prestige-gain" id="prestigeGainText">+0 níveis · +0 PP</p>
-          <details class="context-details">
-            <summary>Detalhes dos Pontos de Prestígio</summary>
-            <p id="prestigeRewardDetails"></p>
-          </details>
+
           <p class="rebirth-note">
             Renascer reinicia saldo, fábricas e bônus temporários. Pets, PP e
             melhorias permanentes ficam com você.
@@ -140,6 +129,21 @@
           <button id="prestigeBtn" type="button" class="game-button" disabled>
             Renascer com prestígio
           </button>
+          <details class="context-details prestige-math">
+            <summary>Conta exata e bônus</summary>
+            <p>Bônus base <strong id="prestigeBase">×1</strong></p>
+            <p>Ímpeto Estelar <strong id="prestigeStellar">×1</strong></p>
+            <p>
+              Multiplicador combinado <strong id="prestigeCombined">×1</strong>
+            </p>
+            <p>Produção e clique <strong id="prestigeBonus">+0%</strong></p>
+            <div id="journeyDetails">
+              <p id="prestigeRewardDetails"></p>
+              <p id="prestigeLifetime" class="prestige-lifetime"></p>
+              <p id="prestigeRequirement"></p>
+              <p id="prestigeJourney">0 doces produzidos nesta jornada</p>
+            </div>
+          </details>
           <p id="prestigePending" class="inventory-hint" hidden>
             Aguarde o giro da roleta terminar antes de renascer.
           </p>
@@ -156,44 +160,67 @@
             ✦ Seu céu de melhorias · escolha livremente, sem pré-requisitos
             entre opções.
           </p>
-          <section class="permanent-section" aria-labelledby="stellarTitle">
-            <div class="permanent-heading">
-              <h2 id="stellarTitle">Ímpeto Estelar</h2>
-              <span>Somente Pontos de Prestígio</span>
-            </div>
-            <div class="stellar-card permanent-card">
-              <p>
-                Um brilho permanente para cada toque e cada fábrica. O bônus
-                multiplica o prestígio base.
+          <div
+            id="prestigeNodes"
+            class="prestige-nodes"
+            role="group"
+            aria-label="Escolher melhoria permanente"
+          ></div>
+          <section
+            id="upgradeDetails"
+            class="upgrade-detail"
+            aria-labelledby="upgradeSelectionTitle"
+          >
+            <h2 id="upgradeSelectionTitle" tabindex="-1">Ímpeto Estelar</h2>
+            <section
+              id="stellarDetail"
+              class="permanent-section"
+              aria-labelledby="stellarTitle"
+            >
+              <div class="permanent-heading">
+                <h2 id="stellarTitle">Ímpeto Estelar</h2>
+                <span>Somente Pontos de Prestígio</span>
+              </div>
+              <div class="stellar-card permanent-card">
+                <p>
+                  Um brilho permanente para cada toque e cada fábrica. O bônus
+                  multiplica o prestígio base.
+                </p>
+                <p id="stellarLevel"></p>
+                <p id="stellarBonus"></p>
+                <p id="stellarNext"></p>
+                <button
+                  id="buyStellarBtn"
+                  type="button"
+                  class="game-button secondary"
+                  disabled
+                >
+                  Comprar Ímpeto Estelar
+                </button>
+                <small id="stellarStatus"></small>
+              </div>
+            </section>
+            <section
+              id="expansionDetail"
+              class="permanent-section"
+              aria-labelledby="expansionTitle"
+              hidden
+            >
+              <div class="permanent-heading">
+                <h2 id="expansionTitle">Espaço para sonhar</h2>
+                <span>Expansões individuais e permanentes</span>
+              </div>
+              <p class="permanent-intro">
+                Escolha qual fábrica pode crescer. Expandir libera espaços; as
+                novas unidades continuam custando doces na Loja.
               </p>
-              <p id="stellarLevel"></p>
-              <p id="stellarBonus"></p>
-              <p id="stellarNext"></p>
-              <button
-                id="buyStellarBtn"
-                type="button"
-                class="game-button secondary"
-                disabled
-              >
-                Comprar Ímpeto Estelar
-              </button>
-              <small id="stellarStatus"></small>
-            </div>
-          </section>
-          <section class="permanent-section" aria-labelledby="expansionTitle">
-            <div class="permanent-heading">
-              <h2 id="expansionTitle">Espaço para sonhar</h2>
-              <span>Expansões individuais e permanentes</span>
-            </div>
-            <p class="permanent-intro">
-              Escolha qual fábrica pode crescer. Expandir libera espaços; as
-              novas unidades continuam custando doces na Loja.
-            </p>
-            <div id="factoryExpansions" class="expansion-grid"></div>
+              <div id="factoryExpansions" class="expansion-grid"></div>
+            </section>
           </section>
         </div>
       </div>
-      <div class="prestige-rules">
+      <details class="prestige-rules">
+        <summary>O que reinicia e o que fica comigo?</summary>
         <section class="journal-sheet">
           <h2>Um novo começo</h2>
           <p>
@@ -210,7 +237,7 @@
             clique; Ímpeto multiplica esse bônus. Cooldowns continuam correndo.
           </p>
         </section>
-      </div>
+      </details>
       <p class="inventory-footnote">
         O mesmo histórico só pode render prestígio uma vez. Os novos níveis
         exigem mais produção: o primeiro em 1 milhão, o segundo em 8 milhões, o

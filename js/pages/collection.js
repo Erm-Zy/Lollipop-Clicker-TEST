@@ -1,3 +1,8 @@
+import {
+  exact as formatExact,
+  decimal as formatDecimal,
+  cost as formatCost,
+} from "../format.js";
 import { bootPage, format, setText, setNodeText } from "../ui/shared.js";
 import { FLAVORS_DATA, SKINS_DATA } from "../data.js";
 import { selectFlavor, selectCustomization } from "../gameplay.js";
@@ -17,7 +22,7 @@ let returnFocus = null;
 let signature = "";
 let previewId = null;
 let rows = [];
-const decimal = new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 2 });
+const decimal = { format: formatDecimal };
 const categoryFields = {
   skin: "activeSkin",
   theme: "activeTheme",
@@ -89,7 +94,7 @@ function render(state, info = {}) {
           : collectionSVG(id, category);
         const effects = flavors ? flavorEffects(id) : null;
         const desc = flavors
-          ? `<span class="flavor-bonuses">Bônus/clique: +${decimal.format(effects.clickBonus)}<br>Produção: ×${decimal.format(effects.ppsMult)} (+${effects.productionPercent}%)</span><span class="flavor-focus">${effects.focus}</span>`
+          ? `<span class="flavor-bonuses">+${format(effects.clickBonus)} / toque · ×${decimal.format(effects.ppsMult)} PPS</span><details><summary>Sobre esta receita</summary><span class="flavor-focus">${effects.focus}. Produção: +${decimal.format(effects.productionPercent)}%.</span></details>`
           : category === "skin"
             ? "Aparência visual. Preserve seus bônus de sabor."
             : category === "theme"
@@ -102,7 +107,7 @@ function render(state, info = {}) {
         <div class="item-desc">${desc}</div>
         <span class="item-state">${active ? "✓ Equipado" : unlocked ? "✓ Desbloqueado" : "◇ Não adquirido"}</span>
         ${flavors ? `<button type="button" class="item-preview" data-preview="${id}" aria-label="Comparar ${item.name} com o sabor equipado" aria-controls="flavorComparison" aria-pressed="false">Comparar</button>` : ""}
-        <button type="button" class="item-action" data-item="${id}" aria-pressed="${active}" aria-label="${active ? "Equipado" : unlocked ? "Equipar" : "Desbloquear"} ${item.name}${unlocked ? "" : ` por ${format(item.cost)} doces`}">${active ? "✓ Equipado" : unlocked ? "Equipar" : `Desbloquear · ${format(item.cost)} doces`}</button>
+        <button type="button" class="item-action" data-item="${id}" aria-pressed="${active}" aria-label="${active ? "Equipado" : unlocked ? "Equipar" : "Desbloquear"} ${item.name}${unlocked ? "" : ` por ${formatExact(item.cost)} doces`}">${active ? "✓ Equipado" : unlocked ? "Equipar" : `Desbloquear · ${formatCost(item.cost)} doces`}</button>
         <small class="item-shortfall"></small>
       </article>`;
       })
@@ -212,7 +217,7 @@ grid.addEventListener("click", (event) => {
     runtime.notify(
       owned
         ? `${item.name} equipado. ${flavors ? "Seus cosméticos foram mantidos." : "As outras categorias foram mantidas."}`
-        : `${item.name} entrou para sua coleção e foi equipado!`,
+        : `${item.name} entrou para suas receitas e foi equipado!`,
     );
 });
 for (const button of document.querySelectorAll("[data-filter]")) {

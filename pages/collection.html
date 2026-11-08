@@ -9,9 +9,9 @@
     <meta name="theme-color" content="#291440" />
     <meta
       name="description"
-      content="Seu inventário de sabores, pirulitos, mundos e partículas. Combine seu próprio mundo de doces."
+      content="Suas receitas de sabores, pirulitos, mundos e partículas. Combine seu próprio mundo de doces."
     />
-    <title>Coleção · Lollipop Clicker</title>
+    <title>Receitas · Lollipop Clicker</title>
     <link rel="icon" href="../icon-192.png" />
     <link rel="manifest" href="../manifest.json" />
     <link rel="stylesheet" href="../css/global.css" />
@@ -23,15 +23,15 @@
     <link rel="stylesheet" href="../css/ui-system.css" />
   </head>
   <body data-page="collection">
-    <a class="skip-link" href="#mainContent">Pular para a coleção</a>
+    <a class="skip-link" href="#mainContent">Pular para as receitas</a>
     <header id="gameHeader"></header>
     <main id="mainContent" class="page-scene collection-page">
       <div class="page-heading">
         <div>
-          <span class="eyebrow">SEU BAÚ DE TESOUROS</span>
-          <h1 class="page-title">Coleção açucarada</h1>
+          <span class="eyebrow">SABORES PARA O SEU MUNDO</span>
+          <h1 class="page-title">Receitas</h1>
           <details class="page-intro">
-            <summary>Sobre este lugar ⌄</summary>
+            <summary aria-label="Sobre este lugar">i</summary>
             <p class="page-lead">
               Uma receita, infinitas combinações. Deixe este mundo com a sua
               cara.
@@ -45,14 +45,11 @@
       <a class="game-button secondary pets-shortcut" href="pets.html"
         >Pets e ovos · conhecer meus companheiros →</a
       >
-      <section class="loadout-panel" aria-label="Seu conjunto atual">
-        <h2>Seu conjunto</h2>
-        <div id="collectionLoadout" class="loadout-chips"></div>
-      </section>
+
       <div
         class="inventory-tabs"
         role="group"
-        aria-label="Categoria da coleção"
+        aria-label="Categoria das receitas"
       >
         <button
           class="game-button active"
@@ -87,28 +84,45 @@
           Partículas
         </button>
       </div>
-      <p id="categoryHint" class="inventory-hint">
-        O sabor equipado define os bônus de clique e produção. Troque quando
-        quiser.
-      </p>
-      <div class="collection-filters" role="group" aria-label="Filtrar coleção">
-        <button type="button" data-filter="all" aria-pressed="true">
-          Todos
-        </button>
-        <button type="button" data-filter="unlocked" aria-pressed="false">
-          Desbloqueados
-        </button>
-        <button type="button" data-filter="locked" aria-pressed="false">
-          Bloqueados
-        </button>
-        <button type="button" data-filter="affordable" aria-pressed="false">
-          Posso comprar
-        </button>
+
+      <div class="recipe-tools">
+        <details class="loadout-panel" aria-label="Seu conjunto atual">
+          <summary>Meu conjunto</summary>
+          <div id="collectionLoadout" class="loadout-chips"></div>
+        </details>
+        <details class="recipe-help">
+          <summary>Sobre receitas</summary>
+          <p id="categoryHint" class="inventory-hint">
+            O sabor equipado define os bônus de clique e produção. Troque quando
+            quiser.
+          </p>
+        </details>
+        <details class="recipe-filters">
+          <summary>Filtrar</summary>
+          <div
+            class="collection-filters"
+            role="group"
+            aria-label="Filtrar receitas"
+          >
+            <button type="button" data-filter="all" aria-pressed="true">
+              Todos
+            </button>
+            <button type="button" data-filter="unlocked" aria-pressed="false">
+              Desbloqueados
+            </button>
+            <button type="button" data-filter="locked" aria-pressed="false">
+              Bloqueados
+            </button>
+            <button type="button" data-filter="affordable" aria-pressed="false">
+              Posso comprar
+            </button>
+          </div>
+        </details>
       </div>
       <div
         id="inventoryGrid"
         class="inventory-grid"
-        aria-label="Itens da coleção"
+        aria-label="Sabores e visuais"
       ></div>
       <p id="inventoryEmpty" class="inventory-empty" role="status" hidden>
         Nenhum item neste filtro por enquanto. Experimente Todos.
@@ -142,9 +156,9 @@
         </p>
       </dialog>
       <p class="inventory-footnote">
-        Os itens comprados ficam com você após o prestígio. Cada coleção visual
-        desbloqueia pirulito, mundo e partículas de uma vez; equipar cada parte
-        é independente.
+        Os itens comprados ficam com você após o prestígio. Cada categoria
+        visual desbloqueia pirulito, mundo e partículas de uma vez; equipar cada
+        parte é independente.
       </p>
     </main>
     <nav id="bottomNav" aria-label="Navegação do jogo"></nav>

@@ -1,3 +1,4 @@
+import { exact as formatExact } from "../format.js";
 import { BOSS_STORIES, getBossIdentity } from "../world.js";
 import { bootPage, format, time, setText } from "../ui/shared.js";
 import {
@@ -17,7 +18,7 @@ const start = document.getElementById("startBossBtn");
 let shownLevel = -1;
 let previousBoss = null;
 let previousVictories = runtime.state.bossesKilled;
-const exact = new Intl.NumberFormat("pt-BR");
+const exact = { format: formatExact };
 const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
 
 function render(state, info = {}) {
@@ -51,7 +52,7 @@ function render(state, info = {}) {
   );
   setText(
     "bossDamage",
-    `Seu ataque: ${format(getBossDamage(state, now))} por toque · +${format(getPetBonuses(state).bossDamage * 100)}% dos pets de combate. Seu clique e fábricas preparam o ataque.`,
+    `${format(getBossDamage(state, now))} dano/toque · +${format(getPetBonuses(state).bossDamage * 100)}% pets`,
   );
   const reward = getBossReward(state, max);
   setText("bossReward", `Vitória: ${format(reward)} doces`);

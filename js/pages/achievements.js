@@ -33,14 +33,14 @@ const categories = [
 filterBar.innerHTML = categories
   .map(
     (category) =>
-      `<button type="button" class="game-button secondary${category === selectedCategory ? " active" : ""}" data-achievement-category="${category}" aria-pressed="${category === selectedCategory}">${category}</button>`,
+      `<button type="button" class="game-button secondary${category === selectedCategory ? " active" : ""}" data-achievement-category="${category}" aria-pressed="${category === selectedCategory}">${category === "Coleção" ? "Receitas" : category}</button>`,
   )
   .join("");
 list.innerHTML = ACHIEVEMENTS_DATA.map((achievement) => {
   const { category } = getAchievementProgress(runtime.state, achievement.id);
   return `<article class="achievement-tile" data-achievement="${achievement.id}" data-category="${category}">
     <span class="achievement-art">${badgeSVG(category)}</span>
-    <div class="achievement-detail"><p class="item-rarity">${category}</p><h3>${achievement.title}</h3><p>${achievement.desc}</p>
+    <div class="achievement-detail"><p class="item-rarity">${category === "Coleção" ? "Receitas" : category}</p><h3>${achievement.title}</h3><p>${achievement.desc}</p>
     <div class="progress-track" role="progressbar" aria-label="Progresso: ${achievement.title}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span></span></div>
     <p class="achievement-progress-label"></p></div><span class="achievement-state"></span>
   </article>`;

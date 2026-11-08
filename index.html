@@ -26,123 +26,190 @@
     <header id="gameHeader"></header>
     <main id="mainContent" class="home-scene">
       <div class="game-layout">
+        <section class="world-zone" aria-label="Mundo dos doces">
+          <div class="world-scene" id="worldScene" aria-hidden="true"></div>
+          <div class="world-heading">
+            <span id="worldChapter" class="chapter-label">CAPÍTULO 01</span>
+            <h2 id="worldTitle">Colina de Açúcar</h2>
+          </div>
+        </section>
         <section class="clicker-zone" aria-label="Produzir pirulitos">
-          <div class="zone-ribbon">O DOCE COMEÇO DE UM GRANDE IMPÉRIO</div>
           <div class="candy-counter">
-            <span class="counter-label">seus pirulitos</span>
+            <span class="counter-label">SEUS PIRULITOS</span>
             <h1 id="scoreDisplay" class="score-value">0</h1>
             <div class="rate-line">
-              <span id="ppsDisplay">0 /s</span><span>✦</span
+              <span id="ppsDisplay">0 /s</span
               ><span id="clickPowerDisplay">+2 por toque</span>
             </div>
           </div>
           <div class="lollipop-stage">
             <span class="sugar-spark spark-a" aria-hidden="true">✧</span
             ><span class="sugar-spark spark-b" aria-hidden="true">✦</span
-            ><span class="sugar-spark spark-c" aria-hidden="true">✧</span>
-            <button
+            ><span class="sugar-spark spark-c" aria-hidden="true">✧</span
+            ><button
               id="lollipop"
               class="lollipop-button"
               aria-label="Produzir pirulitos: clique ou pressione espaço"
             ></button
             ><span class="lollipop-shadow" aria-hidden="true"></span>
           </div>
-          <p class="tap-hint">Só mais um clique…</p>
           <a class="flavor-badge" href="pages/collection.html"
             ><span class="flavor-dot" aria-hidden="true"></span
             ><span
-              ><small>RECEITA DA VEZ</small><b id="flavorName">Morango</b></span
-            ><span aria-hidden="true">→</span></a
-          >
-          <button id="adBoostBtn" class="boost-button game-button" data-action>
-            <span aria-hidden="true">ϟ</span
-            ><span
-              ><b id="boostTitle">Chuva de açúcar!</b
-              ><small id="boostDescription"
-                >2× por 30 segundos · grátis</small
-              ></span
-            ><span id="boostAction">ATIVAR</span>
-          </button>
-          <nav class="stage-shortcuts" aria-label="Continuar aventura">
-            <a href="pages/shop.html">Loja →</a
-            ><a href="pages/prestige.html">Prestígio ✦</a>
-          </nav>
-          <a href="pages/rewards.html" class="reward-link"
-            >Uma pitada de sorte? Visite a roleta →</a
+              ><small>RECEITA ATIVA</small><b id="flavorName">Morango</b></span
+            ><span aria-hidden="true">›</span></a
           >
         </section>
-        <section class="world-zone" aria-label="Seu mundo de produção">
-          <div class="world-heading">
-            <span class="chapter-label" id="worldChapter">CAPÍTULO 01</span>
-            <h2 id="worldTitle">Colina de Açúcar</h2>
-            <p id="worldProgress">Seu primeiro ateliê está esperando.</p>
-          </div>
-          <div
-            class="world-scene"
-            id="worldScene"
-            aria-label="Paisagem ilustrada do mundo dos doces"
-          ></div>
-          <div class="conveyor" aria-hidden="true">
-            <i></i><i></i><i></i><i></i><i></i><i></i>
-          </div>
-          <div class="production-sign">
-            <span>SUAS LINHAS DE PRODUÇÃO</span
-            ><b id="buildingCount">0 máquinas</b>
-          </div>
-          <div class="building-lots" id="buildingLots"></div>
+        <nav class="play-tools tools-left" aria-label="Produção e companheiros">
+          <a
+            href="pages/shop.html"
+            class="hud-tile tone-shop"
+            data-game-panel="shop"
+            ><span class="tool-art" aria-hidden="true">⚒</span
+            ><span>Loja</span></a
+          >
+          <a href="pages/pets.html" class="hud-tile tone-pets"
+            ><span class="tool-art" aria-hidden="true">♟</span
+            ><span>Pets</span></a
+          >
+        </nav>
+        <nav class="play-tools tools-right" aria-label="Sorte e bônus">
+          <a
+            href="pages/rewards.html"
+            class="hud-tile tone-rewards"
+            data-game-panel="rewards"
+            ><span class="tool-art" aria-hidden="true">✺</span
+            ><span>Roleta</span></a
+          >
           <button
-            id="sugarEvent"
-            class="sugar-event"
-            hidden
-            aria-label="Coletar cristal de açúcar dourado"
+            id="adBoostBtn"
+            class="hud-tile tone-boost"
+            data-action
+            aria-describedby="boostDescription"
+            aria-label="Ativar produção e toques em dobro por 30 segundos; recarga de 5 minutos"
           >
-            <span aria-hidden="true">✦</span><strong>Açúcar dourado!</strong
-            ><small>Toque antes que desapareça</small>
+            <span class="tool-art" aria-hidden="true">ϟ</span
+            ><b id="boostAction">ATIVAR</b
+            ><span id="boostTitle" class="sr-only">Chuva de açúcar</span>
           </button>
-          <p id="worldLog" class="world-log" role="status">
-            Tudo começa com um pirulito e uma boa ideia.
-          </p>
-          <a class="world-milestone" href="pages/achievements.html"
-            ><span aria-hidden="true">✧</span
-            ><span
-              ><small>PRÓXIMA DESCOBERTA</small
-              ><b id="nextAchievement">Primeiro Pirulito</b></span
-            ><span aria-hidden="true">→</span></a
+          <span id="boostDescription" class="tool-hint"
+            >2× por 30 segundos</span
           >
-        </section>
-        <details open class="shop-zone" aria-label="Compra rápida de melhorias">
-          <summary class="quick-shop-summary">
-            Compra rápida · engenhocas ⌄
-          </summary>
-          <div class="shop-heading">
-            <span class="chapter-label">BALCÃO DE ENGENHOCAS</span>
-            <h2>Mais açúcar. Menos trabalho.</h2>
-            <a href="pages/shop.html">Abrir loja completa ↗</a>
-          </div>
-          <div
-            class="buy-controls"
-            id="buyControls"
-            role="group"
-            aria-label="Quantidade por compra"
-          >
-            <span>COMPRAR</span
-            ><button data-buy="1" class="active" aria-pressed="true">×1</button
-            ><button data-buy="10" aria-pressed="false">×10</button
-            ><button data-buy="100" aria-pressed="false">×100</button
-            ><button data-buy="max" aria-pressed="false">MAX</button>
-          </div>
-          <div id="upgradesList" class="upgrades-list"></div>
-          <p class="shop-footnote">
-            Cada engenhoca trabalha por você.<br />Mesmo quando a aventura faz
-            uma pausa.
+        </nav>
+        <button
+          id="sugarEvent"
+          class="sugar-event"
+          hidden
+          aria-label="Coletar cristal de açúcar dourado"
+        >
+          <span aria-hidden="true">✦</span><strong>Açúcar dourado!</strong
+          ><small>Coletar</small>
+        </button>
+        <button class="world-peek" data-game-panel="world" type="button">
+          <span id="mobileWorldName">Colina de Açúcar</span
+          ><span>Minha fábrica ›</span>
+        </button>
+      </div>
+    </main>
+    <dialog id="gamePanel" class="game-panel" aria-labelledby="gamePanelTitle">
+      <header class="panel-heading">
+        <div>
+          <span class="eyebrow" id="gamePanelKicker">SEU ATELIÊ</span>
+          <h2 id="gamePanelTitle">Loja</h2>
+        </div>
+        <div class="panel-wallet">
+          <b data-balance>0</b><small>doces</small>
+        </div>
+        <button
+          id="closeGamePanel"
+          type="button"
+          aria-label="Fechar painel e voltar ao pirulito"
+        >
+          ✕
+        </button>
+        <p
+          id="panelFeedback"
+          class="panel-feedback"
+          role="status"
+          aria-live="polite"
+          hidden
+        ></p>
+        <p id="panelUpdateNotice" class="panel-feedback" role="status" hidden>
+          Nova versão disponível. Feche este painel para atualizar.
+        </p>
+      </header>
+      <p id="panelSaveStatus" class="panel-warning" role="status" hidden></p>
+      <section data-panel-content="shop" hidden>
+        <div
+          class="buy-controls"
+          id="buyControls"
+          role="group"
+          aria-label="Quantidade por compra"
+        >
+          <button data-buy="1" class="active" aria-pressed="true">×1</button
+          ><button data-buy="10" aria-pressed="false">×10</button
+          ><button data-buy="100" aria-pressed="false">×100</button
+          ><button data-buy="max" aria-pressed="false">MAX</button>
+        </div>
+        <div id="upgradesList" class="upgrades-list"></div>
+        <details class="context-details">
+          <summary>Como comprar e expandir</summary>
+          <p>
+            ×10 e ×100 compram o lote inteiro. MAX usa apenas o saldo e os
+            espaços livres. Expansões permanentes ficam no Prestígio. Toque numa
+            fábrica para comprar. Abra os detalhes para ver os valores
+            completos.
           </p>
         </details>
-      </div>
-      <a class="world-glimpse" href="pages/shop.html"
-        ><span id="mobileWorldName">Colina de Açúcar</span
-        ><span>Expandir meu mundo →</span></a
-      >
-    </main>
+        <nav class="panel-route">
+          <a data-panel-page="shop" href="pages/shop.html"
+            >Abrir Loja em tela inteira ↗</a
+          >
+        </nav>
+      </section>
+      <section data-panel-content="rewards" class="wheel-tent" hidden>
+        <div class="wheel-wrapper">
+          <span class="wheel-pointer" aria-hidden="true">▼</span
+          ><canvas
+            id="wheelCanvas"
+            width="360"
+            height="360"
+            role="img"
+            aria-label="Roleta com seis prêmios igualmente prováveis"
+          ></canvas>
+        </div>
+        <button id="spinBtn" class="game-button">Girar · grátis</button>
+        <p id="wheelTimer" role="status">Preparando sua roleta…</p>
+        <p id="wheelResult" class="prize-result" role="status" hidden></p>
+        <details class="wheel-rules">
+          <summary>Chances e regras do giro</summary>
+          <ul id="rewardLegend" class="reward-legend"></ul>
+          <p>
+            Seis chances iguais. Um giro a cada 5 minutos. Percentuais usam o
+            saldo inicial, com mínimo de 100 e limite de 10 minutos de PPS sem
+            boost. O prêmio é salvo antes da animação; fechar não cancela nem
+            sorteia de novo. O bônus raro de clique dura até o prestígio.
+          </p>
+        </details>
+        <nav class="panel-route">
+          <a data-panel-page="rewards" href="pages/rewards.html"
+            >Abrir Roleta em tela inteira ↗</a
+          >
+        </nav>
+      </section>
+      <section data-panel-content="world" hidden>
+        <p id="worldProgress"></p>
+        <h3 id="buildingCount">0 engenhocas</h3>
+        <div id="buildingLots" class="building-lots"></div>
+        <p id="worldLog" class="world-log" role="status">
+          Tudo começa com um pirulito.
+        </p>
+        <a href="pages/achievements.html" class="world-milestone"
+          >Próxima descoberta:
+          <b id="nextAchievement">Primeiro Pirulito</b> ›</a
+        >
+      </section>
+    </dialog>
     <nav id="bottomNav" aria-label="Navegação rápida"></nav>
     <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
     <canvas id="fxCanvas" aria-hidden="true"></canvas>

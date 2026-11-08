@@ -1,3 +1,4 @@
+import { exact as formatExact, cost as formatCost } from "../format.js";
 import { UPGRADES_DATA } from "../data.js";
 import {
   getBulkQuote,
@@ -15,7 +16,7 @@ import {
   writeShopView,
 } from "./qol.js";
 
-const exact = new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 0 });
+const exact = { format: formatExact };
 function estimate(seconds) {
   if (seconds < 60) return `${seconds} s`;
   if (seconds < 3600) return `${Math.ceil(seconds / 60)} min`;
@@ -36,7 +37,7 @@ export function mountShop(
   container.innerHTML = Object.entries(UPGRADES_DATA)
     .map(
       ([key, data], index) =>
-        `<button class="upgrade-row" data-upgrade="${key}" type="button"><span class="building-art" aria-hidden="true">${buildingSVG(key, 1)}</span><span class="upgrade-info"><span class="tier-label">NÍVEL ${String(index + 1).padStart(2, "0")}</span><strong>${data.name}</strong><small class="contribution"></small><span class="price"></span><span class="purchase-status"></span><small class="purchase-estimate"></small></span><span class="owned" aria-label="Quantidade possuída">0</span></button>`,
+        `<button class="upgrade-row" data-upgrade="${key}" type="button" disabled><span class="building-art" aria-hidden="true">${buildingSVG(key, 1)}</span><span class="upgrade-info"><span class="tier-label">NÍVEL ${String(index + 1).padStart(2, "0")}</span><strong>${data.name}</strong><small class="contribution"></small><span class="price"></span><span class="purchase-status"></span><small class="purchase-estimate"></small></span><span class="owned" aria-label="Quantidade possuída">0</span></button>`,
     )
     .join("");
   for (const row of container.querySelectorAll("[data-upgrade]")) {
@@ -68,7 +69,18 @@ export function mountShop(
       if (button) selectView(button.dataset.shopView, true);
     });
   }
+  const ledger = document.createElement("details");
+  ledger.className = "shop-ledger";
+  ledger.innerHTML =
+    "<summary>Detalhes da produção e capacidade</summary><div></div>";
+  container.append(ledger);
+  let ledgerHTML = "";
+  ledger.addEventListener("toggle", () => {
+    if (ledger.open) render(runtime.state);
+  });
   function render(state, info = {}) {
+    const modal = container.closest("dialog");
+    if (modal && !modal.open) return;
     const now = info.now ?? Date.now();
     for (const [key, cached] of rows) {
       const { row, owned, price, contribution, status, eta } = cached;
@@ -82,7 +94,7 @@ export function mountShop(
       row.disabled = !runtime.writable || !runtime.canSave || !offer.available;
       row.classList.toggle("affordable", !row.disabled);
       row.classList.toggle("unbuilt", state.upgrades[key] === 0);
-      setNodeText(owned, `${state.upgrades[key]} / ${offer.capacity}`);
+      setNodeText(owned, `${format(state.upgrades[key])} / ${format(offer.capacity)}`);
       owned.setAttribute(
         "aria-label",
         `${exact.format(state.upgrades[key])} possuídas de ${offer.capacity} espaços`,
@@ -94,15 +106,28 @@ export function mountShop(
             ? "Limite atingido"
             : "Lote acima da capacidade"
           : Number.isFinite(offer.price)
-            ? `${format(offer.price)} doces${quantity === "max" && !offer.quote.quantity ? " · próxima unidade" : ""}`
+            ? `${formatCost(offer.price)} doces${quantity === "max" && !offer.quote.quantity ? " · próxima unidade" : ""}`
             : "Preço fora do limite",
       );
       const produced = buildingContribution(state, key, now);
+      const previewQuantity = offer.quote.quantity || 1;
+      const future = {
+        ...state,
+        upgrades: {
+          ...state.upgrades,
+          [key]: state.upgrades[key] + previewQuantity,
+        },
+      };
+      const gain = Math.max(
+        0,
+        buildingContribution(future, key, now) - produced,
+      );
+      const active = getActiveFactoryCount(state, key);
       setNodeText(
         contribution,
-        state.upgrades[key] > 0
-          ? `Sua linha: ${format(produced)} /s · ${getActiveFactoryCount(state, key)} ativas / ${state.upgrades[key]} possuídas · ${offer.capacity} espaços (${getPermanentFactoryCapacity(state, key)} permanentes)${state.upgrades[key] > offer.capacity ? " · excedentes inativas; equipe capacidade ou expanda" : ""}`
-          : `+${format(UPGRADES_DATA[key].basePps)} /s base`,
+        active < state.upgrades[key]
+          ? `${format(active)} ativas / ${format(state.upgrades[key])} possuídas · ${format(state.upgrades[key]-active)} inativas`
+          : `${offer.quote.quantity ? "Ganha" : "Próxima"} +${format(gain)} /s`,
       );
       const action =
         quantity === "max"
@@ -119,7 +144,7 @@ export function mountShop(
             : !Number.isFinite(offer.price)
               ? "Limite de compra atingido"
               : !offer.available
-                ? `Faltam ${format(Math.max(1, Math.ceil(offer.missing)))} doces`
+                ? `Faltam ${formatCost(Math.max(1, Math.ceil(offer.missing)))} doces`
                 : `✓ ${action}`;
       setNodeText(
         status,
@@ -140,6 +165,18 @@ export function mountShop(
       if (row.getAttribute("aria-label") !== label) {
         row.setAttribute("aria-label", label);
         row.title = label;
+      }
+    }
+    if (ledger.open) {
+      const html = Object.entries(UPGRADES_DATA)
+        .map(
+          ([key, data]) =>
+            `<p><b>${data.name}</b><br>${getActiveFactoryCount(state, key)} ativas / ${state.upgrades[key]} possuídas · ${getFactoryCapacity(state, key)} espaços (${getPermanentFactoryCapacity(state, key)} permanentes)<br>Compra: ${formatExact(shopOffer(state,key,quantity,now,rows.get(key).quote).price)} doces<br>${formatExact(buildingContribution(state, key, now))} doces/s</p>`,
+        )
+        .join("");
+      if (html !== ledgerHTML) {
+        ledger.querySelector("div").innerHTML = html;
+        ledgerHTML = html;
       }
     }
   }

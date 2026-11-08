@@ -1,3 +1,9 @@
+import {
+  exact as formatExact,
+  decimal as formatDecimal,
+  cost as formatCost,
+  multiplier,
+} from "../format.js";
 import { bootPage, format, setText, setNodeText } from "../ui/shared.js";
 import {
   getPrestigeGain,
@@ -21,16 +27,49 @@ const runtime = await bootPage("prestige");
 const button = document.getElementById("prestigeBtn");
 const stellarButton = document.getElementById("buyStellarBtn");
 const expansionGrid = document.getElementById("factoryExpansions");
-const number = new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 2 });
-const multiplier = (value) => `×${number.format(value)}`;
+const number = { format: formatDecimal };
 const rows = new Map();
+const nodes = document.getElementById("prestigeNodes");
+nodes.innerHTML =
+  `<button type="button" class="prestige-node" data-node="stellar" aria-pressed="true"><span class="star-icon" aria-hidden="true">✦</span><strong>Ímpeto Estelar</strong><small></small></button>` +
+  Object.entries(UPGRADES_DATA)
+    .map(
+      ([key, data]) =>
+        `<button type="button" class="prestige-node" data-node="${key}" aria-pressed="false"><span aria-hidden="true">${buildingSVG(key, 1)}</span><strong>${data.name}</strong><small></small></button>`,
+    )
+    .join("");
+function chooseUpgrade(key, focus = false) {
+  nodes
+    .querySelectorAll("[data-node]")
+    .forEach((el) =>
+      el.setAttribute("aria-pressed", String(el.dataset.node === key)),
+    );
+  document.getElementById("stellarDetail").hidden = key !== "stellar";
+  document.getElementById("expansionDetail").hidden = key === "stellar";
+  rows.forEach((row, id) => (row.card.hidden = id !== key));
+  const title = document.getElementById("upgradeSelectionTitle");
+  title.textContent =
+    key === "stellar" ? "Ímpeto Estelar" : UPGRADES_DATA[key].name;
+  if (focus) {
+    title.focus({ preventScroll: true });
+    document
+      .getElementById("upgradeDetails")
+      .scrollIntoView({ block: "nearest" });
+  }
+}
+nodes.addEventListener("click", (event) => {
+  const b = event.target.closest("[data-node]");
+  if (b) chooseUpgrade(b.dataset.node, true);
+});
 for (const [key, data] of Object.entries(UPGRADES_DATA)) {
   const card = document.createElement("article");
   card.className = "permanent-card expansion-card";
   card.dataset.expansion = key;
+  card.hidden = true;
   card.innerHTML = `<div class="expansion-name"><span class="expansion-art" aria-hidden="true">${buildingSVG(key, 1)}</span><h3>${data.name}</h3></div><p class="expansion-level"></p><p class="expansion-capacity"></p><button class="game-button secondary" type="button" data-expand="${key}"></button><small class="expansion-status"></small>`;
   expansionGrid.append(card);
   rows.set(key, {
+    card,
     level: card.querySelector(".expansion-level"),
     capacity: card.querySelector(".expansion-capacity"),
     button: card.querySelector("button"),
@@ -42,7 +81,7 @@ function availability(cost) {
   if (!runtime.canSave) return "Recupere seu save nos Ajustes";
   if (!Number.isFinite(cost)) return "Nível máximo alcançado";
   const missing = Math.max(0, cost - runtime.state.prestigePoints);
-  return missing ? `Faltam ${missing} PP` : "✓ Disponível";
+  return missing ? `Faltam ${formatCost(missing)} PP` : "✓ Disponível";
 }
 function render(state) {
   const progress = getPrestigeProgress(state);
@@ -59,11 +98,11 @@ function render(state) {
   const reward = getPrestigeReward(state);
   setText(
     "prestigeRewardDetails",
-    `Saldo atual: ${state.prestigePoints} PP. Bônus dos pets: ${number.format(reward.rate * 100)}%, arredondado para baixo. ${reward.bonus === 0 ? "Nenhum PP extra neste resgate." : "Extras concedidos só no resgate confirmado."}`,
+    `Saldo atual: ${formatExact(state.prestigePoints)} PP. Base ${formatExact(reward.base)} PP + pets ${formatExact(reward.bonus)} PP = ${formatExact(reward.total)} PP. Bônus dos pets: ${number.format(reward.rate * 100)}%, arredondado para baixo. ${reward.bonus === 0 ? "Nenhum PP extra neste resgate." : "Extras concedidos só no resgate confirmado."}`,
   );
   setText(
     "prestigeGainText",
-    `+${format(gain)} ${gain === 1 ? "nível" : "níveis"} · ${reward.base} PP base + ${reward.bonus} PP de pets = ${reward.total} novos PP`,
+    `+${format(gain)} ${gain === 1 ? "nível" : "níveis"} · +${format(reward.total)} PP`,
   );
   setText(
     "prestigeJourney",
@@ -99,6 +138,18 @@ function render(state) {
     gain <= 0 ||
     Boolean(state.pendingWheel);
   const stellarCost = getStellarCost(state);
+  nodes.querySelector("[data-node=stellar] small").textContent =
+    `Nv. ${state.stellarBoostLevel} · ${Number.isFinite(stellarCost) ? formatCost(stellarCost) + " PP" : "MAX"}`;
+  for (const [key, row] of rows) {
+    const price = getExpansionCost(state, key),
+      node = nodes.querySelector(`[data-node="${key}"]`);
+    node.querySelector("small").textContent =
+      `Nv. ${state.factoryExpansions[key]} · ${Number.isFinite(price) ? formatCost(price) + " PP" : "MAX"}`;
+    node.setAttribute(
+      "aria-label",
+      `${UPGRADES_DATA[key].name}, expansão ${state.factoryExpansions[key]}. ${Number.isFinite(price) ? formatExact(price) + " PP" : "Máximo"}. Independente das outras melhorias.`,
+    );
+  }
   const maxStar = PRESTIGE_CONFIG.stellar.maxLevel;
   setText("stellarLevel", `Nível ${state.stellarBoostLevel} / ${maxStar}`);
   setText(
@@ -157,7 +208,7 @@ button.addEventListener("click", () => {
   const expectedReward = getPrestigeReward(runtime.state);
   if (
     !confirm(
-      `Renascer e ganhar +${gain} níveis e ${expectedReward.base} PP base + ${expectedReward.bonus} PP de pets = ${expectedReward.total} novos PP? Saldo, fábricas, batalha e bônus temporários reiniciam. Pontos disponíveis, Ímpeto Estelar, expansões, coleção, conquistas, histórico, todos os pets (inclusive equipados), ovos desbloqueados e descobertas ficam com você.`,
+      `Renascer e ganhar +${gain} níveis e ${expectedReward.base} PP base + ${expectedReward.bonus} PP de pets = ${expectedReward.total} novos PP? Saldo, fábricas, batalha e bônus temporários reiniciam. Pontos disponíveis, Ímpeto Estelar, expansões, receitas, conquistas, histórico, todos os pets (inclusive equipados), ovos desbloqueados e descobertas ficam com você.`,
     )
   )
     return;

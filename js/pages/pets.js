@@ -1,3 +1,4 @@
+import { cost, exact } from "../format.js";
 import { bootPage, format, setText } from "../ui/shared.js";
 import { getWorldStage, WORLD_CHAPTERS } from "../world.js";
 import { getTotalUpgradesCount } from "../progression.js";
@@ -45,11 +46,12 @@ import {
   resultCard,
   percent,
   bonusLabel,
+  bonusChips,
 } from "../pets/view.js";
 
 const runtime = await bootPage("pets");
 const byId = (id) => document.getElementById(id);
-const money = new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 0 });
+const money = { format: cost };
 const selected = new Set();
 let eggId = "acucarado",
   panel = "eggs",
@@ -104,7 +106,7 @@ STAGES.forEach((stage, index) =>
 byId("eggSelection").innerHTML = Object.entries(EGGS)
   .map(
     ([id, egg]) =>
-      `<button type="button" class="pet-egg" data-egg="${id}" aria-pressed="${id === eggId}">${eggSVG(id)}<strong>${egg.name}</strong><span>${money.format(egg.price)} pirulitos</span><small data-egg-state></small></button>`,
+      `<button type="button" class="pet-egg" data-egg="${id}" aria-pressed="${id === eggId}" aria-label="${egg.name}, ${exact(egg.price)} doces">${eggSVG(id)}<strong>${egg.name}</strong><span>${money.format(egg.price)} doces</span><small data-egg-state></small></button>`,
   )
   .join("");
 byId("hatchButtons").innerHTML = [1, 2, 3]
@@ -197,7 +199,11 @@ function renderControls(state) {
     const count = Number(button.dataset.hatch),
       offer = eggQuote(state, eggId, count);
     button.querySelector("span").textContent =
-      `${money.format(egg.price * count)} pirulitos`;
+      `${money.format(egg.price * count)} doces`;
+    button.setAttribute(
+      "aria-label",
+      `Abrir ${count} ovos: ${exact(egg.price * count)} doces. ${offer.ok ? "Disponível" : offer.reason}`,
+    );
     button.disabled = !available || manualBusy || auto.active || !offer.ok;
   }
   byId("autoOpenBtn").disabled =
@@ -238,7 +244,7 @@ function renderTeam(state) {
   byId("petTeam").innerHTML = Array.from({ length: PET_SLOTS }, (_, index) => {
     const pet = pets[index];
     return pet
-      ? `<article class="pet-team-slot">${petSVG(pet.speciesId, pet.stage)}<div><strong>${SPECIES[pet.speciesId].name}</strong><p>${STAGES[pet.stage].name}</p><p>${bonusLabel(petPower(pet))}</p><button type="button" class="item-preview" data-unequip="${pet.id}" ${!canAct() ? "disabled" : ""}>Retirar</button></div></article>`
+      ? `<article class="pet-team-slot">${petSVG(pet.speciesId, pet.stage)}<div><strong>${SPECIES[pet.speciesId].name}</strong><p>${STAGES[pet.stage].name}</p>${bonusChips(petPower(pet))}<button type="button" class="item-preview" data-unequip="${pet.id}" ${!canAct() ? "disabled" : ""}>Retirar</button></div></article>`
       : `<div class="pet-team-slot empty">Espaço ${index + 1}<br />Equipe um amigo</div>`;
   }).join("");
 }
