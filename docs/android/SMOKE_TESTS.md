@@ -34,3 +34,5 @@ Faça push para `dev` ou synchronize do PR existente; compare execuções `push`
 Em falha, baixe o artifact do job correto. Primeiro leia XML/Gradle e último `STAGE/READY`, depois `live-logcat.txt`: JavaScript/selector/timeout aponta à etapa do teste; AndroidRuntime/FATAL ou tombstone aponta a crash; `lmkd`/processo qemu ausente/ADB morto sem falha de app exige investigar infraestrutura. `result.txt` sem início de instrumentação aponta a setup/boot. Ausência de logcat com device morto é indisponibilidade, não evidência de sucesso.
 
 Ambiente local sem emulador/KVM: compilação de APKs e testes host não comprovam execução WebView. A conclusão da correção depende de instrumentação API35 no CI. Nunca declare o problema resolvido apenas porque o build passou.
+
+Primeira revisão de CI (5b4dbc4): push/PR interromperam no setup, antes de iniciar emulador, com `sdkmanager: command not found`. A pré-compilação movida para fora do emulator-runner precisa de `setup-android` explícito; ordem corrigida. Isso não é uma nova evidência sobre a queda original do dispositivo.
