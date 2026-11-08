@@ -58,8 +58,12 @@ function render(state) {
   );
   const reward = getPrestigeReward(state);
   setText(
+    "prestigeRewardDetails",
+    `Saldo atual: ${state.prestigePoints} PP. Bônus dos pets: ${number.format(reward.rate * 100)}%, arredondado para baixo. ${reward.bonus === 0 ? "Nenhum PP extra neste resgate." : "Extras concedidos só no resgate confirmado."}`,
+  );
+  setText(
     "prestigeGainText",
-    `+${format(gain)} ${gain === 1 ? "nível" : "níveis"} · ${reward.base} PP base + ${reward.bonus} PP de pets = ${reward.total} novos PP. Saldo atual: ${state.prestigePoints} PP. Bônus: ${number.format(reward.rate * 100)}%, arredondado para baixo; ${reward.bonus === 0 ? "nenhum PP extra neste resgate." : "só no resgate confirmado."}`,
+    `+${format(gain)} ${gain === 1 ? "nível" : "níveis"} · ${reward.base} PP base + ${reward.bonus} PP de pets = ${reward.total} novos PP`,
   );
   setText(
     "prestigeJourney",

@@ -67,25 +67,76 @@ export function hrefFor(page) {
 function navLink(page, current, extra = "") {
   return `<a href="${hrefFor(page)}" class="${page === current ? "active" : ""} ${extra}" ${page === current ? 'aria-current="page"' : ""}>${icon(page)}<span>${labels[page]}</span></a>`;
 }
+const primaryPages = ["home", "shop", "pets", "arena"];
+function moreMenu(page, suffix) {
+  const secondary = !primaryPages.includes(page);
+  return `<details class="more-menu ${secondary ? "current-section" : ""}"><summary aria-expanded="false" aria-controls="more-${suffix}" aria-label="Mais locais${secondary ? `: ${labels[page]}` : ""}">${icon("more")}<span>Mais${secondary ? ` · ${labels[page]}` : ""}</span></summary><div class="more-links" id="more-${suffix}"><strong>Explore seu mundo</strong>${Object.keys(
+    labels,
+  )
+    .filter((id) => !primaryPages.includes(id))
+    .map((id) => navLink(id, page))
+    .join("")}</div></details>`;
+}
+function bindMenus() {
+  const menus = [...document.querySelectorAll(".more-menu")];
+  for (const menu of menus) {
+    menu.addEventListener("toggle", () => {
+      menu
+        .querySelector("summary")
+        .setAttribute("aria-expanded", String(menu.open));
+      if (menu.open)
+        for (const other of menus) if (other !== menu) other.open = false;
+    });
+  }
+  document.addEventListener("click", (event) => {
+    for (const menu of menus)
+      if (menu.open && !menu.contains(event.target)) menu.open = false;
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape")
+      for (const menu of menus)
+        if (menu.open) {
+          menu.open = false;
+          menu.querySelector("summary").focus();
+          event.preventDefault();
+        }
+  });
+}
 export async function bootPage(page) {
   document.body.dataset.page = page;
   document.getElementById("gameHeader").innerHTML = `
     <a class="skip-link" href="#${document.querySelector("main")?.id || "mainContent"}">Pular para o jogo</a>
     <div class="game-header"><a class="brand" href="${hrefFor("home")}" aria-label="Lollipop Clicker, mundo dos doces"><span class="brand-candy" aria-hidden="true">✦</span><span>Lollipop<small>CLICKER · UM MUNDO DE DOCES</small></span></a>
-    <nav class="desktop-nav" aria-label="Locais do mundo">${Object.keys(labels)
-      .map((id) => navLink(id, page))
-      .join("")}</nav>
+    <nav class="desktop-nav" aria-label="Locais do mundo">${primaryPages.map((id) => navLink(id, page)).join("")}${moreMenu(page, "desktop")}</nav>
     <div class="header-wallet"><span class="wallet-mark" aria-hidden="true">◆</span><b data-balance>0</b><small>doces</small></div></div>
     <div class="world-status"><span class="save-indicator" id="saveStatus">Preparando sua fábrica…</span><span id="headerBonus">Feito de açúcar e aventura.</span></div>
     <div id="ownershipNotice" class="ownership-notice" role="status" hidden></div>`;
-  const main = ["home", "shop", "collection", "arena"];
   document.getElementById("bottomNav").innerHTML =
-    `<div class="bottom-nav">${main.map((id) => navLink(id, page)).join("")}<details class="more-menu"><summary>${icon("more")}<span>Mais</span></summary><div class="more-links">${Object.keys(
-      labels,
-    )
-      .filter((id) => !main.includes(id))
-      .map((id) => navLink(id, page))
-      .join("")}</div></details></div>`;
+    `<div class="bottom-nav">${primaryPages.map((id) => navLink(id, page)).join("")}${moreMenu(page, "mobile")}</div>`;
+  document
+    .getElementById("bottomNav")
+    .setAttribute("aria-label", "Navegação do jogo");
+  if (page === "home" && matchMedia("(max-width:760px)").matches)
+    document.querySelector("details.shop-zone").open = false;
+  bindMenus();
+  const header = document.getElementById("gameHeader");
+  const measureHeader = () =>
+    document.documentElement.style.setProperty(
+      "--hud-height",
+      `${header.offsetHeight}px`,
+    );
+  measureHeader();
+  if ("ResizeObserver" in window) {
+    const observer = new ResizeObserver(measureHeader);
+    observer.observe(header);
+    window.addEventListener(
+      "pagehide",
+      (event) => {
+        if (!event.persisted) observer.disconnect();
+      },
+      { once: true },
+    );
+  }
   let toastTimer;
   const toast = document.getElementById("toast");
   document.addEventListener("lollipop:toast", (event) => {
@@ -106,12 +157,12 @@ export async function bootPage(page) {
   let appearance = "";
   runtime.subscribe((state, info) => {
     const now = info.now || Date.now();
-    const signature = `${state.activeTheme}/${state.activeFlavor}/${state.settings.animations}`;
+    const signature = `${state.activeTheme}/${state.activeFlavor}/${state.settings.animations}/${state.settings.reducedMotion}`;
     if (appearance !== signature) {
       appearance = signature;
       document.body.dataset.theme = state.activeTheme;
       document.body.dataset.flavor = state.activeFlavor;
-      document.body.dataset.motion = state.settings.animations ? "on" : "off";
+      document.body.dataset.motion = state.settings.animations && !state.settings.reducedMotion ? "on" : "off";
     }
     document.body.dataset.readonly = String(!runtime.writable);
     document.querySelectorAll("[data-balance]").forEach((el) => {
@@ -127,12 +178,12 @@ export async function bootPage(page) {
       runtime.updating
         ? "Preparando atualização…"
         : !runtime.writable
-        ? "Outra aba está jogando"
-        : !runtime.canSave
-          ? "Save protegido · veja Ajustes"
-          : runtime.error
-            ? "Falha ao salvar · exporte nos Ajustes"
-            : "Progresso guardado neste navegador",
+          ? "Outra aba está jogando"
+          : !runtime.canSave
+            ? "Save protegido · veja Ajustes"
+            : runtime.error
+              ? "Falha ao salvar · exporte nos Ajustes"
+              : "Progresso guardado neste navegador",
     );
     setText(
       "headerBonus",
@@ -141,7 +192,9 @@ export async function bootPage(page) {
         : `Receita ativa: ${FLAVORS_DATA[state.activeFlavor].name} · +${format(getClickPower(state, now))} por toque`,
     );
     const notice = document.getElementById("ownershipNotice");
-    notice.hidden = runtime.updating || (runtime.writable && runtime.canSave && !runtime.error);
+    notice.hidden =
+      runtime.updating ||
+      (runtime.writable && runtime.canSave && !runtime.error);
     const message = !runtime.writable
       ? `Este mundo está aberto em outra aba. Feche a outra aba e <a href="${location.href}">recarregue aqui</a> para jogar. Você ainda pode consultar sua coleção e exportar o save.`
       : `O salvamento está bloqueado ou protegido. Exporte esta sessão antes de sair ou trocar de página. <button id="exportSessionBtn" class="game-button secondary">Exportar esta sessão ↓</button> Abra <a href="${hrefFor("settings")}">Ajustes</a> para recuperar o save original.`;
@@ -186,11 +239,18 @@ export async function bootPage(page) {
   if (runtime.loaded.prestigeReset) {
     const notice = document.createElement("aside");
     notice.className = "beta-reset-notice";
-    const title = document.createElement("strong"); title.textContent = "Nova progressão de Prestígio na beta";
-    const message = document.createElement("p"); message.textContent = runtime.loaded.warnings[0];
-    const link = document.createElement("a"); link.href = hrefFor("settings"); link.textContent = "Exportar o backup antigo nos Ajustes";
-    const close = document.createElement("button"); close.type = "button"; close.textContent = "Fechar aviso"; close.addEventListener("click", () => notice.remove());
-    notice.append(title,message,link,close);
+    const title = document.createElement("strong");
+    title.textContent = "Nova progressão de Prestígio na beta";
+    const message = document.createElement("p");
+    message.textContent = runtime.loaded.warnings[0];
+    const link = document.createElement("a");
+    link.href = hrefFor("settings");
+    link.textContent = "Exportar o backup antigo nos Ajustes";
+    const close = document.createElement("button");
+    close.type = "button";
+    close.textContent = "Fechar aviso";
+    close.addEventListener("click", () => notice.remove());
+    notice.append(title, message, link, close);
     document.getElementById("gameHeader").append(notice);
   }
   if (runtime.loaded.warnings.length)

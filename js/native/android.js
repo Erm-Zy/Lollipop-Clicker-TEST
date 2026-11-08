@@ -15,7 +15,9 @@ if (Capacitor.isNativePlatform()) {
       dialog.close();
       return;
     }
-    const menu = document.querySelector("details[open]");
+    const menu =
+      document.querySelector(".more-menu[open]") ||
+      document.querySelector("details[open]");
     if (menu) {
       menu.open = false;
       return;

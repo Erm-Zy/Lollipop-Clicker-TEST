@@ -20,6 +20,7 @@
     <link rel="stylesheet" href="../css/animations.css" />
     <link rel="stylesheet" href="../css/pages.css" />
     <link rel="stylesheet" href="../css/responsive.css" />
+    <link rel="stylesheet" href="../css/ui-system.css" />
   </head>
   <body data-page="arena">
     <a class="skip-link" href="#mainContent">Pular para a arena</a>
@@ -29,16 +30,22 @@
         <div>
           <span class="eyebrow">ALÉM DAS COLINAS DE AÇÚCAR</span>
           <h1 class="page-title">Arena dos guardiões</h1>
-          <p class="page-lead">
-            Um pirulito na mão. Trinta segundos no relógio. Mostre a força do
-            seu clique!
-          </p>
+          <details class="page-intro">
+            <summary>Sobre este lugar ⌄</summary>
+            <p class="page-lead">
+              Um pirulito na mão. Trinta segundos no relógio. Mostre a força do
+              seu clique!
+            </p>
+          </details>
         </div>
         <a class="game-button secondary" href="../index.html"
           >Voltar ao mundo</a
         >
       </div>
       <section class="arena-stage" aria-label="Combate contra o guardião">
+        <p id="battleState" class="mode-badge" role="status">
+          Preparando arena
+        </p>
         <div class="arena-stars" aria-hidden="true">✦ · ✧ · ✦</div>
         <div class="combat-info">
           <span id="bossLevel" class="eyebrow">GUARDIÃO 1</span>
@@ -81,11 +88,7 @@
             dentro do prazo rende a recompensa.
           </p>
         </div>
-        <div
-          id="battleResult"
-          class="battle-result"
-          hidden
-        ></div>
+        <div id="battleResult" class="battle-result" hidden></div>
       </section>
       <p class="arena-story arena-footer">
         Sua fábrica continua produzindo durante o combate. Cada vitória revela

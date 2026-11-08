@@ -21,6 +21,7 @@
     <link rel="stylesheet" href="../css/pages.css" />
     <link rel="stylesheet" href="../css/responsive.css" />
     <link rel="stylesheet" href="../css/pets.css" />
+    <link rel="stylesheet" href="../css/ui-system.css" />
   </head>
   <body data-page="pets">
     <header id="gameHeader"></header>
@@ -29,20 +30,68 @@
         <div>
           <span class="eyebrow">AMIGOS PARA TODAS AS JORNADAS</span>
           <h1 class="page-title">Ninho açucarado</h1>
-          <p class="page-lead">
-            Pequenos companheiros. Grandes aventuras. Seus pets ficam com você
-            após o prestígio.
-          </p>
+          <details class="page-intro">
+            <summary>Sobre este lugar ⌄</summary>
+            <p class="page-lead">
+              Pequenos companheiros. Grandes aventuras. Seus pets ficam com você
+              após o prestígio.
+            </p>
+          </details>
         </div>
         <a class="game-button secondary" href="collection.html"
           >Voltar à coleção</a
         >
       </div>
-      <section class="pet-team-panel" aria-labelledby="teamTitle">
+      <aside class="team-strip" aria-label="Equipe ativa">
+        <details class="team-summary">
+          <summary>Equipe <span id="teamCount"></span> · bônus ⌄</summary>
+          <p id="teamBonus"></p>
+        </details>
+        <button type="button" class="item-preview" id="openTeamBtn">
+          Gerenciar equipe →
+        </button>
+      </aside>
+
+      <div class="pet-sections" role="group" aria-label="Explorar pets">
+        <button
+          type="button"
+          class="game-button"
+          data-panel="eggs"
+          aria-pressed="true"
+        >
+          Ovos</button
+        ><button
+          type="button"
+          class="game-button secondary"
+          data-panel="inventory"
+          aria-pressed="false"
+        >
+          Inventário <span id="capacityCount"></span></button
+        ><button
+          type="button"
+          class="game-button secondary"
+          data-panel="team"
+          aria-pressed="false"
+        >
+          Equipe</button
+        ><button
+          type="button"
+          class="game-button secondary"
+          data-panel="catalog"
+          aria-pressed="false"
+        >
+          Descobertas <span id="discoveryCount"></span>
+        </button>
+      </div>
+      <section
+        id="panel-team"
+        class="pet-team-panel"
+        hidden
+        aria-labelledby="teamTitle"
+      >
         <div class="pet-section-heading">
           <div>
-            <h2 id="teamTitle">Minha equipe <span id="teamCount"></span></h2>
-            <p id="teamBonus"></p>
+            <h2 id="teamTitle">Minha equipe</h2>
           </div>
           <div class="pet-best">
             <label for="teamStrategy"
@@ -63,7 +112,10 @@
             </button>
           </div>
         </div>
-        <p id="strategyExplanation" class="pet-hint"></p>
+        <details class="context-details">
+          <summary>Como esta estratégia escolhe?</summary>
+          <p id="strategyExplanation" class="pet-hint"></p>
+        </details>
         <div class="pet-best">
           <label
             >Conjunto salvo<select id="petPreset">
@@ -80,30 +132,6 @@
         </div>
         <div id="petTeam" class="pet-team"></div>
       </section>
-      <div class="pet-sections" role="group" aria-label="Explorar pets">
-        <button
-          type="button"
-          class="game-button"
-          data-panel="eggs"
-          aria-pressed="true"
-        >
-          Ovos</button
-        ><button
-          type="button"
-          class="game-button secondary"
-          data-panel="inventory"
-          aria-pressed="false"
-        >
-          Inventário <span id="capacityCount"></span></button
-        ><button
-          type="button"
-          class="game-button secondary"
-          data-panel="catalog"
-          aria-pressed="false"
-        >
-          Descobertas <span id="discoveryCount"></span>
-        </button>
-      </div>
       <section id="panel-eggs" aria-labelledby="eggsTitle">
         <h2 id="eggsTitle">Escolha seu próximo amigo</h2>
         <div id="eggSelection" class="pet-eggs"></div>
