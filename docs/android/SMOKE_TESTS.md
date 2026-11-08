@@ -36,3 +36,9 @@ Em falha, baixe o artifact do job correto. Primeiro leia XML/Gradle e último `S
 Ambiente local sem emulador/KVM: compilação de APKs e testes host não comprovam execução WebView. A conclusão da correção depende de instrumentação API35 no CI. Nunca declare o problema resolvido apenas porque o build passou.
 
 Primeira revisão de CI (5b4dbc4): push/PR interromperam no setup, antes de iniciar emulador, com `sdkmanager: command not found`. A pré-compilação movida para fora do emulator-runner precisa de `setup-android` explícito; ordem corrigida. Isso não é uma nova evidência sobre a queda original do dispositivo.
+
+## Evidência recuperada na execução API35
+
+O artifact13600385644 da execuçãoPR42436654720 (2378a47) foi recuperado pelo conector GitHub, apesar do403 do download direto. `live-logcat.txt` registra READYhome às02:05:14Z, READYshop às02:05:16Z e STAGEnavigatehome. O processo QEMU não aparece no snapshot antes do teardown; ADB sem dispositivo. Não foi registrado FATAL EXCEPTION do app. JUnit contém failure vazio por perda da instrumentação. Isso confirma desaparecimento do emulador, mas não estabelece o motivo da saída. O push42436650129 também falhou nessa rodada.
+
+Há avisos Chromium de limites de memória de tiles antes da navegação. Desativar Vulkan é um experimento isolado de backend gráfico (mesmo API35, imagem e asserções), não diagnóstico definitivo; coleta host-kernel procura indícios de crash/OOM. Nenhum código do jogo foi alterado para esconder o problema. Se continuar falhando, comparar última etapa, versão/backend do emulador, host-kernel e saída do QEMU, mantendo a validação pendente.

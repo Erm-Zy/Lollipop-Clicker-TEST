@@ -14,6 +14,7 @@ capture() {
   timeout 15 adb logcat -d -v threadtime "${tags[@]}" > "$out/logcat.txt" 2>&1 || printf '\nlogcat unavailable (device may have died)\n' >> "$out/logcat.txt"
   ps -eo pid,ppid,stat,rss,comm | awk 'NR==1 || /qemu|emulator|adb|java/' > "$out/processes.txt" || true
   free -m > "$out/memory.txt" || true
+  (dmesg --color=never 2>/dev/null | grep -Ei 'qemu|emulator|out of memory|oom-kill|segfault' | tail -60) > "$out/host-kernel.txt" || printf 'Kernel diagnostics unavailable or no matching entries\n' >> "$out/host-kernel.txt"
   exit "$result"
 }
 trap capture EXIT
