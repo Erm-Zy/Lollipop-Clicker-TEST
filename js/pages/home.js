@@ -1,5 +1,8 @@
+import { petSVG } from "../pets/art.js";
+import { mountGamePanels } from "../ui/panels.js";
+import { mountWheel } from "../ui/wheel.js";
 import { WORLD_CHAPTERS, getWorldStage } from "../world.js";
-import { bootPage, format, time, setText } from "../ui/shared.js";
+import { bootPage, format, time, setText, icon } from "../ui/shared.js";
 import { mountShop } from "../ui/shop.js";
 import { lollipopSVG, buildingSVG, worldSVG } from "../ui/art.js";
 import * as game from "../gameplay.js";
@@ -17,7 +20,7 @@ let candyLook = "",
   buildingSignature = "",
   pressAnimation;
 const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
-mountShop(
+const shop = mountShop(
   runtime,
   document.getElementById("upgradesList"),
   document.getElementById("buyControls"),
@@ -28,6 +31,16 @@ mountShop(
     );
   },
 );
+for (const a of document.querySelectorAll(".play-tools a"))
+  a.querySelector(".tool-art").innerHTML = a.href.includes("pets.html")
+    ? petSVG("balinha")
+    : icon(a.dataset.gamePanel);
+document.addEventListener("lollipop:panel", (event) => {
+  if (event.detail.open && event.detail.page === "shop")
+    shop.render(runtime.state);
+});
+mountGamePanels(runtime);
+mountWheel(runtime);
 runtime.subscribe((state, info) => {
   const now = info.now || Date.now();
   setText("scoreDisplay", format(state.pirulitos));
@@ -72,7 +85,7 @@ runtime.subscribe((state, info) => {
     )
       .map(
         ([key, data]) =>
-          `<a href="pages/shop.html#${key}" class="building-lot ${state.upgrades[key] ? "built running" : "locked"}" aria-label="${data.name}, ${state.upgrades[key]} possuídas"><span class="lot-art">${buildingSVG(key, state.upgrades[key])}</span><span class="lot-name">${data.name}</span><b>${state.upgrades[key] ? `×${format(state.upgrades[key])}` : "a descobrir"}</b></a>`,
+          `<a href="pages/shop.html#${key}" data-game-panel="shop" data-focus-upgrade="${key}" class="building-lot ${state.upgrades[key] ? "built running" : "locked"}" aria-label="${data.name}, ${state.upgrades[key]} possuídas"><span class="lot-art">${buildingSVG(key, state.upgrades[key])}</span><span class="lot-name">${data.name}</span><b>${state.upgrades[key] ? `×${format(state.upgrades[key])}` : "a descobrir"}</b></a>`,
       )
       .join("");
   }
@@ -96,10 +109,10 @@ runtime.subscribe((state, info) => {
   setText(
     "boostDescription",
     boostLeft > 0
-      ? `Produção e toques 2× · ${time(boostLeft)}`
+      ? `2× · ${time(boostLeft)}`
       : cooldown
-        ? `Recarga: ${time(cooldown)}`
-        : "2× por 30 segundos · recarga de 5 min",
+        ? `Em ${time(cooldown)}`
+        : "2× · 30 s",
   );
   setText(
     "boostAction",
@@ -120,7 +133,11 @@ candy.addEventListener("click", (e) => {
       e.detail ? e.clientY : box.y + box.height / 2,
       `+${format(gain)}`,
     );
-    if (!reducedMotion.matches) {
+    if (
+      !reducedMotion.matches &&
+      runtime.state.settings.animations &&
+      !runtime.state.settings.reducedMotion
+    ) {
       pressAnimation?.cancel();
       pressAnimation = candy.animate(
         [

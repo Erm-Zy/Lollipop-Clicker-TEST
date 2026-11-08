@@ -133,6 +133,10 @@ try:
     second.set_viewport_size({'width':390,'height':844})
     waiting(second)
     check(second.evaluate("document.documentElement.scrollWidth<=innerWidth") and second.locator('#pwaUpdate [data-update]').bounding_box()['height']>=44,'mobile update notice fits the screen and provides 44px touch targets')
+    second.locator('[data-game-panel=shop]:visible').first.click()
+    expect(second.locator('#panelUpdateNotice')).to_be_visible()
+    check('atualizar' in second.locator('#panelUpdateNotice').inner_text(),'real waiting PWA update remains announced inside the modal')
+    second.locator('#closeGamePanel').click();expect(second.locator('#gamePanel')).not_to_be_visible()
     # Block saving only primary save, so failed update cannot destroy persisted progress.
     page.evaluate("window.realSet=Storage.prototype.setItem;Storage.prototype.setItem=function(k,v){if(k==='lollipopSave')throw new DOMException('quota','QuotaExceededError');return window.realSet.call(this,k,v)};true")
     confirm(page)

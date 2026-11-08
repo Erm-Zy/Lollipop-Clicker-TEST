@@ -111,9 +111,11 @@ with sync_playwright() as p:
 
     # Low balance allows previews of paid flavors without granting purchase permission.
     context, page = open_game(browser, seed(pirulitos=0, activeFlavor='blueberry', upgrades={'fabrica':1}, unlockedFlavors=['morango','limao','blueberry']), name='collection')
-    check('Bônus/clique: +20' in page.locator('[data-card="algodao"]').inner_text(), 'Cotton Candy shows click bonus missing in old description')
-    check('Bônus/clique: +50' in page.locator('[data-card="arcoiris"]').inner_text(), 'Rainbow shows its actual click bonus')
-    check('(+10%)' in page.locator('[data-card="abacaxi"]').inner_text(), 'Pineapple shows its actual passive bonus')
+    check('+20 / toque' in page.locator('[data-card="algodao"]').inner_text(), 'Cotton Candy shows click bonus missing in old description')
+    check('+50 / toque' in page.locator('[data-card="arcoiris"]').inner_text(), 'Rainbow shows its actual click bonus')
+    page.locator('[data-card=abacaxi] .item-desc summary').click()
+    check('Produção: +10%' in page.locator('[data-card="abacaxi"]').inner_text(), 'Pineapple shows its actual passive bonus')
+    page.locator('[data-card=uva] .item-desc summary').click()
     check('Foco em produção passiva' in page.locator('[data-card="uva"]').inner_text(), 'Grape describes passive play style')
     check(page.locator('[data-item="uva"]').is_disabled(), 'insufficient balance still prevents paid flavor purchase')
     before = saved(page)

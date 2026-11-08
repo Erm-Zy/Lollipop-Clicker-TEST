@@ -1,3 +1,4 @@
+import { format } from "../format.js";
 import * as game from "../gameplay.js";
 import { loadGame, saveGame, validateState, SAVE_KEY, preserveLegacyBackup } from "../storage.js";
 import { ACHIEVEMENTS_DATA } from "../data.js";
@@ -253,7 +254,7 @@ export async function createRuntime() {
       const reward = state.lastWheelReward;
       notify(
         reward.type === "pct"
-          ? `Prêmio da roleta: +${new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 0 }).format(reward.amount)} pirulitos!`
+          ? `Prêmio da roleta: +${format(reward.amount)} pirulitos!`
           : `Prêmio da roleta: ${reward.label}!`,
       );
       audio.play("win");

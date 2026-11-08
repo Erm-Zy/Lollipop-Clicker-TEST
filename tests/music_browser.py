@@ -2,6 +2,7 @@
 Real-media checks verify Chromium decoding/position, not audible speaker output.
 A separate injected Audio mock exercises failure/autoplay and future catalog entries.
 """
+from hud_helpers import recipe_filter
 import copy
 import json
 import os
@@ -241,18 +242,18 @@ with sync_playwright() as p:
     context.close()
 
     context,page=open_game(browser,name='collection')
-    page.locator('[data-filter="unlocked"]').click()
+    recipe_filter(page,'unlocked').click()
     check(page.locator('[data-card]:visible').count()==4,'unlocked flavor filter uses actual ownership')
-    page.locator('[data-filter="locked"]').click()
+    recipe_filter(page,'locked').click()
     check(page.locator('[data-card]:visible').count()==7,'locked flavor filter uses actual ownership')
     page.evaluate("window.preservedCard=document.querySelector('[data-card=laranja]')")
-    page.locator('[data-filter="affordable"]').click()
+    recipe_filter(page,'affordable').click()
     check(page.locator('[data-card]:visible').count()==7,'affordable filter excludes already unlocked items')
     check(page.evaluate("preservedCard===document.querySelector('[data-card=laranja]')"),'filter changes preserve existing card DOM')
     page.locator('[data-category="theme"]').click()
     check(page.locator('[data-card]:visible').count()==3,'same filter applies to independently equipped worlds')
-    check(page.locator('[data-filter="affordable"]').get_attribute('aria-pressed')=='true','category change preserves selected filter')
-    page.locator('[data-category="flavors"]').click();page.locator('[data-filter="all"]').click()
+    check(recipe_filter(page,'affordable').get_attribute('aria-pressed')=='true','category change preserves selected filter')
+    page.locator('[data-category="flavors"]').click();recipe_filter(page,'all').click()
     target=page.locator('[data-preview="lendario"]');target.scroll_into_view_if_needed()
     before_scroll=page.evaluate('scrollY');before=saved(page)
     target.click()
@@ -266,7 +267,7 @@ with sync_playwright() as p:
     check(saved(page)['activeFlavor']==before['activeFlavor'],'sheet never equips a previewed flavor')
     context.close()
     context,page=open_game(browser,seed(pirulitos=0),name='collection')
-    page.locator('[data-filter="affordable"]').click()
+    recipe_filter(page,'affordable').click()
     check(page.locator('#inventoryEmpty').is_visible(),'empty filters have a friendly message')
     context.close()
 
@@ -313,7 +314,7 @@ with sync_playwright() as p:
         context,page=open_game(browser,seed(pirulitos=100000,upgrades={'maquina':24}),name=name)
         if name=='settings':page.locator('#candyJukebox').scroll_into_view_if_needed()
         elif name=='shop':page.locator('button[data-shop-view="compact"]').click()
-        else:page.locator('[data-filter="affordable"]').click()
+        else:recipe_filter(page,'affordable').click()
         page.locator('#toast').evaluate('el=>el.hidden=true')
         page.screenshot(path=str(RESULTS/f'mobile-{name}.png'),full_page=name!='settings')
         if name=='collection':

@@ -27,16 +27,18 @@
     <header id="gameHeader"></header>
     <main id="pageContent" class="page-scene">
       <div class="page-heading">
-        <a class="back-link" href="../index.html">← Voltar ao mundo</a>
-        <p class="eyebrow">DIÁRIO DA AVENTURA</p>
-        <h1 class="page-title">Histórias escritas em açúcar</h1>
-        <details class="page-intro">
-          <summary>Sobre este lugar ⌄</summary>
-          <p class="page-lead">
-            Do primeiro pirulito ao maior império. Aqui ficam os feitos de quem
-            nunca deixou de clicar.
-          </p>
-        </details>
+        <div>
+          <a class="back-link" href="../index.html">← Voltar ao mundo</a>
+          <p class="eyebrow">DIÁRIO DA AVENTURA</p>
+          <h1 class="page-title">Histórias escritas em açúcar</h1>
+          <details class="page-intro">
+            <summary aria-label="Sobre este lugar">i</summary>
+            <p class="page-lead">
+              Do primeiro pirulito ao maior império. Aqui ficam os feitos de
+              quem nunca deixou de clicar.
+            </p>
+          </details>
+        </div>
       </div>
       <section class="journal-sheet" aria-labelledby="journalTitle">
         <div class="journal-heading">
@@ -152,6 +154,19 @@
           >Continuar minha história →</a
         >
       </section>
+      <details class="exact-stats">
+        <summary>Valores exatos</summary>
+        <dl>
+          <dt>Saldo de doces</dt>
+          <dd id="statExactCurrent"></dd>
+          <dt>Produção por segundo</dt>
+          <dd id="statExactPps"></dd>
+          <dt>Poder de clique</dt>
+          <dd id="statExactClick"></dd>
+          <dt>Histórico produzido</dt>
+          <dd id="statExactHistory"></dd>
+        </dl>
+      </details>
     </main>
     <nav id="bottomNav" aria-label="Navegação do jogo"></nav>
     <canvas id="fxCanvas" aria-hidden="true"></canvas>

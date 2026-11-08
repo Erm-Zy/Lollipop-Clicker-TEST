@@ -5,16 +5,8 @@ import { getPps, getClickPower } from "../gameplay.js";
 import { FLAVORS_DATA } from "../data.js";
 import { createEffects } from "../effects.js";
 
-const compact = new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 1 });
-export function format(value) {
-  if (!Number.isFinite(value)) return "—";
-  if (value < 1000) return compact.format(value);
-  const units = ["", "mil", "mi", "bi", "tri", "qua", "qui"];
-  const index = Math.floor(Math.log10(value) / 3);
-  return index < units.length
-    ? `${compact.format(value / 1000 ** index)} ${units[index]}`
-    : value.toExponential(2);
-}
+import { format, exact } from "../format.js";
+export { format } from "../format.js";
 export function time(ms) {
   const seconds = Math.ceil(Math.max(0, ms) / 1000);
   return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`;
@@ -31,7 +23,8 @@ export function icon(name, className = "nav-icon") {
     home: '<path d="m4 11 8-8 8 8v10h-6v-6h-4v6H4Z"/>',
     shop: '<path d="M3 8h18l-2-5H5ZM5 8v13h14V8M9 21v-7h6v7M3 8c0 4 5 4 5 0 0 4 4 4 4 0 0 4 4 4 4 0 0 4 5 4 5 0"/>',
     pets: '<circle cx="7" cy="6" r="2"/><circle cx="17" cy="6" r="2"/><circle cx="3" cy="12" r="2"/><circle cx="21" cy="12" r="2"/><path d="M6 19c0-9 12-9 12 0 0 5-4 1-6 1s-6 4-6-1Z"/>',
-    collection: '<path d="M4 4h16v17H4Z M8 4V2h8v2M8 9h8M8 13h8M8 17h5"/>',
+    collection:
+      '<path d="M3 12h18c0 10-18 10-18 0ZM6 21h12M8 9c-4-4 4-3 0-7m8 7c-4-4 4-3 0-7"/>',
     arena:
       '<path d="m4 3 17 17M20 3 3 20M3 3l1 6 5-5ZM21 3l-1 6-5-5ZM2 17l5 5M17 22l5-5"/>',
     prestige: '<path d="m3 7 5 4 4-8 4 8 5-4-3 13H6ZM6 23h12"/>',
@@ -49,7 +42,7 @@ export function icon(name, className = "nav-icon") {
 const labels = {
   home: "Mundo",
   shop: "Loja",
-  collection: "Coleção",
+  collection: "Receitas",
   pets: "Pets",
   arena: "Arena",
   prestige: "Prestígio",
@@ -65,12 +58,12 @@ export function hrefFor(page) {
     : `${nested ? "./" : "pages/"}${page}.html`;
 }
 function navLink(page, current, extra = "") {
-  return `<a href="${hrefFor(page)}" class="${page === current ? "active" : ""} ${extra}" ${page === current ? 'aria-current="page"' : ""}>${icon(page)}<span>${labels[page]}</span></a>`;
+  return `<a href="${hrefFor(page)}" class="hud-tile tone-${page} ${page === current ? "active" : ""} ${extra}" ${page === current ? 'aria-current="page"' : ""}>${icon(page)}<span>${labels[page]}</span></a>`;
 }
-const primaryPages = ["home", "shop", "pets", "arena"];
+const primaryPages = ["home", "shop", "pets"];
 function moreMenu(page, suffix) {
   const secondary = !primaryPages.includes(page);
-  return `<details class="more-menu ${secondary ? "current-section" : ""}"><summary aria-expanded="false" aria-controls="more-${suffix}" aria-label="Mais locais${secondary ? `: ${labels[page]}` : ""}">${icon("more")}<span>Mais${secondary ? ` · ${labels[page]}` : ""}</span></summary><div class="more-links" id="more-${suffix}"><strong>Explore seu mundo</strong>${Object.keys(
+  return `<details class="more-menu ${secondary ? "current-section" : ""}"><summary class="hud-tile tone-more" aria-expanded="false" aria-controls="more-${suffix}" aria-label="Mais locais${secondary ? `: ${labels[page]}` : ""}">${icon("more")}<span>Mais${secondary ? ` · ${labels[page]}` : ""}</span></summary><div class="more-links" id="more-${suffix}"><strong>Explore seu mundo</strong>${Object.keys(
     labels,
   )
     .filter((id) => !primaryPages.includes(id))
@@ -104,20 +97,27 @@ function bindMenus() {
 }
 export async function bootPage(page) {
   document.body.dataset.page = page;
+  const utility = (id) => navLink(id, page, "utility-tile");
   document.getElementById("gameHeader").innerHTML = `
     <a class="skip-link" href="#${document.querySelector("main")?.id || "mainContent"}">Pular para o jogo</a>
-    <div class="game-header"><a class="brand" href="${hrefFor("home")}" aria-label="Lollipop Clicker, mundo dos doces"><span class="brand-candy" aria-hidden="true">✦</span><span>Lollipop<small>CLICKER · UM MUNDO DE DOCES</small></span></a>
-    <nav class="desktop-nav" aria-label="Locais do mundo">${primaryPages.map((id) => navLink(id, page)).join("")}${moreMenu(page, "desktop")}</nav>
-    <div class="header-wallet"><span class="wallet-mark" aria-hidden="true">◆</span><b data-balance>0</b><small>doces</small></div></div>
+    <div class="game-header game-hud-top"><nav class="hud-utility utility-left" aria-label="Conquistas">${utility("achievements")}</nav>
+    <a class="brand" ${page === "home" ? 'aria-current="page"' : ""} href="${hrefFor("home")}" aria-label="Lollipop Clicker, voltar ao Mundo"><span class="brand-candy" aria-hidden="true">✦</span><span>Lollipop<small>CLICKER</small></span></a>
+    ${page !== "home" ? '<div class="header-wallet"><span class="wallet-mark" aria-hidden="true">◆</span><b data-balance>0</b><small>doces</small></div>' : ""}
+    <nav class="hud-utility utility-right" aria-label="Ajustes">${utility("settings")}</nav></div>
     <div class="world-status"><span class="save-indicator" id="saveStatus">Preparando sua fábrica…</span><span id="headerBonus">Feito de açúcar e aventura.</span></div>
     <div id="ownershipNotice" class="ownership-notice" role="status" hidden></div>`;
   document.getElementById("bottomNav").innerHTML =
-    `<div class="bottom-nav">${primaryPages.map((id) => navLink(id, page)).join("")}${moreMenu(page, "mobile")}</div>`;
+    `<div class="bottom-nav game-dock">${
+      page === "home"
+        ? ["prestige", "arena", "collection", "statistics"]
+            .map((id) => navLink(id, page))
+            .join("")
+        : primaryPages.map((id) => navLink(id, page)).join("") +
+          moreMenu(page, "game")
+    }</div>`;
   document
     .getElementById("bottomNav")
-    .setAttribute("aria-label", "Navegação do jogo");
-  if (page === "home" && matchMedia("(max-width:760px)").matches)
-    document.querySelector("details.shop-zone").open = false;
+    .setAttribute("aria-label", "Destinos do jogo");
   bindMenus();
   const header = document.getElementById("gameHeader");
   const measureHeader = () =>
@@ -162,12 +162,16 @@ export async function bootPage(page) {
       appearance = signature;
       document.body.dataset.theme = state.activeTheme;
       document.body.dataset.flavor = state.activeFlavor;
-      document.body.dataset.motion = state.settings.animations && !state.settings.reducedMotion ? "on" : "off";
+      document.body.dataset.motion =
+        state.settings.animations && !state.settings.reducedMotion
+          ? "on"
+          : "off";
     }
     document.body.dataset.readonly = String(!runtime.writable);
     document.querySelectorAll("[data-balance]").forEach((el) => {
       const value = format(state.pirulitos);
       if (el.textContent !== value) el.textContent = value;
+      el.title = `${exact(state.pirulitos)} doces`;
     });
     document.querySelectorAll("[data-pps]").forEach((el) => {
       const value = `${format(getPps(state, now))} /s`;
@@ -183,7 +187,7 @@ export async function bootPage(page) {
             ? "Save protegido · veja Ajustes"
             : runtime.error
               ? "Falha ao salvar · exporte nos Ajustes"
-              : "Progresso guardado neste navegador",
+              : "Salvo neste navegador",
     );
     setText(
       "headerBonus",
@@ -191,12 +195,15 @@ export async function bootPage(page) {
         ? `Açúcar em dobro! 2× · ${time(state.boostEndTime - now)}`
         : `Receita ativa: ${FLAVORS_DATA[state.activeFlavor].name} · +${format(getClickPower(state, now))} por toque`,
     );
+    document.body.dataset.saveWarning = String(
+      !runtime.writable || !runtime.canSave || !!runtime.error,
+    );
     const notice = document.getElementById("ownershipNotice");
     notice.hidden =
       runtime.updating ||
       (runtime.writable && runtime.canSave && !runtime.error);
     const message = !runtime.writable
-      ? `Este mundo está aberto em outra aba. Feche a outra aba e <a href="${location.href}">recarregue aqui</a> para jogar. Você ainda pode consultar sua coleção e exportar o save.`
+      ? `Este mundo está aberto em outra aba. Feche a outra aba e <a href="${location.href}">recarregue aqui</a> para jogar. Você ainda pode consultar suas receitas e exportar o save.`
       : `O salvamento está bloqueado ou protegido. Exporte esta sessão antes de sair ou trocar de página. <button id="exportSessionBtn" class="game-button secondary">Exportar esta sessão ↓</button> Abra <a href="${hrefFor("settings")}">Ajustes</a> para recuperar o save original.`;
     if (notice.innerHTML !== message) notice.innerHTML = message;
   });

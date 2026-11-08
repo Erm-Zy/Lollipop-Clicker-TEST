@@ -49,6 +49,7 @@ with sync_playwright() as p:
     page.wait_for_function("document.body.dataset.readonly === 'false'")
     # Make a purchase possible using the real clicker, not a modified save.
     for _ in range(8):page.locator('#lollipop').click()
+    page.locator('[data-game-panel=shop]:visible').first.click()
     before=page.locator('[data-upgrade=maquina] .building-art').bounding_box()
     page.evaluate("""async ({base,path})=>{
       const {ARTWORK}=await import(new URL('js/ui/assets.js',base));

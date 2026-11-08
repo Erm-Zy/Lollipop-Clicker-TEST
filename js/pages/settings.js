@@ -130,7 +130,7 @@ document.getElementById("resetDataBtn").addEventListener("click", () => {
     return;
   if (
     !confirm(
-      "Confirmação final: zerar saldo, prestígio, coleção, conquistas, máquinas, pets, ovos e descobertas?",
+      "Confirmação final: zerar saldo, prestígio, receitas, conquistas, máquinas, pets, ovos e descobertas?",
     )
   )
     return;

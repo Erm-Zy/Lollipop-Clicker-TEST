@@ -22,14 +22,16 @@
     <header id="gameHeader"></header>
     <main id="mainContent" class="page-scene rewards-scene">
       <div class="page-heading">
-        <span class="chapter-label">A TENDA DOS DESEJOS</span>
-        <h1 class="page-title">Uma pitada de sorte</h1>
-        <details class="page-intro">
-          <summary>Sobre este lugar ⌄</summary>
-          <p class="page-lead">
-            O próximo giro pode dar um sabor especial à sua aventura.
-          </p>
-        </details>
+        <div>
+          <span class="chapter-label">A TENDA DOS DESEJOS</span>
+          <h1 class="page-title">Uma pitada de sorte</h1>
+          <details class="page-intro">
+            <summary aria-label="Sobre este lugar">i</summary>
+            <p class="page-lead">
+              O próximo giro pode dar um sabor especial à sua aventura.
+            </p>
+          </details>
+        </div>
       </div>
       <div class="rewards-layout">
         <section class="wheel-tent" aria-label="Roleta de recompensas">
@@ -54,7 +56,8 @@
           <p id="wheelTimer" role="status">Preparando sua roleta…</p>
           <p id="wheelResult" class="prize-result" role="status" hidden></p>
         </section>
-        <aside class="reward-story">
+        <details class="reward-story wheel-rules">
+          <summary>Chances e regras do giro</summary>
           <h2>Um giro. Seis possibilidades.</h2>
           <ul id="rewardLegend" class="reward-legend"></ul>
           <p>
@@ -66,17 +69,15 @@
             guardado antes da animação: pode sair e voltar sem perder seu
             prêmio.
           </p>
-          <div class="boost-shrine">
-            <span class="shrine-spark" aria-hidden="true">ϟ</span>
-            <h3>Chuva de açúcar</h3>
-            <p id="boostDescription">Produção e toques2× por30 segundos.</p>
-            <button id="adBoostBtn" class="game-button secondary">
-              Ativar bônus grátis</button
-            ><small
-              >Sem anúncios. Uma ajudinha do vale, a cada 5 minutos.</small
-            >
-          </div>
-        </aside>
+        </details>
+        <div class="boost-shrine">
+          <span class="shrine-spark" aria-hidden="true">ϟ</span>
+          <h3>Chuva de açúcar</h3>
+          <p id="boostDescription">Produção e toques2× por30 segundos.</p>
+          <button id="adBoostBtn" class="game-button secondary">
+            Ativar bônus grátis</button
+          ><small>Sem anúncios. Uma ajudinha do vale, a cada 5 minutos.</small>
+        </div>
       </div>
     </main>
     <nav id="bottomNav" aria-label="Navegação rápida"></nav>

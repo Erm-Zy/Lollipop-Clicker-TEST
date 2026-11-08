@@ -82,7 +82,9 @@ def team_bonus(page):
 def pet_control(page,selector):
     # Team controls intentionally moved to their own nursery panel.
     if page.locator('#panel-team').is_hidden():page.locator('[data-panel="team"]').click()
-    return page.locator(selector)
+    target=page.locator(selector)
+    if not target.is_visible() and page.locator("#teamTools").count() and page.locator("#teamTools").get_attribute("open") is None:page.locator("#teamTools > summary").click()
+    return target
 
 def panel(page,name):page.locator(f'[data-panel="{name}"]').click()
 def hatch(page,count,keyboard=False):
@@ -101,7 +103,7 @@ try:
     browser=p.chromium.launch(executable_path=os.environ.get('CHROMIUM_PATH','/usr/bin/chromium'),headless=True,args=['--no-sandbox'])
     context,page=open_game(browser)
     check(page.locator('[data-egg]').count()==3 and 'Pets' in page.title(),'three egg selectors render in the real Pets document')
-    check('1.500' in page.locator('[data-egg="acucarado"]').inner_text() and '1.000.000' in page.locator('[data-egg="cristalizado"]').inner_text(),'actual egg prices are visible')
+    check('1,5 mil' in page.locator('[data-egg="acucarado"]').inner_text() and '1 mi' in page.locator('[data-egg="cristalizado"]').inner_text() and '1.500' in page.locator('[data-egg="acucarado"]').get_attribute('aria-label') and '1.000.000' in page.locator('[data-egg="cristalizado"]').get_attribute('aria-label'),'actual egg prices are compact visually and exact accessibly')
     page.locator('[data-egg="cristalizado"]').click()
     check('25 fábricas' in page.locator('#eggRequirement').inner_text() and page.locator('[data-hatch="1"]').is_disabled(),'locked crystal egg explains the existing 25-factory requirement')
     page.locator('[data-egg="celestial"]').click()
@@ -355,7 +357,8 @@ try:
     # Future PP reward is previewed, persisted and remains spendable after reload.
     context,page=open_game(browser,seed(pets=pets([('coruja_prismatica',3)]*3,['pet-1','pet-2','pet-3']),totalEarned=1000000000))
     page.goto(BASE+'pages/prestige.html',wait_until='networkidle')
-    check('10 PP base + 2 PP de pets = 12' in page.locator('#prestigeGainText').inner_text(),'Prestige displays base, pet bonus and actual total before confirmation')
+    page.locator('.prestige-math > summary').click()
+    check('Base 10 PP + pets 2 PP = 12 PP' in page.locator('#prestigeRewardDetails').inner_text(),'Prestige displays base, pet bonus and actual total before confirmation')
     page.evaluate("window.savedSet=Storage.prototype.setItem;Storage.prototype.setItem=function(k,v){if(k==='lollipopSave')throw Error('quota');return window.savedSet.call(this,k,v)};true")
     page.once('dialog',lambda d:d.accept());page.locator('#prestigeBtn').click()
     check(stored(page)['prestigeLevel']==0 and stored(page)['prestigeBonusEarned']==0 and stored(page)['prestigePoints']==0,'failed Prestige save rolls back historical level, base points and the extra-PP ledger together')
