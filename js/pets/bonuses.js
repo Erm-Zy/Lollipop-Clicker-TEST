@@ -7,6 +7,7 @@ import {
   CAPACITY_STAGE_POWER,
 } from "./catalog.js";
 import { FACTORY_CAPACITIES, PRESTIGE_CONFIG, UPGRADES_DATA } from "../data.js";
+import { getEquippedPetSlotCapacity } from "./slots.js";
 const indices = new WeakMap();
 function inventoryIndex(inventory) {
   let cached = indices.get(inventory);
@@ -74,21 +75,22 @@ export function getPetBonuses(state) {
   const index = inventoryIndex(pets.inventory);
   return sumPowers(
     [...new Set(pets.equipped)]
-      .slice(0, PET_SLOTS)
+      .slice(0, getEquippedPetSlotCapacity(state))
       .map((id) => petPower(index.get(id))),
   );
 }
 const stable = (a, b) =>
   a.acquiredAt - b.acquiredAt || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0);
-/** Exact search over power-equivalent groups (at most 18*4*3 candidates).
- * Three identical candidates suffice for three slots. No rarity proxy; production
- * includes capacity activation and prestige includes its shared saturation cap. */
+/** Power-equivalent groups retain up to the active slot count. Three-slot and
+ * small 4/5-slot searches are exact; large 4/5 searches use a bounded beam.
+ * No rarity proxy: production includes active capacity, PP its shared cap. */
 export function bestTeam(
   pets,
   strategy = "balanced",
   state = null,
   evaluateTeam = null,
 ) {
+  const slots = state ? getEquippedPetSlotCapacity(state) : PET_SLOTS;
   const seen = new Map();
   let candidates = [...pets.inventory]
     .sort(stable)
@@ -96,7 +98,7 @@ export function bestTeam(
       const key = pet.speciesId + ":" + pet.stage,
         n = seen.get(key) || 0;
       seen.set(key, n + 1);
-      return n < PET_SLOTS;
+      return n < slots;
     })
     .map((pet) => ({ pet, power: petPower(pet) }));
   if (!candidates.length) return [];
@@ -121,11 +123,11 @@ export function bestTeam(
           b.power.pps - a.power.pps ||
           stable(a.pet, b.pet),
       )
-      .slice(0, PET_SLOTS)
+      .slice(0, slots)
       .map((x) => x.pet.id);
   }
-  // Three component-wise dominators guarantee an unused replacement for any
-  // three-slot team. Pruning preserves the exact optimum and its stable ties.
+  // At least `slots` component-wise dominators guarantee an unused replacement.
+  // Pruning preserves the exact optimum and stable ties before the bounded search.
   const relevantCapacity =
     state && strategy !== "prestige"
       ? Object.keys(FACTORY_CAPACITIES).filter(
@@ -162,7 +164,7 @@ export function bestTeam(
         (strategy !== "prestige" && strict) ||
         stable(all[other].pet, candidate.pet) < 0
       )
-        if (++count >= PET_SLOTS) return false;
+        if (++count >= slots) return false;
     }
     return true;
   });
@@ -245,20 +247,37 @@ export function bestTeam(
       bestScore = x;
     }
   };
-  const count = Math.min(PET_SLOTS, candidates.length);
-  for (let a = 0; a < candidates.length; a++) {
-    if (count === 1) {
-      consider([candidates[a]]);
-      continue;
-    }
-    for (let b = a + 1; b < candidates.length; b++) {
-      if (count === 2) {
-        consider([candidates[a], candidates[b]]);
-        continue;
+  const count = Math.min(slots, candidates.length);
+  let combinations = 1;
+  for (let i = 1; i <= count; i++)
+    combinations = (combinations * (candidates.length - i + 1)) / i;
+  if (slots === PET_SLOTS || combinations <= 150000) {
+    const visit = (team, start) => {
+      if (team.length === count) return consider(team);
+      for (let i = start; i <= candidates.length - (count - team.length); i++)
+        visit([...team, candidates[i]], i + 1);
+    };
+    visit([], 0);
+  } else {
+    // Bounded deterministic beam for 4/5 slots. Not an exact global optimizer.
+    // Small inventories and all original three-slot accounts retain exact search.
+    let beam = [{ team: [], last: -1, value: [0, 0] }];
+    for (let depth = 0; depth < count; depth++) {
+      const next = [];
+      for (const entry of beam) {
+        for (
+          let i = entry.last + 1;
+          i <= candidates.length - (count - depth);
+          i++
+        ) {
+          const team = [...entry.team, candidates[i]];
+          next.push({ team, last: i, value: score(team) });
+        }
       }
-      for (let c = b + 1; c < candidates.length; c++)
-        consider([candidates[a], candidates[b], candidates[c]]);
+      next.sort((a, b) => b.value[0] - a.value[0] || b.value[1] - a.value[1]);
+      beam = next.slice(0, 96);
     }
+    for (const entry of beam) consider(entry.team);
   }
   return best.map((item) => item.pet.id);
 }

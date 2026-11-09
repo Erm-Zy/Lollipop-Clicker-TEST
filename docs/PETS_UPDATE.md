@@ -1,4 +1,4 @@
-# Pets & Eggs — guia atual (save 6)
+# Pets & Eggs — guia atual (save 7)
 
 A expansão original foi integrada pelo PR#9. A revisão atual mantém o conteúdo e acrescenta especializações, contabilidade de PP e operações em lote. O relatório completo, com desenho por espécie, coeficientes exatos, antes/depois, simulações, migração e limites, está em **[BALANCE_REWORK.md](BALANCE_REWORK.md)**. As regras abaixo substituem os preços/fatores do lançamento original.
 
@@ -12,11 +12,17 @@ Espécies da mesma raridade dividem a chance igualmente. A interface mostra cada
 
 ## Bônus e equipamento
 
-Três equipados válidos dão bônus aditivos separados: clique, PPS, dano de chefe, PP futuro e espaços de fábrica. Candy não dá PP/espaços; Cristalizado não dá espaços; apenas espécies Celestiais selecionadas dão capacidade. Renda e combate usam fatores1/2/4/8; PP usa1/1,5/2/3 e teto conjunto25%; espaços usam1/2/3/4 por tipo indicado. Cinco iguais da evolução atual formam a próxima; Gigante equivale125 Normais. Coeficientes são regras globais, não mudam instância, ID ou espécie existente.
+De três a cinco equipados válidos dão bônus aditivos separados: clique, PPS, dano de chefe, PP futuro e espaços de fábrica. Candy não dá PP/espaços; Cristalizado não dá espaços; apenas espécies Celestiais selecionadas dão capacidade. Renda e combate usam fatores1/2/4/8; PP usa1/1,5/2/3 e teto conjunto25%; espaços usam1/2/3/4 por tipo indicado. Cinco iguais da evolução atual formam a próxima; Gigante equivale125 Normais. Coeficientes são regras globais, não mudam instância, ID ou espécie existente.
 
 PPS/clique/Arena/Prestígio/Loja mostram os efeitos dos mesmos getters do jogo. Ganho PP mostra base + extra + total, arredondamento e saldo existente, só concedido em prestígio efetivo. Capacidade permanente e equipada são diferentes: posse acima do limite atual é retida, porém as unidades excedentes ficam inativas. Reequipar ou expandir restaura a atividade sem renda retroativa.
 
-Equipar Melhores oferece Equilibrado, Produção, Cliques, Combate, Prestígio e Construção, com objetivos e empates documentados. Quatro conjuntos guardam IDs; não recriam pets consumidos. Substituir abre a escolha de quem sai quando os três slots estão ocupados. Toda troca integra a produção antiga antes.
+Equipar Melhores oferece Equilibrado, Produção, Cliques, Combate, Prestígio e Construção, com objetivos e empates documentados. Quatro conjuntos guardam IDs; não recriam pets consumidos. Substituir abre a escolha de quem sai quando todos os espaços comprados estão ocupados. Toda troca integra a produção antiga antes.
+
+## Espaços permanentes e auto-fusão opcional
+
+Laços de Açúcar é uma melhoria independente do Prestígio: 3→4 por25 PP, 4→5 por75 PP. Compra salva antes de ampliar a equipe, sem equipar/remover instâncias. Capacidade, bônus, presets e escolhas automáticas usam `getEquippedPetSlotCapacity`. Busca de três mantém exatidão; pequenas equipes4/5 são enumeradas, maiores usam beam96 com empates determinísticos. Teto PP25% permanece.
+
+Auto-fusão é separada da abertura automática. OFF até confirmar explicitamente. Dispara apenas após hatch real em sessão ativa/online/com ownership/save e sem update pendente; não roda ao entrar, migrar ou retomar. Cinco da mesma espécie/estágio, sem equipados/favoritos/bloqueados/presets/reserva e sem reutilizar resultados novos. Lote+fusões usam uma única transação requireSave, com rollback. Inventário cheio bloqueia o hatch antes; nada é apagado para abrir espaço. A ação avulsa mostra prévia e exige confirmação sem ligar automação. Desligar é imediato. [Arte, custos, migração e resultados](CARTOON_FIDELITY.md).
 
 ## Abertura e inventário
 
@@ -32,7 +38,7 @@ Para evitar deadlock de inventário cheio de Gigantes, liberação deliberada do
 
 ## Save e preservação
 
-Mesmo `lollipopSave`, schema6. v5 original preservado em `lollipopSave.legacy-v5` antes da migração; v4 em `lollipopSave.legacy-v4` continua intocado. Backup obrigatório com readback: falha bloqueia reescrita, sem reset. Ajustes permite exportar original/atual/bruto. Dados inválidos de pets/flags/reserva protegem o primário e podem ser copiados para a quarentena existente `lollipopSave.pets-v5-quarantine`; dados futuros não são sobrescritos.
+Mesmo `lollipopSave`, schema7. v6 bruto preservado em `lollipopSave.legacy-v6`, com readback obrigatório antes de qualquer reescrita. `petSlotUpgradeLevel` tem default0, teto2 e despesas25/75 PP incluídas no orçamento histórico; dados sem suporte de PP ficam protegidos. Preferência de auto-fusão recebe default OFF, com histórico validado; migração/load/resume não executam fusões. v5 original preservado em `lollipopSave.legacy-v5` antes da migração; v4 em `lollipopSave.legacy-v4` continua intocado. Backup obrigatório com readback: falha bloqueia reescrita, sem reset. Ajustes permite exportar original/atual/bruto. Dados inválidos de pets/flags/reserva protegem o primário e podem ser copiados para a quarentena existente `lollipopSave.pets-v5-quarantine`; dados futuros não são sobrescritos.
 
 PP extra usa `prestigeBonusEarned`, validado junto ao orçamento histórico de gastos. Ledger v5 inicia0. Presets/reserva recebem defaults seguros. Todos os pets/IDs/estágios/flags/equipe/estatísticas de gasto antigo, álbum, ovos, PP, expansões, Ímpeto, cosméticos, música e histórico permanecem. Migração não repete o reset histórico da beta. Legados incompatíveis ficam protegidos para exportação.
 

@@ -1,4 +1,5 @@
 import { getPetBonuses } from "./pets/bonuses.js";
+import { MAX_PET_SLOT_LEVEL, petSlotsSpent } from "./pets/slots.js";
 import { PRESTIGE_CONFIG, FACTORY_CAPACITIES, MAX_VALUE } from "./data.js";
 
 export const getTotalUpgradesCount = (state) =>
@@ -176,9 +177,13 @@ export function sanitizePermanentProgress(raw, prestigeLevel) {
     factoryExpansions[key] = level;
     budget -= expansionSpent(level);
   }
+  let petSlotUpgradeLevel = integer(raw.petSlotUpgradeLevel, MAX_PET_SLOT_LEVEL);
+  while (petSlotsSpent(petSlotUpgradeLevel) > budget) petSlotUpgradeLevel--;
+  budget -= petSlotsSpent(petSlotUpgradeLevel);
   return {
     stellarBoostLevel,
     factoryExpansions,
+    petSlotUpgradeLevel,
     prestigePoints: Math.min(budget, integer(raw.prestigePoints)),
   };
 }

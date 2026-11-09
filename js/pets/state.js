@@ -42,6 +42,8 @@ export function createPetState() {
     ),
     lastHatchAt: 0,
     lastRequestId: "",
+    autoFusionEnabled: false,
+    autoFusionStats: { runs: 0, fusions: 0, lastAt: 0, lastRequestId: "" },
     stats: {
       hatched: 0,
       fused: 0,
@@ -65,7 +67,7 @@ export function syncEggUnlocks(state) {
   if (result.join() !== state.pets.unlockedEggs.join())
     state.pets.unlockedEggs = result;
 }
-export function normalizePets(raw, now) {
+export function normalizePets(raw, now, capacity = PET_SLOTS) {
   const pets = createPetState();
   if (raw === undefined || raw === null) return { pets, invalid: false };
   if (!record(raw)) return { pets, invalid: true };
@@ -74,6 +76,19 @@ export function normalizePets(raw, now) {
     (!Number.isInteger(raw.reserveNormals) ||
       raw.reserveNormals < 0 ||
       raw.reserveNormals > 125);
+  invalid ||=
+    raw.autoFusionEnabled !== undefined &&
+    typeof raw.autoFusionEnabled !== "boolean";
+  pets.autoFusionEnabled = raw.autoFusionEnabled === true;
+  pets.autoFusionStats = {
+    runs: counter(raw.autoFusionStats?.runs),
+    fusions: counter(raw.autoFusionStats?.fusions),
+    lastAt: timestamp(raw.autoFusionStats?.lastAt, 0),
+    lastRequestId:
+      typeof raw.autoFusionStats?.lastRequestId === "string"
+        ? raw.autoFusionStats.lastRequestId.slice(0, 96)
+        : "",
+  };
   invalid ||= raw.inventory !== undefined && !Array.isArray(raw.inventory);
   const inventory = Array.isArray(raw.inventory) ? raw.inventory : [];
   const reserved = new Set(
@@ -142,7 +157,7 @@ export function normalizePets(raw, now) {
         ? raw.equipped.filter((id) => used.has(id))
         : [],
     ),
-  ].slice(0, PET_SLOTS);
+  ].slice(0, capacity);
   pets.discovered = DISCOVERIES.filter(
     (key) => Array.isArray(raw.discovered) && raw.discovered.includes(key),
   );
@@ -171,7 +186,7 @@ export function normalizePets(raw, now) {
           ? raw.presets[name].filter((id) => used.has(id))
           : [],
       ),
-    ].slice(0, PET_SLOTS);
+    ].slice(0, capacity);
   pets.lastHatchAt = timestamp(raw.lastHatchAt, 0);
   pets.lastRequestId =
     typeof raw.lastRequestId === "string" ? raw.lastRequestId.slice(0, 96) : "";

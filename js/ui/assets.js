@@ -3,6 +3,7 @@ import { SPECIES, EGGS } from "../pets/catalog.js";
 // Arte opcional: caminhos locais, relativos à raiz do projeto. null mantém o SVG.
 // Não é preciso desenhar todas as combinações de sabor e skin.
 export const ARTWORK = {
+  locations: { sanctuary: 'assets/images/locations/pet-sanctuary.webp' },
   pets: Object.fromEntries(Object.keys(SPECIES).map(id=>[id,null])),
   eggs: Object.fromEntries(Object.keys(EGGS).map(id=>[id,null])),
   main: null,

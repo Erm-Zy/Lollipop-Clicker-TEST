@@ -1,3 +1,4 @@
+import { SAVE_VERSION } from "../js/data.js";
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
@@ -229,7 +230,7 @@ test("achievement meters follow the same thresholds and categories as original u
   });
 });
 
-test("actual version 2 format migrates independent cosmetics and unclaimed prestige into schema6", () => {
+test("actual version 2 format migrates independent cosmetics and unclaimed prestige into current schema", () => {
   const v2 = {
     version: 2,
     pirulitos: 1234,
@@ -254,7 +255,7 @@ test("actual version 2 format migrates independent cosmetics and unclaimed prest
   const raw = JSON.stringify(v2);
   const storage = memoryStorage({ [SAVE_KEY]: raw });
   const result = loadGame(storage, NOW + 1000);
-  assert.equal(result.state.version, 6);
+  assert.equal(result.state.version, SAVE_VERSION);
   assert.equal(result.state.activeSkin, "neon");
   assert.equal(result.state.activeTheme, "gold");
   assert.equal(result.state.activeParticles, "classic");

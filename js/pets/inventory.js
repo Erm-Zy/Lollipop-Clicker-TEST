@@ -11,6 +11,8 @@ export function inventoryView(
     egg = "all",
     stage = "all",
     sort = "strength",
+    subset = "all",
+    speciesId = "all",
     page = 0,
   } = {},
 ) {
@@ -20,10 +22,20 @@ export function inventoryView(
       .replace(/[\u0300-\u036f]/g, "")
       .toLocaleLowerCase("pt-BR");
   const query = normalize(search.trim());
+  const duplicates = new Map();
+  if (subset === "duplicates")
+    for (const pet of pets.inventory) {
+      const key = pet.speciesId + ":" + pet.stage;
+      duplicates.set(key, (duplicates.get(key) || 0) + 1);
+    }
   const entries = pets.inventory
     .filter((pet) => {
       const species = SPECIES[pet.speciesId];
       return (
+        (speciesId === "all" || pet.speciesId === speciesId) &&
+        (subset !== "favorites" || pet.favorite) &&
+        (subset !== "duplicates" ||
+          duplicates.get(pet.speciesId + ":" + pet.stage) > 1) &&
         (rarity === "all" || species.rarity === rarity) &&
         (egg === "all" || species.egg === egg) &&
         (stage === "all" || pet.stage === Number(stage)) &&

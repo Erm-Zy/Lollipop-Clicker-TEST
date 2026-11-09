@@ -5,6 +5,7 @@ import { SAVE_VERSION } from "../data.js";
 import {
   validateState,
   V5_BACKUP_KEY,
+  V6_BACKUP_KEY,
   V4_BACKUP_KEY,
   PET_QUARANTINE_KEY,
   PRE_PRESTIGE_BACKUP_KEY,
@@ -90,6 +91,7 @@ document.getElementById("restoreBackupBtn").addEventListener("click", () => {
     let candidate;
     for (const key of [
       "lollipopSave.backup",
+      V6_BACKUP_KEY,
       V5_BACKUP_KEY,
       V4_BACKUP_KEY,
       "lollipopSave.legacy-v3",
@@ -169,6 +171,7 @@ legacyExport.addEventListener("click", () => {
 });
 
 for (const [id, key, file] of [
+  ['exportLegacyV6Btn', V6_BACKUP_KEY, 'lollipop-original-v6.json'],
   ["exportLegacyV5Btn", V5_BACKUP_KEY, "lollipop-original-v5.json"],
   ["exportLegacyV4Btn", V4_BACKUP_KEY, "lollipop-original-v4.json"],
   [

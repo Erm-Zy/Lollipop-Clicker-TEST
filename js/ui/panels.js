@@ -89,23 +89,23 @@ export function mountGamePanels(runtime) {
     open(control.dataset.gamePanel, control);
   });
   document.getElementById("closeGamePanel").addEventListener("click", close);
-  dialog.addEventListener("keydown", (event) => {
-    if (event.key !== "Tab") return;
+  document.addEventListener("keydown", (event) => {
+    if (!dialog.open || event.key !== "Tab") return;
     const items = [
       ...dialog.querySelectorAll(
         "a[href],button:not(:disabled),input:not(:disabled),select:not(:disabled),textarea:not(:disabled),summary,[tabindex]",
       ),
-    ].filter((el) => el.tabIndex >= 0 && el.getClientRects().length);
-    const first = items[0],
-      last = items.at(-1);
-    if (event.shiftKey && document.activeElement === first) {
-      event.preventDefault();
-      last?.focus();
-    } else if (!event.shiftKey && document.activeElement === last) {
-      event.preventDefault();
-      first?.focus();
-    }
-  });
+    ].filter((el) => el.tabIndex >= 0 && !el.matches(':disabled') &&
+      !el.closest('[hidden],[inert]') && el.getClientRects().length);
+    // History traversal can restore focus after popstate/showModal. Capture Tab
+    // at document level too, and explicitly move within the live focus order.
+    // Boundary-only handlers attached to the dialog miss a restored body focus.
+    event.preventDefault();
+    const index = items.indexOf(document.activeElement);
+    const next = index < 0 ? (event.shiftKey ? items.length - 1 : 0) :
+      (index + (event.shiftKey ? -1 : 1) + items.length) % items.length;
+    (items[next] || document.getElementById('closeGamePanel')).focus({preventScroll:true});
+  }, true);
   dialog.addEventListener("cancel", (event) => {
     event.preventDefault();
     close();

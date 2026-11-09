@@ -22,6 +22,9 @@ import {
 } from "../gameplay.js";
 import { UPGRADES_DATA, PRESTIGE_CONFIG } from "../data.js";
 import { buildingSVG } from "../ui/art.js";
+import { pawSVG } from "../ui/cartoon.js";
+import { getPetSlotCost, getEquippedPetSlotCapacity } from "../pets/slots.js";
+import { buyPetSlot } from "../gameplay.js";
 
 const runtime = await bootPage("prestige");
 const button = document.getElementById("prestigeBtn");
@@ -32,6 +35,7 @@ const rows = new Map();
 const nodes = document.getElementById("prestigeNodes");
 nodes.innerHTML =
   `<button type="button" class="prestige-node" data-node="stellar" aria-pressed="true"><span class="star-icon" aria-hidden="true">✦</span><strong>Ímpeto Estelar</strong><small></small></button>` +
+  `<button type="button" class="prestige-node" data-node="pets" aria-pressed="false"><span aria-hidden="true">${pawSVG()}</span><strong>Laços de Açúcar</strong><small></small></button>` +
   Object.entries(UPGRADES_DATA)
     .map(
       ([key, data]) =>
@@ -45,11 +49,17 @@ function chooseUpgrade(key, focus = false) {
       el.setAttribute("aria-pressed", String(el.dataset.node === key)),
     );
   document.getElementById("stellarDetail").hidden = key !== "stellar";
-  document.getElementById("expansionDetail").hidden = key === "stellar";
+  document.getElementById("expansionDetail").hidden =
+    key === "stellar" || key === "pets";
+  document.getElementById("petSlotsDetail").hidden = key !== "pets";
   rows.forEach((row, id) => (row.card.hidden = id !== key));
   const title = document.getElementById("upgradeSelectionTitle");
   title.textContent =
-    key === "stellar" ? "Ímpeto Estelar" : UPGRADES_DATA[key].name;
+    key === "stellar"
+      ? "Ímpeto Estelar"
+      : key === "pets"
+        ? "Laços de Açúcar"
+        : UPGRADES_DATA[key].name;
   if (focus) {
     title.focus({ preventScroll: true });
     document
@@ -138,6 +148,39 @@ function render(state) {
     gain <= 0 ||
     Boolean(state.pendingWheel);
   const stellarCost = getStellarCost(state);
+  const petCost = getPetSlotCost(state),
+    capacity = getEquippedPetSlotCapacity(state),
+    petButton = document.getElementById("buyPetSlotBtn");
+  setText(
+    "petSlotsLevel",
+    `Equipe: ${state.pets.equipped.length}/${capacity} · espaços permanentes ${state.petSlotUpgradeLevel}/2`,
+  );
+  setText(
+    "petSlotsNext",
+    Number.isFinite(petCost)
+      ? `Próximo: ${capacity} → ${capacity + 1} companheiros`
+      : "Cinco espaços · máximo",
+  );
+  setNodeText(
+    petButton,
+    Number.isFinite(petCost)
+      ? `+1 espaço na equipe · ${formatCost(petCost)} PP`
+      : "Equipe ampliada · MAX",
+  );
+  petButton.disabled =
+    !runtime.writable ||
+    !runtime.canSave ||
+    state.prestigePoints < petCost ||
+    !Number.isFinite(petCost);
+  petButton.dataset.level = state.petSlotUpgradeLevel;
+  setText("petSlotsStatus", availability(petCost));
+  const petNode = nodes.querySelector("[data-node=pets]");
+  petNode.querySelector("small").textContent =
+    `${capacity} espaços · ${Number.isFinite(petCost) ? formatCost(petCost) + " PP" : "MAX"}`;
+  petNode.setAttribute(
+    "aria-label",
+    `Laços de Açúcar: ${capacity} espaços. ${Number.isFinite(petCost) ? "Mais um por " + formatExact(petCost) + " PP" : "Máximo"}. Melhoria independente.`,
+  );
   nodes.querySelector("[data-node=stellar] small").textContent =
     `Nv. ${state.stellarBoostLevel} · ${Number.isFinite(stellarCost) ? formatCost(stellarCost) + " PP" : "MAX"}`;
   for (const [key, row] of rows) {
@@ -245,3 +288,15 @@ expansionGrid.addEventListener("click", (event) => {
     );
 });
 runtime.subscribe(render);
+if (location.hash === "#pets") chooseUpgrade("pets");
+document.getElementById("buyPetSlotBtn").addEventListener("click", (event) => {
+  if (event.currentTarget.disabled) return;
+  const expected = Number(event.currentTarget.dataset.level);
+  const result = runtime.act((state, now) => buyPetSlot(state, now, expected), {
+    requireSave: true,
+  });
+  if (result)
+    runtime.notify(
+      `Equipe ampliada: ${result.capacity} espaços permanentes. Equipe seus companheiros no Ninho dos Pets.`,
+    );
+});

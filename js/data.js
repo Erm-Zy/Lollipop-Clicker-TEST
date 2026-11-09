@@ -330,7 +330,7 @@ export const ACHIEVEMENTS_DATA = [
   },
 ];
 
-export const SAVE_VERSION = 6;
+export const SAVE_VERSION = 7;
 export const WHEEL_COOLDOWN_MS = 5 * 60 * 1000;
 export const BOOST_DURATION_MS = 30 * 1000;
 export const BOOST_COOLDOWN_MS = 5 * 60 * 1000;

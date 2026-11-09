@@ -1,0 +1,323 @@
+{
+  "model": "Funded controlled snapshots, not time-to-acquire predictions. Early has only Normal species; mid/late all stages. Costs 25/75 PP; no coefficient changes; PP pet cap 25%. 500-instance Node timings on this executor; no phone/FPS claim. Exact 3 slots, small 4/5 exact <=150k combinations; larger 4/5 deterministic beam96.",
+  "economy": [
+    {
+      "stage": "early",
+      "historicalLevel": 25,
+      "slots": 3,
+      "points": 25,
+      "pps": 2330.1600000000003,
+      "click": 9.5,
+      "bossDamage": 22.806249143600972,
+      "prestige": {
+        "base": 10,
+        "bonus": 0,
+        "total": 10,
+        "rate": 0
+      }
+    },
+    {
+      "stage": "early",
+      "historicalLevel": 25,
+      "slots": 4,
+      "points": 0,
+      "pps": 2413.3799999999997,
+      "click": 9.5,
+      "bossDamage": 22.806249143600972,
+      "prestige": {
+        "base": 10,
+        "bonus": 0,
+        "total": 10,
+        "rate": 0
+      }
+    },
+    {
+      "stage": "mid",
+      "historicalLevel": 100,
+      "slots": 3,
+      "points": 100,
+      "pps": 1043855389.44,
+      "click": 32,
+      "bossDamage": 68207.06420892193,
+      "prestige": {
+        "base": 10,
+        "bonus": 2,
+        "total": 12,
+        "rate": 0.25
+      }
+    },
+    {
+      "stage": "mid",
+      "historicalLevel": 100,
+      "slots": 4,
+      "points": 75,
+      "pps": 1308122576.6399999,
+      "click": 32,
+      "bossDamage": 68207.06420892193,
+      "prestige": {
+        "base": 10,
+        "bonus": 2,
+        "total": 12,
+        "rate": 0.25
+      }
+    },
+    {
+      "stage": "mid",
+      "historicalLevel": 100,
+      "slots": 5,
+      "points": 0,
+      "pps": 1484300701.44,
+      "click": 32,
+      "bossDamage": 194127.7981330855,
+      "prestige": {
+        "base": 10,
+        "bonus": 2,
+        "total": 12,
+        "rate": 0.25
+      }
+    },
+    {
+      "stage": "late",
+      "historicalLevel": 1090,
+      "slots": 3,
+      "points": 1090,
+      "pps": 10732138222.68,
+      "click": 329,
+      "bossDamage": 218701.77947321325,
+      "prestige": {
+        "base": 10,
+        "bonus": 2,
+        "total": 12,
+        "rate": 0.25
+      }
+    },
+    {
+      "stage": "late",
+      "historicalLevel": 1090,
+      "slots": 4,
+      "points": 1065,
+      "pps": 13449135241.079998,
+      "click": 329,
+      "bossDamage": 218701.77947321325,
+      "prestige": {
+        "base": 10,
+        "bonus": 2,
+        "total": 12,
+        "rate": 0.25
+      }
+    },
+    {
+      "stage": "late",
+      "historicalLevel": 1090,
+      "slots": 5,
+      "points": 990,
+      "pps": 15260466586.68,
+      "click": 329,
+      "bossDamage": 622458.9108083762,
+      "prestige": {
+        "base": 10,
+        "bonus": 2,
+        "total": 12,
+        "rate": 0.25
+      }
+    }
+  ],
+  "journey": [
+    {
+      "target": 1,
+      "seconds": 473,
+      "points": 1,
+      "slots": 3,
+      "purchase": null
+    },
+    {
+      "target": 3,
+      "seconds": 826,
+      "points": 3,
+      "slots": 3,
+      "purchase": null
+    },
+    {
+      "target": 10,
+      "seconds": 1551,
+      "points": 10,
+      "slots": 3,
+      "purchase": null
+    },
+    {
+      "target": 25,
+      "seconds": 1204,
+      "points": 0,
+      "slots": 4,
+      "purchase": {
+        "cost": 25,
+        "level": 1,
+        "capacity": 4
+      }
+    },
+    {
+      "target": 60,
+      "seconds": 2051,
+      "points": 35,
+      "slots": 4,
+      "purchase": null
+    },
+    {
+      "target": 100,
+      "seconds": 3319,
+      "points": 0,
+      "slots": 5,
+      "purchase": {
+        "cost": 75,
+        "level": 2,
+        "capacity": 5
+      }
+    }
+  ],
+  "benchmark": [
+    {
+      "slots": 3,
+      "strategy": "balanced",
+      "inventory": 500,
+      "medianMs": 1.7046939999999893,
+      "maxMs": 2.7236520000000155,
+      "distinctIds": 3
+    },
+    {
+      "slots": 3,
+      "strategy": "production",
+      "inventory": 500,
+      "medianMs": 1.0711069999999836,
+      "maxMs": 1.4106900000000167,
+      "distinctIds": 3
+    },
+    {
+      "slots": 3,
+      "strategy": "clicks",
+      "inventory": 500,
+      "medianMs": 0.28885599999998135,
+      "maxMs": 0.7484500000000196,
+      "distinctIds": 3
+    },
+    {
+      "slots": 3,
+      "strategy": "combat",
+      "inventory": 500,
+      "medianMs": 2.3274940000000015,
+      "maxMs": 2.752053999999987,
+      "distinctIds": 3
+    },
+    {
+      "slots": 3,
+      "strategy": "prestige",
+      "inventory": 500,
+      "medianMs": 19.11905999999999,
+      "maxMs": 31.25586199999998,
+      "distinctIds": 3
+    },
+    {
+      "slots": 3,
+      "strategy": "capacity",
+      "inventory": 500,
+      "medianMs": 0.3831989999999905,
+      "maxMs": 1.1531309999999735,
+      "distinctIds": 3
+    },
+    {
+      "slots": 4,
+      "strategy": "balanced",
+      "inventory": 500,
+      "medianMs": 2.349507000000017,
+      "maxMs": 2.960128999999995,
+      "distinctIds": 4
+    },
+    {
+      "slots": 4,
+      "strategy": "production",
+      "inventory": 500,
+      "medianMs": 2.7077769999999646,
+      "maxMs": 2.958816000000013,
+      "distinctIds": 4
+    },
+    {
+      "slots": 4,
+      "strategy": "clicks",
+      "inventory": 500,
+      "medianMs": 0.2720010000000457,
+      "maxMs": 0.4774299999999698,
+      "distinctIds": 4
+    },
+    {
+      "slots": 4,
+      "strategy": "combat",
+      "inventory": 500,
+      "medianMs": 2.3574279999999703,
+      "maxMs": 3.1693839999999796,
+      "distinctIds": 4
+    },
+    {
+      "slots": 4,
+      "strategy": "prestige",
+      "inventory": 500,
+      "medianMs": 5.037304000000006,
+      "maxMs": 7.005604000000005,
+      "distinctIds": 4
+    },
+    {
+      "slots": 4,
+      "strategy": "capacity",
+      "inventory": 500,
+      "medianMs": 0.2751550000000407,
+      "maxMs": 0.3379899999999907,
+      "distinctIds": 4
+    },
+    {
+      "slots": 5,
+      "strategy": "balanced",
+      "inventory": 500,
+      "medianMs": 13.254507999999987,
+      "maxMs": 14.413227000000006,
+      "distinctIds": 5
+    },
+    {
+      "slots": 5,
+      "strategy": "production",
+      "inventory": 500,
+      "medianMs": 13.185644000000025,
+      "maxMs": 13.39423899999997,
+      "distinctIds": 5
+    },
+    {
+      "slots": 5,
+      "strategy": "clicks",
+      "inventory": 500,
+      "medianMs": 0.17788899999993646,
+      "maxMs": 0.20926600000007056,
+      "distinctIds": 5
+    },
+    {
+      "slots": 5,
+      "strategy": "combat",
+      "inventory": 500,
+      "medianMs": 10.48985499999992,
+      "maxMs": 11.413838999999939,
+      "distinctIds": 5
+    },
+    {
+      "slots": 5,
+      "strategy": "prestige",
+      "inventory": 500,
+      "medianMs": 6.453100999999947,
+      "maxMs": 7.271066000000019,
+      "distinctIds": 5
+    },
+    {
+      "slots": 5,
+      "strategy": "capacity",
+      "inventory": 500,
+      "medianMs": 0.31627800000001116,
+      "maxMs": 2.342596999999955,
+      "distinctIds": 5
+    }
+  ]
+}

@@ -11,7 +11,6 @@ import {
   SPECIES,
   STRATEGIES,
   PET_CAPACITY,
-  PET_SLOTS,
   PRESET_NAMES,
   DISCOVERIES,
   HATCH_GAP_MS,
@@ -20,6 +19,7 @@ import {
 } from "./catalog.js";
 import { allocatePet } from "./state.js";
 import { bestTeam } from "./bonuses.js";
+import { getEquippedPetSlotCapacity } from "./slots.js";
 import { batchFusionQuote, fusionQuote } from "./evolution.js";
 
 const increment = (value, amount = 1) =>
@@ -109,7 +109,7 @@ export function hatchPets(
 export function setTeam(state, ids, now = Date.now()) {
   if (
     !Array.isArray(ids) ||
-    ids.length > PET_SLOTS ||
+    ids.length > getEquippedPetSlotCapacity(state) ||
     new Set(ids).size !== ids.length ||
     ids.some((id) => !state.pets.inventory.some((pet) => pet.id === id))
   )
