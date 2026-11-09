@@ -1,5 +1,7 @@
 # Santuário e álbum — capturas reais
 
+A captura suplementar de cinco espaços foi feita com compras/equipamento reais pela suíte `cartoon_browser.py`. Novas execuções operacionais gravam em `test-results/cartoon`; copie uma captura para este índice apenas ao revisar intencionalmente a evidência.
+
 Chromium real, artefato PWA em subpath, oito viewports e três saves independentes descartáveis. Cada fase possui 144 renderizações no JSON. Os PNGs são uma seleção representativa; não são mockups. Baseline imutável: 73596a2.
 
 As quatro referências recebidas no chat orientam fita, pedestais, arte, grade e brilho. Nomes, preços e contagens ilustrativos das referências não substituem os dados reais.

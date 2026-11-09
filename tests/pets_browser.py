@@ -287,17 +287,25 @@ try:
     check(json.loads(exported.read_text())['pets']==team,'export includes the complete permanent pet system')
     context.close()
 
-    context,page=open_game(browser,seed(pets=pets([('balinha',0)]*5)))
+    context,page=open_game(browser,seed(pets=pets([('balinha',0)]*5+[('balinha',1)]*4)))
     other=context.new_page();other.goto(BASE+'pages/pets.html',wait_until='networkidle');other.wait_for_function("document.body.dataset.readonly==='true'")
     check(other.locator('[data-hatch="1"]').is_disabled() and other.locator('#equipBestBtn').is_disabled(),'read-only tabs can inspect pets but cannot hatch or change equipment')
     panel(other,'inventory');check(inspect_pet(other,other.locator('[data-pet]').first.get_attribute('data-pet')).locator('[data-action="favorite"]').is_disabled(),'read-only tab cannot mutate favorite/lock/evolution controls')
     other.close();page.bring_to_front()
     # The actual PWA update must freeze the runtime and stop an active auto session.
     page.evaluate('navigator.serviceWorker.ready.then(()=>true)');page.wait_for_function('!!navigator.serviceWorker.controller')
-    hatch_control(page,'#autoOpenBtn').click();expect(page.locator('#stopAutoBtn')).to_be_visible()
+    page.wait_for_function("document.querySelector('#pwaUpdate').dataset.ready==='false'")
+    panel(page,'inventory');page.once('dialog',lambda d:d.accept());page.locator('#autoFusionToggle').click();panel(page,'eggs')
+    hatch(page,1);close_hatch(page)
+    page.wait_for_function("JSON.parse(localStorage.lollipopSave).pets.stats.fused===1")
+    middle_ids={p['id'] for p in stored(page)['pets']['inventory'] if p['stage']==1}
+    assert len(middle_ids)==5 # Outputs must not have chained into another fusion.
     CURRENT='B';page.evaluate('navigator.serviceWorker.getRegistration().then(r=>r.update())')
     expect(page.locator('#pwaUpdate')).to_be_visible(timeout=15000)
     check(page.locator('#pwaUpdate').get_attribute('data-ready')=='true','real waiting update marks the guard even before activation')
+    before_waiting_hatch=stored(page)['pets']['stats']['hatched']
+    hatch_control(page,'#autoOpenBtn').click();expect(page.locator('#stopAutoBtn')).to_be_visible()
+    check(stored(page)['pets']['stats']['hatched']==before_waiting_hatch+1 and stored(page)['pets']['stats']['fused']==1 and {p['id'] for p in stored(page)['pets']['inventory'] if p['stage']==1}==middle_ids,'REAL waiting Service Worker blocks auto-fusion of five eligible Medium IDs while the exact hatch still commits')
     page.evaluate("document.addEventListener('lollipop:state',event=>{if(event.detail.updating)sessionStorage.setItem('pets.at-update',String(JSON.parse(localStorage.lollipopSave).pets.stats.hatched))})")
     page.locator('#pwaUpdate [data-update]').click()
     page.wait_for_function("id=>document.querySelector('meta[name=lollipop-release]')?.content===id",arg=RELEASE_B);ready(page)
@@ -307,6 +315,7 @@ try:
     context.set_offline(True);page.reload(wait_until='networkidle');ready(page)
     hatch(page,2);close_hatch(page)
     check(stored(page)['pets']['stats']['hatched']==count+2,'all Pets modules and transactions remain playable offline in a subpath PWA')
+    check(stored(page)['pets']['stats']['fused']==1 and {p['id'] for p in stored(page)['pets']['inventory'] if p['stage']==1}==middle_ids,'real offline mode preserves the five eligible Medium IDs despite saved auto-fusion opt-in')
     for name in ['collection','pets']:
         page.goto(BASE+f'pages/{name}.html',wait_until='networkidle')
     page.locator('[data-panel=team]').click()

@@ -6,6 +6,7 @@ from threading import Thread
 from playwright.sync_api import sync_playwright,expect
 from pet_ui_helpers import inspect_pet,pet_action,inventory_control,hatch_control
 ROOT=Path(__file__).resolve().parent.parent
+RESULTS=ROOT/'test-results/cartoon';RESULTS.mkdir(parents=True,exist_ok=True)
 fixtures=json.loads(subprocess.check_output(['node','tests/cartoon-fixtures.mjs'],cwd=ROOT))
 class Handler(SimpleHTTPRequestHandler):
  def __init__(self,*a,**k):super().__init__(*a,directory=str(ROOT/'dist'),**k)
@@ -20,8 +21,12 @@ def check(ok,label):
  checks+=1;print('PASS',label,flush=True)
 def saved(p):return p.evaluate('JSON.parse(localStorage.lollipopSave)')
 def ready(p):p.wait_for_function("document.body.dataset.readonly==='false'")
-def open_game(b,seed=None,w=390,h=844,route='pets'):
+def open_game(b,seed=None,w=390,h=844,route='pets',pending_version=False):
  c=b.new_context(viewport={'width':w,'height':h},has_touch=w<800,reduced_motion='reduce')
+ if pending_version:
+  # Controlled in-flight registration: the real updater remains checking. A
+  # later real response cannot overwrite the condition during the assertion.
+  c.add_init_script('navigator.serviceWorker.register=()=>new Promise(()=>{})')
  seed=copy.deepcopy(fixtures['fresh'] if seed is None else seed)
  c.add_init_script('if(!localStorage.lollipopSave){const seed='+json.dumps(seed)+';seed.lastTick=seed.savedAt=Date.now();localStorage.lollipopSave=JSON.stringify(seed)};Math.random=()=>0;')
  p=c.new_page();p.on('pageerror',lambda e:errors.append(str(e)));p.goto(BASE+f'pages/{route}.html');ready(p);return c,p
@@ -115,10 +120,13 @@ try:
   p.evaluate('Storage.prototype.setItem=realSet;true');fusion_ready(p);hatch(p);check(saved(p)['pets']['autoFusionStats']['fusions']==1,'storage recovery can retry once without duplicate rewards; diagnostics='+json.dumps({'pets':saved(p)['pets'],'guard':p.locator('#pwaUpdate').get_attribute('data-ready'),'hidden':p.evaluate('document.hidden'),'online':p.evaluate('navigator.onLine')}))
   c.close()
   for guard in ['offline','pending-update','checking-update']:
-   c,p=open_game(b,seed)
-   if guard=='offline':p.evaluate("Object.defineProperty(navigator,'onLine',{get:()=>false})")
-   else:p.evaluate("value=>{let e=document.querySelector('#pwaUpdate');e.dataset.ready=value;e.hidden=true}",'checking' if guard=='checking-update' else 'true')
-   hatch(p);check(len(saved(p)['pets']['inventory'])==5 and saved(p)['pets']['stats']['fused']==0,guard+' permits offline gameplay but blocks automatic consumption')
+   c,p=open_game(b,seed,pending_version=guard!='offline')
+   if guard=='offline':fusion_ready(p);c.set_offline(True)
+   elif guard=='pending-update':
+    # Isolated UI contract fixture; pets_browser also tests a REAL waiting worker.
+    p.evaluate("document.querySelector('#pwaUpdate').dataset.ready='true'")
+   else:expect(p.locator('#pwaUpdate')).to_have_attribute('data-ready','checking')
+   hatch(p);check(len(saved(p)['pets']['inventory'])==5 and saved(p)['pets']['stats']['fused']==0,guard+' allows a real hatch while blocking automatic consumption')
    c.close()
   # One-shot preview is separate from opt-in, protected presets included.
   seed=copies(11);seed['pets']['presets']['production']=['pet-1'];seed['pets']['inventory'][1]['favorite']=True;seed['pets']['inventory'][2]['locked']=True;seed['pets']['equipped']=['pet-4'];seed['pets']['reserveNormals']=1
@@ -148,7 +156,7 @@ try:
   check(len(saved(p)['pets']['equipped'])==5 and '5 / 5' in p.locator('#teamCount').inner_text(),'Equip Best/UI uses five real owned IDs')
   p.evaluate('scrollTo(0,0)')
   check(p.evaluate('document.documentElement.scrollWidth<=innerWidth') and p.locator('.active-team-portraits button').evaluate_all('(xs)=>xs.every(e=>{let r=e.getBoundingClientRect();return r.width>=44&&r.height>=44&&e.contains(document.elementFromPoint(r.x+r.width/2,r.y+r.height/2))})'),'five equipped portraits remain separate, reachable and >=44px on mobile')
-  p.locator('#teamTools>summary').click();p.screenshot(path=str(ROOT/'docs/screenshots/cartoon/after/390x844-late-five-slots.png'));p.locator('#teamTools>summary').click()
+  p.locator('#teamTools>summary').click();p.screenshot(path=str(RESULTS/'390x844-late-five-slots.png'));p.locator('#teamTools>summary').click()
   p.locator('#savePetPreset').click();team=saved(p)['pets']['equipped'];p.locator('#teamStrategy').select_option('clicks');p.locator('#equipBestBtn').click();p.locator('#loadPetPreset').click()
   check(saved(p)['pets']['equipped']==team and len(saved(p)['pets']['presets']['production'])==5,'expanded named preset saves/restores all five IDs')
   p.reload();ready(p);check(saved(p)['pets']['equipped']==team and saved(p)['petSlotUpgradeLevel']==2,'expanded team and purchase survive restart')
