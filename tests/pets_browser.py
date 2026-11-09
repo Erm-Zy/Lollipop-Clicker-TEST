@@ -313,9 +313,16 @@ try:
     check(stored(page)['pets']['stats']['hatched']==count and page.locator('#stopAutoBtn').is_hidden(),'real controller activation stops auto and never resumes it after reload')
     check(int(page.evaluate("sessionStorage.getItem('pets.at-update')"))==count,'PWA update preserves exactly the last safely saved auto batch')
     context.set_offline(True);page.reload(wait_until='networkidle');ready(page)
+    # Chromium 151 resets navigator.onLine on reload despite blocked requests.
+    # Control BOTH native browser signals (no JS getter override), then verify
+    # the new document observes offline before testing the consumption guard.
+    offline_network=context.new_cdp_session(page)
+    offline_network.send('Network.overrideNetworkState',{'offline':True,'latency':0,'downloadThroughput':-1,'uploadThroughput':-1})
+    page.wait_for_function('navigator.onLine===false')
     hatch(page,2);close_hatch(page)
     check(stored(page)['pets']['stats']['hatched']==count+2,'all Pets modules and transactions remain playable offline in a subpath PWA')
-    check(stored(page)['pets']['stats']['fused']==1 and {p['id'] for p in stored(page)['pets']['inventory'] if p['stage']==1}==middle_ids,'real offline mode preserves the five eligible Medium IDs despite saved auto-fusion opt-in')
+    offline_pets=stored(page)['pets']
+    check(offline_pets['stats']['fused']==1 and {p['id'] for p in offline_pets['inventory'] if p['stage']==1}==middle_ids,'real offline mode preserves the five eligible Medium IDs despite saved auto-fusion opt-in; diagnostics='+json.dumps({'pets':offline_pets,'expectedMediumIds':sorted(middle_ids),'online':page.evaluate('navigator.onLine'),'update':page.locator('#pwaUpdate').get_attribute('data-ready')}))
     for name in ['collection','pets']:
         page.goto(BASE+f'pages/{name}.html',wait_until='networkidle')
     page.locator('[data-panel=team]').click()

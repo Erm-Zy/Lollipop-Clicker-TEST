@@ -64,6 +64,12 @@ try:
   check(p.locator('body').get_attribute('data-page')=='home','Back/Forward restores overlay without replacing home/runtime')
   for _ in range(14):
    p.keyboard.press('Tab');check(p.evaluate('document.querySelector("#gamePanel").contains(document.activeElement)'),'native modal keeps keyboard focus inside')
+  # Force the actual async native close event to arrive after history restores
+  # the overlay. The original real Back/Forward + 14 Tab assertions stay above.
+  p.evaluate("window.lateCloseObserved=false;document.querySelector('#gamePanel').addEventListener('close',()=>lateCloseObserved=true,{once:true});history.replaceState(null,'',location.pathname);window.dispatchEvent(new PopStateEvent('popstate'));history.replaceState({lollipopPanel:'shop'},'','#shop');window.dispatchEvent(new PopStateEvent('popstate'));")
+  p.wait_for_function('lateCloseObserved')
+  p.evaluate('()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)))')
+  check(p.evaluate("document.querySelector('#gamePanel').open&&history.state?.lollipopPanel==='shop'&&document.querySelector('#gamePanel').contains(document.activeElement)"),'queued internal close cannot dismiss a newly restored overlay or steal focus')
   p.evaluate('document.querySelector("#gamePanel").close()');expect(p.locator('#gamePanel')).not_to_be_visible();p.wait_for_function('!history.state?.lollipopPanel')
   check(p.locator('body').get_attribute('data-page')=='home','native dialog close (Android Back hook) removes history entry and keeps home')
   p.goto(BASE+'index.html#shop');ready(p);expect(p.locator('#gamePanel')).to_be_visible();p.reload();ready(p);expect(p.locator('#gamePanel')).to_be_visible();close(p)
