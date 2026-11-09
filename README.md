@@ -21,7 +21,7 @@ Publique **`dist/`**, gerado por `npm run pwa:build`, como pasta estática pelo 
 | --- | --- |
 | `index.html` | Campo de jogo com pirulito central, HUD ilustrado, Loja e Roleta em painéis, cena e bônus |
 | `pages/shop.html` | Oito engenhocas originais, níveis, contribuição e lotes ×1/×10/×100/MAX |
-| `pages/pets.html` | Três ovos, 18 espécies, equipe de três pets, inventário de 500, fusões e álbum permanente |
+| `pages/pets.html` | Três ovos, 18 espécies, equipe de 3–5 pets, inventário de 500, fusões e álbum permanente |
 | `pages/collection.html` | Receitas: 11 sabores com bônus e sete conjuntos visuais; pirulito, mundo e partículas independentes |
 | `pages/arena.html` | Três guardiões ilustrados alternados, dano por toque, prazo, vitória e recarga |
 | `pages/prestige.html` | Progresso da jornada, renascimento, Pontos de Prestígio, Ímpeto Estelar e expansões permanentes |
@@ -86,7 +86,7 @@ O runtime recebe regras sem DOM e coordena o estado de cada documento. Cada pág
 
 ## Continuidade do save
 
-A chave principal permanece **`lollipopSave`**. O schema **6** mantém o progresso v5, acrescenta o ledger de PP extras, reserva e conjuntos de pets. O primeiro v5 bruto fica em **`lollipopSave.legacy-v5`**, com confirmação de escrita obrigatória; o backup v4 continua preservado. Não há reset nem cobrança retroativa. Fábricas extras possuídas ficam inativas ao retirar capacidade equipada e não são apagadas. [Regras, migração e resultados do balanceamento](docs/BALANCE_REWORK.md).
+A chave principal permanece **`lollipopSave`**. O schema **7** mantém o progresso v6 e acrescenta a compra de espaços da equipe e a preferência/histórico de auto-fusão. O primeiro v6 bruto fica em **`lollipopSave.legacy-v6`**, com confirmação de escrita obrigatória; os backups v5/v4 continuam preservados. O ledger de PP inclui os espaços, sem conceder pontos novos. Não há reset nem cobrança retroativa. Fábricas extras possuídas ficam inativas ao retirar capacidade equipada e não são apagadas. [Regras, migração e resultados do balanceamento](docs/BALANCE_REWORK.md).
 
 - O primeiro save original é preservado em `lollipopSave.legacy-v1`; o primeiro schema 2 em `lollipopSave.legacy-v2`. O schema 3 usa `lollipopSave.legacy-v3`; um reset autorizado preserva o original em `lollipopSave.pre-prestige-v4`. São backups brutos imutáveis da migração.
 - `lollipopSave.backup` guarda a escrita completa anterior. Escritas são feitas a cada cinco segundos, ao ocultar/sair da página, antes de navegar e após transações importantes.
@@ -143,8 +143,14 @@ O Santuário oferece Ímpeto Estelar (20 níveis, +5% por nível, custos 1–20 
 
 ## Pets e ovos
 
-No **Ninho açucarado**, abra lotes ×1/×2/×3 do Ovo Açucarado (1.500), Cristalizado (1.000.000) e Celestial (5.000.000.000 pirulitos), com chances transparentes. As mesmas 18 espécies oferecem clique, PPS, combate, PP futuro e capacidade equipada conforme seu ovo. Três slots, 500 instâncias e 72 descobertas permanecem. Fusão em lote com reserva e prévia, substituição direta, seis estratégias e quatro conjuntos reduzem o atrito. Auto gratuito apenas em primeiro plano, sem hatches offline. Pets e desbloqueios sobrevivem ao prestígio. [Guia](docs/PETS_UPDATE.md) · [Balanceamento e métricas](docs/BALANCE_REWORK.md). Rode `npm run balance` para o relatório reproduzível.
+No **Ninho dos Pets**, abra lotes ×1/×2/×3 do Ovo Açucarado (1.500), Cristalizado (1.000.000) e Celestial (5.000.000.000 pirulitos), com chances transparentes. As mesmas 18 espécies oferecem clique, PPS, combate, PP futuro e capacidade equipada conforme seu ovo. Comece com três espaços; **Laços de Açúcar**, no Prestígio, compra o quarto por **25 PP** e o quinto por **75 PP**. Inventário de 500 e 72 descobertas permanecem. Fusão em lote com reserva e prévia, substituição direta, seis estratégias e quatro conjuntos reduzem o atrito. Abertura automática gratuita apenas em primeiro plano, sem hatches offline. Auto-fusão é uma opção separada, **desligada por padrão**, confirmada pelo jogador: depois de abrir ovos, une cinco iguais livres sem encadear e protege favoritos, bloqueios, equipe, conjuntos e reserva. Só funciona com jogo ativo, online e save disponível; a compra e a fusão são salvas juntas ou revertidas. Pets e desbloqueios sobrevivem ao prestígio. [Guia](docs/PETS_UPDATE.md) · [Balanceamento e métricas](docs/BALANCE_REWORK.md). Rode `npm run balance` para o relatório reproduzível.
 
 ## Interface do mundo de doces
 
 HUD compacto, navegação Mundo/Loja/Pets/Arena + Mais, Equipe separada no Ninho e galeria das melhorias reais de Prestígio. [Mapa de UX, componentes, screenshots e limites](docs/UI_SYSTEM_UPDATE.md). Teste dedicado: `python3 tests/ui_system_browser.py` após `npm run pwa:build`.
+
+## Santuário ilustrado e álbum de conquistas
+
+Ovos em pedestais, inventário de retratos com um único detalhe, equipe ilustrada e 13 medalhas individuais. As mesmas espécies, estágios e requisitos continuam reais; os números das referências não viraram regras. Filtros, probabilidades, fusões manuais, conjuntos e backups seguem acessíveis. [Auditoria, antes/depois e validação](docs/CARTOON_FIDELITY.md) · [Capturas reais](docs/screenshots/cartoon/INDEX.md).
+
+`python3 tests/cartoon_browser.py` testa a interface e as transações no artefato gerado; `node scripts/simulate-pet-slots.mjs` reproduz o impacto/custo dos espaços e mede o otimizador com 500 pets. Três espaços mantêm busca exata; equipes grandes de quatro/cinco usam busca limitada determinística (não há promessa de ótimo global). Schema 7 exige a versão atual do jogo para importar seu backup; o Service Worker não atualiza assets de APKs instalados.

@@ -1,3 +1,4 @@
+import { SAVE_VERSION } from "../js/data.js";
 import test from "node:test";
 import assert from "node:assert/strict";
 import * as game from "../js/gameplay.js";
@@ -293,7 +294,7 @@ test("schema5 raw backup readback and failures preserve all legitimate progressi
     loaded = loadGame(storage, NOW);
   assert.equal(storage.getItem(V5_BACKUP_KEY), raw);
   assert.equal(loaded.canSave, true);
-  assert.equal(loaded.state.version, 6);
+  assert.equal(loaded.state.version, SAVE_VERSION);
   assert.equal(loaded.state.pets.inventory[0].id, s.pets.inventory[0].id);
   assert.equal(loaded.state.pets.stats.spent, 1.4e9);
   assert.equal(loaded.state.prestigeBonusEarned, 0);

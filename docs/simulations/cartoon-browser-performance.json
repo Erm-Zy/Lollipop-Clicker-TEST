@@ -1,0 +1,29 @@
+{
+  "cpuThrottlingRate": 4,
+  "results": [
+    {
+      "strategy": "balanced",
+      "milliseconds": 68.69999999925494
+    },
+    {
+      "strategy": "production",
+      "milliseconds": 48.80000000074506
+    },
+    {
+      "strategy": "clicks",
+      "milliseconds": 18
+    },
+    {
+      "strategy": "combat",
+      "milliseconds": 43.5
+    },
+    {
+      "strategy": "prestige",
+      "milliseconds": 87.39999999850988
+    },
+    {
+      "strategy": "capacity",
+      "milliseconds": 25.899999998509884
+    }
+  ]
+}

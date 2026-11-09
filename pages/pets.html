@@ -22,31 +22,18 @@
     <link rel="stylesheet" href="../css/responsive.css" />
     <link rel="stylesheet" href="../css/pets.css" />
     <link rel="stylesheet" href="../css/ui-system.css" />
+    <link rel="stylesheet" href="../css/cartoon.css" />
   </head>
   <body data-page="pets">
     <header id="gameHeader"></header>
     <main id="mainContent" class="page-scene pets-page">
-      <div class="page-heading">
-        <div>
-          <span class="eyebrow">AMIGOS PARA TODAS AS JORNADAS</span>
-          <h1 class="page-title">Ninho dos pets</h1>
-          <details class="page-intro">
-            <summary aria-label="Sobre este lugar">i</summary>
-            <p class="page-lead">
-              Pequenos companheiros. Grandes aventuras. Seus pets ficam com você
-              após o prestígio.
-            </p>
-          </details>
-        </div>
-        <a class="game-button secondary" href="collection.html"
-          >Voltar às receitas</a
-        >
-      </div>
+      <div id="sanctuaryHeader"></div>
       <aside class="team-strip" aria-label="Equipe ativa">
         <details class="team-summary">
           <summary>Equipe <span id="teamCount"></span> · bônus ⌄</summary>
           <p id="teamBonus"></p>
         </details>
+        <div id="activeTeamPortraits" class="active-team-portraits" aria-label="Companheiros equipados"></div>
         <button type="button" class="item-preview" id="openTeamBtn">
           Gerenciar equipe →
         </button>
@@ -90,6 +77,7 @@
         aria-labelledby="teamTitle"
       >
         <h2 id="teamTitle">Minha equipe</h2>
+        <a id="nextPetSlot" class="item-preview" href="prestige.html#pets">Ampliar equipe no Prestígio →</a>
         <div id="petTeam" class="pet-team"></div>
         <details id="teamTools" class="team-tools">
           <summary>Estratégia e conjuntos</summary>
@@ -137,13 +125,16 @@
         </details>
       </section>
       <section id="panel-eggs" aria-labelledby="eggsTitle">
-        <h2 id="eggsTitle">Escolha seu próximo amigo</h2>
+        <h2 id="eggsTitle" class="sr-only">Escolha seu próximo amigo</h2>
         <div id="eggSelection" class="pet-eggs"></div>
         <div class="pet-hatch-panel">
+          <div id="selectedEggArt" class="selected-egg-art" aria-hidden="true"></div>
           <h3 id="selectedEggName"></h3>
           <p id="eggRequirement"></p>
           <p id="hatchAvailability" role="status"></p>
           <div id="hatchButtons" class="pet-hatch-buttons"></div>
+          <div id="eggPetPreview" class="egg-pet-preview" aria-label="Alguns companheiros possíveis"></div>
+          <details class="hatch-options"><summary>Opções de abertura automática</summary>
           <label class="pet-animation-setting"
             ><input id="skipHatchAnimation" type="checkbox" /> Revelar
             resultados sem animação</label
@@ -169,6 +160,8 @@
             Abre um lote a cada 2,4 s, apenas nesta página ativa. Ao sair ou
             ocultar, para; não abre ovos durante sua ausência.
           </p>
+          </details>
+          <p id="eggAutoFusionStatus" class="auto-fusion-note"></p>
           <div id="autoResults" hidden>
             <h3>Último lote recebido</h3>
             <div id="autoPetResults" class="pet-results"></div>
@@ -201,6 +194,18 @@
           <h2 id="inventoryTitle" tabindex="-1">Meus companheiros</h2>
           <p id="inventoryCapacity"></p>
         </div>
+        <div class="pet-quick-filters" role="group" aria-label="Filtrar companheiros">
+          <button class="item-preview" data-pet-filter="all" aria-pressed="true">Todos</button>
+          <button class="item-preview" data-pet-filter="favorites" aria-pressed="false">Favoritos</button>
+          <button class="item-preview" data-pet-filter="duplicates" aria-pressed="false">Duplicados</button>
+        </div>
+        <div class="auto-fusion-control">
+          <label><input id="autoFusionToggle" type="checkbox" /> Auto-fusão após abrir ovos</label>
+        </div>
+        <details class="inventory-tools"><summary>Buscar, filtrar e preparar fusões</summary>
+          <button id="reviewSafeFusion" class="item-preview" type="button">Fundir duplicados elegíveis…</button>
+          <p id="autoFusionStatus" role="status"></p>
+
         <div class="pet-filters">
           <label for="petSearch"
             >Buscar por nome<input
@@ -228,6 +233,7 @@
               <option value="evolution">Evolução</option>
             </select></label
           >
+          <label>Espécie<select id="speciesFilter"><option value="all">Todas</option></select></label>
         </div>
         <div class="pet-selection-tools">
           <p id="fusionSelectionCount" role="status">
@@ -247,7 +253,7 @@
           <summary>Fusão em lote e reserva de cópias</summary>
           <p>
             Favoritos e bloqueados ficam protegidos. Resultados e fontes serão
-            revisados antes de confirmar. Auto não faz fusões.
+            revisados antes de confirmar. Esta ferramenta manual é independente da auto-fusão.
           </p>
           <label
             >Guardar ao menos Normais por espécie<input
@@ -296,6 +302,7 @@
           instância individual. Cinco cópias da mesma espécie e evolução viram
           uma da próxima: Normal → Médio → Grande → Gigante (125 Normais).
         </p>
+        </details>
         <div id="petInventory" class="pet-inventory"></div>
         <p id="petsEmpty" class="inventory-empty" hidden>
           Nenhum companheiro neste filtro. Abra um ovo ou experimente outros
@@ -318,11 +325,25 @@
           fusão. Não é preciso possuir todas ao mesmo tempo.
         </p>
         <div id="petCatalog"></div>
+        <section id="discoveryDetail" class="pet-focused-detail" hidden aria-label="Descoberta selecionada"></section>
       </section>
-      <section class="pet-lifetime" aria-labelledby="petStatsTitle">
-        <h2 id="petStatsTitle">Nossa história</h2>
+      <details class="pet-lifetime"><summary id="petStatsTitle">Nossa história</summary>
         <p id="petLifetimeStats"></p>
-      </section>
+      </details>
+      <dialog id="petDetailDialog" class="pet-dialog" aria-labelledby="petDetailTitle">
+        <button id="closePetDetail" class="item-preview" type="button">Fechar detalhes</button>
+        <p id="petDetailNotice" role="status" hidden></p>
+        <p id="petDetailFeedback" role="status" aria-live="polite" hidden></p>
+        <section id="petDetail" class="pet-focused-detail"></section>
+      </dialog>
+      <dialog id="safeFusionDialog" class="pet-dialog" aria-labelledby="safeFusionTitle">
+        <h2 id="safeFusionTitle">Revisar duplicados elegíveis</h2>
+        <p id="safeFusionNotice" role="status" hidden></p>
+        <p>Fusão permanente de cinco iguais. Favoritos, bloqueados, equipados, conjuntos e reserva são preservados. Resultados não serão reutilizados.</p>
+        <div id="safeFusionPreview"></div><p id="safeFusionError" role="status"></p>
+        <button id="cancelSafeFusion" type="button" class="item-preview">Cancelar</button>
+        <button id="confirmSafeFusion" type="button" class="game-button">Confirmar fusões</button>
+      </dialog>
       <dialog
         id="replacePetDialog"
         class="pet-dialog"

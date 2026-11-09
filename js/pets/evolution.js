@@ -64,7 +64,14 @@ export function fusionCandidates(pets, speciesId, stage) {
 /** Deterministic dry-run; chaining is explicit and includes intermediate instances. */
 export function batchFusionQuote(
   pets,
-  { speciesId, stage = 0, chain = false, allowEquipped = false } = {},
+  {
+    speciesId,
+    stage = 0,
+    chain = false,
+    allowEquipped = false,
+    protectPresets = false,
+    eligibleIds = null,
+  } = {},
 ) {
   if (
     !Object.hasOwn(SPECIES, speciesId) ||
@@ -75,6 +82,9 @@ export function batchFusionQuote(
     return { ok: false, reason: "Escolha espécie e evolução de origem." };
   const inventory = [...pets.inventory],
     operations = [];
+  const presetIds = new Set(
+    protectPresets ? Object.values(pets.presets || {}).flat() : [],
+  );
   let nextId = pets.nextId;
   for (let level = stage; level <= (chain ? 2 : stage); level++) {
     const total = inventory.filter(
@@ -88,6 +98,8 @@ export function batchFusionQuote(
           p.stage === level &&
           !p.favorite &&
           !p.locked &&
+          !presetIds.has(p.id) &&
+          (!eligibleIds || eligibleIds.has(p.id)) &&
           (allowEquipped || !pets.equipped.includes(p.id)),
       )
       .sort((a, b) => a.acquiredAt - b.acquiredAt || (a.id < b.id ? -1 : 1));
@@ -140,6 +152,7 @@ export function batchFusionQuote(
       consumed.map((p) => [p.id, p.favorite, p.locked]),
       pets.reserveNormals,
       pets.equipped,
+      protectPresets ? pets.presets : null,
     ]),
   };
 }

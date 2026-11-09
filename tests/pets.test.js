@@ -37,6 +37,8 @@ import {
   PET_QUARANTINE_KEY,
 } from "../js/storage.js";
 
+import { SAVE_VERSION } from "../js/data.js";
+
 const NOW = 1700000000000;
 const clone = (state) => JSON.parse(JSON.stringify(state));
 const close = (a, b) => assert.ok(Math.abs(a - b) < 1e-8, `${a} ≠ ${b}`);
@@ -468,7 +470,7 @@ test("inventory filters/search/sorts and pagination count individual duplicates"
     "raposa_geada",
   );
 });
-test("schema4 migrates to 6, preserving all valid progression and the exact raw v4 backup key", () => {
+test("schema4 migrates to current schema, preserving all valid progression and the exact raw v4 backup key", () => {
   const original = state();
   delete original.pets;
   Object.assign(original, {
@@ -492,7 +494,7 @@ test("schema4 migrates to 6, preserving all valid progression and the exact raw 
     store = storage({ [SAVE_KEY]: raw, unrelated: "keep" }),
     loaded = loadGame(store, NOW);
   assert.equal(loaded.canSave, true);
-  assert.equal(loaded.state.version, 6);
+  assert.equal(loaded.state.version, SAVE_VERSION);
   assert.equal(store.getItem(V4_BACKUP_KEY), raw);
   assert.equal(store.getItem(V3_BACKUP_KEY), null);
   for (const [key, value] of Object.entries(original))
@@ -503,7 +505,7 @@ test("schema4 migrates to 6, preserving all valid progression and the exact raw 
   ]);
   assert.equal(store.getItem("unrelated"), "keep");
   assert.equal(saveGame(store, loaded.state).ok, true);
-  assert.equal(JSON.parse(store.getItem(SAVE_KEY)).version, 6);
+  assert.equal(JSON.parse(store.getItem(SAVE_KEY)).version, SAVE_VERSION);
 });
 test("required v4 backup failure (quota or silent rejection) protects the original and forbids overwrite", () => {
   for (const silent of [false, true]) {
@@ -590,7 +592,7 @@ test("malformed pet roots and evolution stages are protected; future saves remai
     { inventory: [{ speciesId: { toString: null }, stage: 0 }] },
   ])
     assert.throws(() => validateState({ ...state(), pets }, NOW), PetDataError);
-  const raw = JSON.stringify({ ...state(), version: 7 }),
+  const raw = JSON.stringify({ ...state(), version: SAVE_VERSION + 1 }),
     store = storage({ [SAVE_KEY]: raw });
   assert.equal(loadGame(store, NOW).canSave, false);
   assert.equal(store.getItem(SAVE_KEY), raw);

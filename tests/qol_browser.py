@@ -41,6 +41,9 @@ def ready(page):
 def open_game(browser, value, name='shop', width=390, touch=True, blocked_pref=False):
     context = browser.new_context(viewport={'width':width,'height':844}, has_touch=touch, is_mobile=touch, reduced_motion='reduce')
     context.add_init_script("if (!localStorage.getItem('lollipopSave')) localStorage.setItem('lollipopSave', %s);" % json.dumps(json.dumps(value)))
+    # A short absolute boss deadline can expire during goto(networkidle).
+    # Observe from document startup, not after the already emitted notification.
+    context.add_init_script("window.battleToasts=[];document.addEventListener('lollipop:toast', e=>battleToasts.push(e.detail.message))")
     if blocked_pref:
         context.add_init_script("""const originalGet = Storage.prototype.getItem, originalSet = Storage.prototype.setItem;
         Storage.prototype.getItem = function(k) { if(k === 'lollipopUI.shopView') throw Error('blocked preference'); return originalGet.call(this,k); };
@@ -172,7 +175,6 @@ with sync_playwright() as p:
 
     now = int(time.time()*1000)
     context, page = open_game(browser, seed(pirulitos=0, boss={'maxHp':100,'hp':100,'endsAt':now+1600}), name='arena')
-    page.evaluate("window.battleToasts=[];document.addEventListener('lollipop:toast', e=>battleToasts.push(e.detail.message))")
     expect(page.locator('#battleResult')).to_be_visible(timeout=5000)
     check('tempo acabou' in page.locator('#battleResult').inner_text().lower(), 'defeat remains readable after deadline')
     check(page.locator('#bossAvatar').is_disabled() and saved(page)['pirulitos'] == 0, 'defeat disables attacks and grants no reward')

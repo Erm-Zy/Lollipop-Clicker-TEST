@@ -1,4 +1,5 @@
 import { normalizePets, syncEggUnlocks, PetDataError } from "./pets/state.js";
+import { getEquippedPetSlotCapacity, MAX_PET_SLOT_LEVEL } from "./pets/slots.js";
 import {
   sanitizePermanentProgress,
   getFactoryCapacity,
@@ -25,6 +26,7 @@ export const LEGACY_BACKUP_KEY = "lollipopSave.legacy-v1";
 export const V2_BACKUP_KEY = "lollipopSave.legacy-v2";
 export const V3_BACKUP_KEY = "lollipopSave.legacy-v3";
 export const V5_BACKUP_KEY = "lollipopSave.legacy-v5";
+export const V6_BACKUP_KEY = "lollipopSave.legacy-v6";
 export const V4_BACKUP_KEY = "lollipopSave.legacy-v4";
 export const PET_QUARANTINE_KEY = "lollipopSave.pets-v5-quarantine";
 export const PRE_PRESTIGE_BACKUP_KEY = "lollipopSave.pre-prestige-v4";
@@ -141,10 +143,18 @@ export function validateState(
     oldPrestige
       ? { prestigePoints: state.prestigeLevel }
       : sanitizePermanentProgress(
-          { ...raw, prestigeBonusEarned: state.prestigeBonusEarned },
+          { ...raw, prestigeBonusEarned: state.prestigeBonusEarned,
+            petSlotUpgradeLevel: number(raw.version) >= 7 ? raw.petSlotUpgradeLevel : 0 },
           state.prestigeLevel,
         ),
   );
+  if (number(raw.version) >= 7) {
+    const level = raw.petSlotUpgradeLevel === undefined ? 0 : raw.petSlotUpgradeLevel;
+    if (!Number.isInteger(level) || level < 0 || level > MAX_PET_SLOT_LEVEL ||
+        state.petSlotUpgradeLevel !== level) {
+      throw new Error("Registro de espaços da equipe inválido ou sem PP histórico. Exporte o original para recuperação.");
+    }
+  }
   state.prestigeBaseline = oldPrestige
     ? state.totalEarned
     : Math.min(
@@ -277,7 +287,12 @@ export function validateState(
       };
     }
   }
-  const normalizedPets = normalizePets(raw.pets, now);
+  // Old schemas had no informed opt-in. Unknown fields in an old import must
+  // never turn irreversible automation on; the exact raw original is backed up.
+  const petSource = number(raw.version) < 7 && record(raw.pets)
+    ? {...raw.pets, autoFusionEnabled:false, autoFusionStats:undefined}
+    : raw.pets;
+  const normalizedPets = normalizePets(petSource, now, getEquippedPetSlotCapacity(state));
   state.pets = normalizedPets.pets;
   if (number(raw.version) < 6) {
     // Grandfather old world-based unlocks before applying the new invitation requirements.
@@ -307,7 +322,7 @@ export function preserveLegacyBackup(storage, raw, version) {
           ? V3_BACKUP_KEY
           : version < 5
             ? V4_BACKUP_KEY
-            : V5_BACKUP_KEY;
+            : version < 6 ? V5_BACKUP_KEY : V6_BACKUP_KEY;
   const previous = storage.getItem(key);
   if (previous === null) {
     storage.setItem(key, raw);

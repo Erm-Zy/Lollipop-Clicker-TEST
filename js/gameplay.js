@@ -1,5 +1,6 @@
 import { createPetState, syncEggUnlocks } from "./pets/state.js";
 import { getPetBonuses } from "./pets/bonuses.js";
+import { getPetSlotCost, getEquippedPetSlotCapacity } from "./pets/slots.js";
 import { getTotalUpgradesCount } from "./progression.js";
 export { getTotalUpgradesCount } from "./progression.js";
 import {
@@ -59,6 +60,7 @@ export function createState(now = Date.now()) {
     prestigeBonusEarned: 0,
     prestigeBaseline: 0,
     stellarBoostLevel: 0,
+    petSlotUpgradeLevel: 0,
     factoryExpansions: Object.fromEntries(
       Object.keys(UPGRADES_DATA).map((key) => [key, 0]),
     ),
@@ -475,6 +477,16 @@ export function buyFactoryExpansion(state, key, now = Date.now()) {
     level: state.factoryExpansions[key],
     capacity: getFactoryCapacity(state, key),
   };
+}
+
+export function buyPetSlot(state, now = Date.now(), expectedLevel = state.petSlotUpgradeLevel) {
+  const cost = getPetSlotCost(state);
+  if (state.petSlotUpgradeLevel !== expectedLevel || !Number.isFinite(cost) ||
+      !Number.isSafeInteger(state.prestigePoints) || state.prestigePoints < cost) return false;
+  advance(state, now);
+  state.prestigePoints -= cost;
+  state.petSlotUpgradeLevel += 1;
+  return {cost, level: state.petSlotUpgradeLevel, capacity: getEquippedPetSlotCapacity(state)};
 }
 
 export function startBoss(state, now = Date.now()) {

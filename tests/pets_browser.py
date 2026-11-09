@@ -1,6 +1,7 @@
 """Self-contained Pets integration QA: real SWs, subpath, offline and APK web bundle.
 Requires npm dependencies, Python Playwright and Chromium. No production publishing.
 """
+from pet_ui_helpers import pet_action, inspect_pet, select_pet, inventory_control, hatch_control
 import copy
 import json
 import os
@@ -136,11 +137,11 @@ try:
     panel(page,'inventory')
     check(page.locator('[data-pet]').count()==7,'inventory displays individually owned duplicate pets')
     first_id=ids(page)[0]
-    page.locator(f'[data-pet="{first_id}"] [data-action="favorite"]').click()
+    pet_action(page,first_id,'favorite')
     check(stored(page)['pets']['inventory'][0]['favorite'],'favorite action persists')
-    page.locator(f'[data-pet="{first_id}"] [data-action="locked"]').click()
+    pet_action(page,first_id,'locked')
     check(stored(page)['pets']['inventory'][0]['locked'],'lock action persists independently')
-    page.locator(f'[data-pet="{first_id}"] [data-action="equip"]').click()
+    pet_action(page,first_id,'equip')
     check(stored(page)['pets']['equipped']==[first_id] and '+6%' in team_bonus(page).inner_text(),'manual equip changes the authoritative click bonus')
     pet_control(page,'#teamStrategy').select_option('clicks');pet_control(page,'#equipBestBtn').click()
     check(len(stored(page)['pets']['equipped'])==3 and stored(page)['pets']['strategy']=='clicks','Equip Best equips three distinct owned pets under the selected strategy')
@@ -159,7 +160,7 @@ try:
     check('pet-hatching' in page.locator('#hatchDialog').get_attribute('class') and inventory_count(page)==1,'egg animation starts only after its reward is safely saved')
     page.locator('#skipHatchBtn').click()
     check('pet-hatching' not in page.locator('#hatchDialog').get_attribute('class'),'Pular reveals the complete result without another transaction')
-    close_hatch(page);page.locator('#skipHatchAnimation').check();hatch(page,1)
+    close_hatch(page);hatch_control(page,'#skipHatchAnimation').check();hatch(page,1)
     check('pet-hatching' not in page.locator('#hatchDialog').get_attribute('class'),'persistent short-animation preference disables egg motion')
     close_hatch(page);context.close()
 
@@ -178,11 +179,11 @@ try:
     page.screenshot(path=str(RESULTS/'mobile-pets-eggs.png'),full_page=True)
     check(page.evaluate('document.documentElement.scrollWidth<=innerWidth'),'mobile egg/team layout has no horizontal overflow')
     # Native lifecycle suspends auto and ownership using the existing runtime.
-    page.locator('#autoBatch').select_option('3');page.locator('#autoOpenBtn').click()
+    hatch_control(page,'#autoBatch').select_option('3');hatch_control(page,'#autoOpenBtn').click()
     page.wait_for_function("JSON.parse(localStorage.lollipopSave).pets.inventory.length>=10")
     page.locator('#stopAutoBtn').click();count=inventory_count(page);page.wait_for_timeout(2600)
     check(inventory_count(page)==count and page.locator('#stopAutoBtn').is_hidden(),'visible Parar cancels auto with no later batches')
-    page.locator('#autoOpenBtn').click();count=inventory_count(page)
+    hatch_control(page,'#autoOpenBtn').click();count=inventory_count(page)
     page.evaluate("document.dispatchEvent(new Event('lollipop:native-pause'))")
     page.wait_for_timeout(2600)
     check(inventory_count(page)==count and page.locator('#stopAutoBtn').is_hidden(),'Android pause stops auto instead of opening eggs in the background')
@@ -205,12 +206,12 @@ try:
     initial=pets([('balinha',0)]*5+[('goma',0)])
     initial['inventory'][0]['favorite']=True;initial['inventory'][1]['locked']=True
     context,page=open_game(browser,seed(pets=initial));panel(page,'inventory')
-    for number in range(1,6):page.locator(f'[data-select="pet-{number}"]').check()
-    page.locator('#fuseSelectedBtn').click()
+    for number in range(1,6):select_pet(page,f'pet-{number}')
+    inventory_control(page,'#fuseSelectedBtn').click()
     check(page.locator('#fusionDialog').is_hidden() and inventory_count(page)==6,'favorites and locks prevent reviewing an unsafe fusion')
-    page.locator('[data-pet="pet-1"] [data-action="favorite"]').click();page.locator('[data-pet="pet-2"] [data-action="locked"]').click()
-    page.locator('[data-pet="pet-1"] [data-action="equip"]').click()
-    page.locator('#fuseSelectedBtn').click()
+    pet_action(page,'pet-1','favorite');pet_action(page,'pet-2','locked')
+    pet_action(page,'pet-1','equip')
+    inventory_control(page,'#fuseSelectedBtn').click()
     check(page.locator('#fusionSources li').count()==5 and 'Médio' in page.locator('#fusionResult').inner_text(),'fusion preview lists exactly five source IDs and the resulting stage/bonus')
     page.locator('#confirmFusionBtn').click()
     expect(page.locator('#fusionError')).to_contain_text('explicitamente')
@@ -232,12 +233,12 @@ try:
     initial=pets([('balinha',stage) for stage in [0,1,2] for _ in range(5)])
     context,page=open_game(browser,seed(pets=initial),width=390);panel(page,'inventory')
     for stage,label in [(0,'Médio'),(1,'Grande'),(2,'Gigante')]:
-        page.locator('#stageFilter').select_option(str(stage));page.locator('[data-action="fusion"]').first.click()
+        inventory_control(page,'#stageFilter').select_option(str(stage));pet_action(page,page.locator('[data-pet]').first.get_attribute('data-pet'),'fusion')
         expect(page.locator('#fusionResult')).to_contain_text(label);page.locator('#confirmFusionBtn').click()
         expect(page.locator('#fusionDialog')).not_to_be_visible()
         check(any(pet['stage']==stage+1 for pet in stored(page)['pets']['inventory']),f'UI supports explicit evolution to {label}')
-    page.locator('#stageFilter').select_option('3')
-    check(page.locator('[data-action="fusion"]').is_disabled(),'Gigante is final in the inventory UI')
+    inventory_control(page,'#stageFilter').select_option('3')
+    check(inspect_pet(page,page.locator('[data-pet]').first.get_attribute('data-pet')).locator('[data-action="fusion"]').is_disabled(),'Gigante is final in the inventory UI')
     context.close()
 
     # 500 instances are paginated; unrelated clock ticks preserve existing cards.
@@ -246,24 +247,24 @@ try:
     check(page.locator('[data-pet]').count()==48 and '500 / 500' in page.locator('#inventoryCapacity').inner_text(),'500-instance inventory renders only the current 48-card page')
     page.evaluate('window.firstPetCard=document.querySelector("[data-pet]")');page.wait_for_timeout(800)
     check(page.evaluate('window.firstPetCard===document.querySelector("[data-pet]")'),'runtime ticks do not reconstruct the inventory DOM')
-    page.locator('#petSearch').fill('geada')
+    inventory_control(page,'#petSearch').fill('geada')
     check(page.locator('[data-pet]').count()==20,'case-insensitive pet-name search filters actual instances')
-    page.locator('#rarityFilter').select_option('common')
+    inventory_control(page,'#rarityFilter').select_option('common')
     check(page.locator('#petsEmpty').is_visible(),'combined filters show a clear empty state')
-    page.locator('#rarityFilter').select_option('rare');page.locator('#eggFilter').select_option('cristalizado');page.locator('#stageFilter').select_option('1')
+    inventory_control(page,'#rarityFilter').select_option('rare');inventory_control(page,'#eggFilter').select_option('cristalizado');inventory_control(page,'#stageFilter').select_option('1')
     check(page.locator('[data-pet]').count()==20,'rarity, egg and stage filters work together')
-    page.locator('#petSearch').fill('');page.locator('#rarityFilter').select_option('all');page.locator('#eggFilter').select_option('all');page.locator('#stageFilter').select_option('all')
+    inventory_control(page,'#petSearch').fill('');inventory_control(page,'#rarityFilter').select_option('all');inventory_control(page,'#eggFilter').select_option('all');inventory_control(page,'#stageFilter').select_option('all')
     page.locator('#nextPets').click()
     check('Página 2 / 11' in page.locator('#petsPageNumber').inner_text(),'pagination keeps 500 individual instances navigable')
     check(page.evaluate('document.documentElement.scrollWidth<=innerWidth'),'280px full-inventory layout stays within the viewport')
     page.screenshot(path=str(RESULTS/'small-mobile-inventory.png'),full_page=True)
-    panel(page,'eggs');check(page.locator('[data-hatch="1"]').is_disabled() and page.locator('#autoOpenBtn').is_disabled(),'full inventory disables manual and automatic hatching')
+    panel(page,'eggs');check(page.locator('[data-hatch="1"]').is_disabled() and hatch_control(page,'#autoOpenBtn').is_disabled(),'full inventory disables manual and automatic hatching')
     context.close()
 
     # Migration and prestige preserve the current v4 economy, backups and the new pet team.
     original=seed(version=4,upgrades={'maquina':25},prestigeLevel=3,prestigeClaimed=3,prestigePoints=2,stellarBoostLevel=1,totalEarned=27000000,prestigeBaseline=27000000)
     context,page=open_game(browser,original)
-    check(page.evaluate("JSON.parse(localStorage.getItem('lollipopSave.legacy-v4'))")==original and stored(page)['version']==6,'real bootstrap creates the correct original v4 backup before writing schema6')
+    check(page.evaluate("JSON.parse(localStorage.getItem('lollipopSave.legacy-v4'))")==original and stored(page)['version']==7,'real bootstrap creates the correct original v4 backup before writing schema7')
     hatch(page,3);close_hatch(page);pet_control(page,'#equipBestBtn').click()
     team=copy.deepcopy(stored(page)['pets'])
     # Increase the fixture's historical threshold through the normal confirmed import UI.
@@ -286,16 +287,25 @@ try:
     check(json.loads(exported.read_text())['pets']==team,'export includes the complete permanent pet system')
     context.close()
 
-    context,page=open_game(browser,seed(pets=pets([('balinha',0)]*5)))
+    context,page=open_game(browser,seed(pets=pets([('balinha',0)]*5+[('balinha',1)]*4)))
     other=context.new_page();other.goto(BASE+'pages/pets.html',wait_until='networkidle');other.wait_for_function("document.body.dataset.readonly==='true'")
     check(other.locator('[data-hatch="1"]').is_disabled() and other.locator('#equipBestBtn').is_disabled(),'read-only tabs can inspect pets but cannot hatch or change equipment')
-    panel(other,'inventory');check(other.locator('[data-action="favorite"]').first.is_disabled(),'read-only tab cannot mutate favorite/lock/evolution controls')
+    panel(other,'inventory');check(inspect_pet(other,other.locator('[data-pet]').first.get_attribute('data-pet')).locator('[data-action="favorite"]').is_disabled(),'read-only tab cannot mutate favorite/lock/evolution controls')
     other.close();page.bring_to_front()
     # The actual PWA update must freeze the runtime and stop an active auto session.
     page.evaluate('navigator.serviceWorker.ready.then(()=>true)');page.wait_for_function('!!navigator.serviceWorker.controller')
-    page.locator('#autoOpenBtn').click();expect(page.locator('#stopAutoBtn')).to_be_visible()
+    page.wait_for_function("document.querySelector('#pwaUpdate').dataset.ready==='false'")
+    panel(page,'inventory');page.once('dialog',lambda d:d.accept());page.locator('#autoFusionToggle').click();panel(page,'eggs')
+    hatch(page,1);close_hatch(page)
+    page.wait_for_function("JSON.parse(localStorage.lollipopSave).pets.stats.fused===1")
+    middle_ids={p['id'] for p in stored(page)['pets']['inventory'] if p['stage']==1}
+    assert len(middle_ids)==5 # Outputs must not have chained into another fusion.
     CURRENT='B';page.evaluate('navigator.serviceWorker.getRegistration().then(r=>r.update())')
     expect(page.locator('#pwaUpdate')).to_be_visible(timeout=15000)
+    check(page.locator('#pwaUpdate').get_attribute('data-ready')=='true','real waiting update marks the guard even before activation')
+    before_waiting_hatch=stored(page)['pets']['stats']['hatched']
+    hatch_control(page,'#autoOpenBtn').click();expect(page.locator('#stopAutoBtn')).to_be_visible()
+    check(stored(page)['pets']['stats']['hatched']==before_waiting_hatch+1 and stored(page)['pets']['stats']['fused']==1 and {p['id'] for p in stored(page)['pets']['inventory'] if p['stage']==1}==middle_ids,'REAL waiting Service Worker blocks auto-fusion of five eligible Medium IDs while the exact hatch still commits')
     page.evaluate("document.addEventListener('lollipop:state',event=>{if(event.detail.updating)sessionStorage.setItem('pets.at-update',String(JSON.parse(localStorage.lollipopSave).pets.stats.hatched))})")
     page.locator('#pwaUpdate [data-update]').click()
     page.wait_for_function("id=>document.querySelector('meta[name=lollipop-release]')?.content===id",arg=RELEASE_B);ready(page)
@@ -303,8 +313,16 @@ try:
     check(stored(page)['pets']['stats']['hatched']==count and page.locator('#stopAutoBtn').is_hidden(),'real controller activation stops auto and never resumes it after reload')
     check(int(page.evaluate("sessionStorage.getItem('pets.at-update')"))==count,'PWA update preserves exactly the last safely saved auto batch')
     context.set_offline(True);page.reload(wait_until='networkidle');ready(page)
+    # Chromium 151 resets navigator.onLine on reload despite blocked requests.
+    # Control BOTH native browser signals (no JS getter override), then verify
+    # the new document observes offline before testing the consumption guard.
+    offline_network=context.new_cdp_session(page)
+    offline_network.send('Network.overrideNetworkState',{'offline':True,'latency':0,'downloadThroughput':-1,'uploadThroughput':-1})
+    page.wait_for_function('navigator.onLine===false')
     hatch(page,2);close_hatch(page)
     check(stored(page)['pets']['stats']['hatched']==count+2,'all Pets modules and transactions remain playable offline in a subpath PWA')
+    offline_pets=stored(page)['pets']
+    check(offline_pets['stats']['fused']==1 and {p['id'] for p in offline_pets['inventory'] if p['stage']==1}==middle_ids,'real offline mode preserves the five eligible Medium IDs despite saved auto-fusion opt-in; diagnostics='+json.dumps({'pets':offline_pets,'expectedMediumIds':sorted(middle_ids),'online':page.evaluate('navigator.onLine'),'update':page.locator('#pwaUpdate').get_attribute('data-ready')}))
     for name in ['collection','pets']:
         page.goto(BASE+f'pages/{name}.html',wait_until='networkidle')
     page.locator('[data-panel=team]').click()
@@ -322,7 +340,7 @@ try:
     # Balance mechanics through real UI / runtime transactions, on mobile.
     initial=pets([('balinha',0)]*125+[('fenix',0),('coruja_prismatica',3),('guardiao_aurora',3)])
     context,page=open_game(browser,seed(version=5,pets=initial),width=390)
-    check(stored(page)['version']==6 and page.evaluate("JSON.parse(localStorage.getItem('lollipopSave.legacy-v5')).version")==5,'v5 migrates to v6 only after preserving the original raw save')
+    check(stored(page)['version']==7 and page.evaluate("JSON.parse(localStorage.getItem('lollipopSave.legacy-v5')).version")==5,'v5 migrates to v7 only after preserving the original raw save')
     for mode in ['combat','prestige','capacity']:
         pet_control(page,'#teamStrategy').select_option(mode);pet_control(page,'#equipBestBtn').click()
         check(stored(page)['pets']['strategy']==mode and len(set(stored(page)['pets']['equipped']))==3,mode+' specialization is a working Equip Best action')
@@ -332,13 +350,13 @@ try:
     check(stored(page)['pets']['equipped']==saved_team,'preset restores the team in one persistent action')
     panel(page,'inventory')
     other=next(pet['id'] for pet in stored(page)['pets']['inventory'] if pet['id'] not in saved_team)
-    page.locator(f'[data-pet="{other}"] [data-action="equip"]').click()
+    pet_action(page,other,'equip')
     expect(page.locator('#replacePetDialog')).to_be_visible();page.locator('[data-replace]').first.click()
     check(other in stored(page)['pets']['equipped'] and len(stored(page)['pets']['equipped'])==3,'Substituir swaps a full team without a manual unequip gap')
     # Leave candy sources unequipped to protect the no-consent default.
     pet_control(page,'#teamStrategy').select_option('capacity');pet_control(page,'#equipBestBtn').click()
     panel(page,'inventory')
-    page.locator('.pet-bulk summary').click();page.locator('#petReserve').fill('5');page.locator('#savePetReserve').click()
+    inventory_control(page,'.pet-bulk summary').click();page.locator('#petReserve').fill('5');page.locator('#savePetReserve').click()
     check(stored(page)['pets']['reserveNormals']==5,'Normal reserve is persisted explicitly')
     page.locator('#bulkSpecies').select_option('balinha');page.locator('#bulkChain').check();page.locator('#reviewBulkFusion').click()
     expect(page.locator('#fusionDialog')).to_be_visible()

@@ -37,6 +37,7 @@ export function initializeUpdates(runtime) {
   banner.className = "pwa-update";
   banner.setAttribute("aria-label", "Atualização do jogo");
   banner.hidden = true;
+  banner.dataset.ready = 'checking';
   banner.innerHTML = '<p role="status" aria-live="polite" aria-atomic="true"></p><div><button type="button" data-update>Atualizar agora</button><button type="button" data-later>Depois</button></div>';
   document.body.prepend(banner);
   const message = banner.querySelector("p");
@@ -81,16 +82,22 @@ export function initializeUpdates(runtime) {
     if (!registration || disposed || busy || prepared) return;
     try {
       const worker = registration.waiting || sw.controller;
+      if (registration.waiting) banner.dataset.ready = 'checking';
       const release = await identify(worker);
-      if (!release || disposed || busy || prepared) return;
+      if (!release || disposed || busy || prepared) {
+        if (!worker && !registration.waiting) banner.dataset.ready = 'false';
+        return;
+      }
       if (worker !== (registration.waiting || sw.controller)) { inspect(); return; }
       if (release.id === documentRelease) {
         worker.postMessage({ type: "PWA_READY", releaseId: documentRelease });
         candidate = null;
+        banner.dataset.ready = 'false';
         banner.hidden = true;
         return;
       }
       candidate = { ...release, worker };
+      banner.dataset.ready = 'true';
       watch(worker);
       show("Uma nova versão do Lollipop Clicker está pronta. Seu progresso será salvo antes de atualizar.");
     } catch { /* An offline update check must never interrupt the running game. */ }
@@ -106,6 +113,7 @@ export function initializeUpdates(runtime) {
       if (worker.state === "redundant" && candidate?.worker === worker) {
         if (prepared) cancel(prepared, "windows-changed");
         candidate = null;
+        banner.dataset.ready = 'false';
         banner.hidden = true;
       }
       if (worker.state === "installed" || worker.state === "activated") setTimeout(inspect, 0);

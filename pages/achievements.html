@@ -20,29 +20,16 @@
     <link rel="stylesheet" href="../css/animations.css" />
     <link rel="stylesheet" href="../css/pages.css" />
     <link rel="stylesheet" href="../css/responsive.css" />
-    <link rel="stylesheet" href="../css/ui-system.css" />
+    <link rel="stylesheet" href="../css/ui-system.css" /><link rel="stylesheet" href="../css/cartoon.css" />
   </head>
   <body data-page="achievements">
     <a class="skip-link" href="#pageContent">Pular para o conteúdo</a>
     <header id="gameHeader"></header>
     <main id="pageContent" class="page-scene">
-      <div class="page-heading">
-        <div>
-          <a class="back-link" href="../index.html">← Voltar ao mundo</a>
-          <p class="eyebrow">ÁLBUM DO AVENTUREIRO</p>
-          <h1 class="page-title">Pequenas grandes conquistas</h1>
-          <details class="page-intro">
-            <summary aria-label="Sobre este lugar">i</summary>
-            <p class="page-lead">
-              Cada clique conta uma história. Complete seu álbum e celebre cada
-              descoberta deste mundo doce.
-            </p>
-          </details>
-        </div>
-      </div>
+      <div id="sanctuaryHeader"></div>
       <section class="achievement-album" aria-labelledby="albumTitle">
         <div class="album-heading">
-          <h2 id="albumTitle">Seu álbum de feitos</h2>
+          <h2 id="albumTitle" class="sr-only">Seu álbum de feitos</h2>
           <p id="achievementSummary" class="collection-counter">
             0 de 13 conquistas desbloqueadas
           </p>
@@ -54,6 +41,12 @@
           aria-label="Categorias de conquistas"
         ></div>
         <div id="achievementsList" class="achievement-grid"></div>
+        <section id="achievementDetail" class="achievement-selected" aria-labelledby="achievementTitle">
+          <span id="achievementDetailArt" class="achievement-detail-art"></span>
+          <div><h2 id="achievementTitle"></h2><p id="achievementRequirement"></p>
+          <div id="achievementProgress" class="progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span></span></div>
+          <p id="achievementProgressLabel"></p><strong id="achievementStatus"></strong></div>
+        </section>
         <p class="page-note">
           As conquistas são permanentes: continuam com você mesmo depois de
           renascer com prestígio.

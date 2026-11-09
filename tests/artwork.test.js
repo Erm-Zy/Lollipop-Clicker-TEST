@@ -25,7 +25,7 @@ test("art registry uses the existing catalog IDs and numeric boss/world selector
 test("configured artwork is local, exists on disk and can be packaged offline", () => {
   const entries = [
     ARTWORK.main,
-    ...["flavors", "skins", "buildings", "bosses", "worlds"].flatMap((group) =>
+    ...["flavors", "skins", "buildings", "bosses", "worlds", "pets", "eggs", "locations"].flatMap((group) =>
       Object.values(ARTWORK[group]),
     ),
   ];

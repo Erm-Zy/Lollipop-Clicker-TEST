@@ -64,6 +64,12 @@ try:
   check(p.locator('body').get_attribute('data-page')=='home','Back/Forward restores overlay without replacing home/runtime')
   for _ in range(14):
    p.keyboard.press('Tab');check(p.evaluate('document.querySelector("#gamePanel").contains(document.activeElement)'),'native modal keeps keyboard focus inside')
+  # Force the actual async native close event to arrive after history restores
+  # the overlay. The original real Back/Forward + 14 Tab assertions stay above.
+  p.evaluate("window.lateCloseObserved=false;document.querySelector('#gamePanel').addEventListener('close',()=>lateCloseObserved=true,{once:true});history.replaceState(null,'',location.pathname);window.dispatchEvent(new PopStateEvent('popstate'));history.replaceState({lollipopPanel:'shop'},'','#shop');window.dispatchEvent(new PopStateEvent('popstate'));")
+  p.wait_for_function('lateCloseObserved')
+  p.evaluate('()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)))')
+  check(p.evaluate("document.querySelector('#gamePanel').open&&history.state?.lollipopPanel==='shop'&&document.querySelector('#gamePanel').contains(document.activeElement)"),'queued internal close cannot dismiss a newly restored overlay or steal focus')
   p.evaluate('document.querySelector("#gamePanel").close()');expect(p.locator('#gamePanel')).not_to_be_visible();p.wait_for_function('!history.state?.lollipopPanel')
   check(p.locator('body').get_attribute('data-page')=='home','native dialog close (Android Back hook) removes history entry and keeps home')
   p.goto(BASE+'index.html#shop');ready(p);expect(p.locator('#gamePanel')).to_be_visible();p.reload();ready(p);expect(p.locator('#gamePanel')).to_be_visible();close(p)
@@ -98,7 +104,7 @@ try:
    p.locator(f'[data-category="{category}"]').click();p.locator(f'[data-item="{id}"]').click()
   s=saved(p);check((s['activeFlavor'],s['activeSkin'],s['activeTheme'],s['activeParticles'])==('uva','neon','gold','ice'),'all four recipe categories equip independently')
   p.reload();ready(p);check(saved(p)['activeFlavor']=='uva' and saved(p)['activeTheme']=='gold','historic save keys survive recipe rename/reload')
-  p.goto(BASE+'pages/prestige.html');ready(p);check(p.locator('[data-node]').count()==9,'all nine independent prestige choices remain')
+  p.goto(BASE+'pages/prestige.html');ready(p);check(set(p.locator('[data-node]').evaluate_all('(nodes)=>nodes.map(n=>n.dataset.node)'))==set(['stellar','pets',*fixtures['fresh']['upgrades']]),'all nine original independent prestige choices remain alongside the pet slot upgrade')
   points=saved(p)['prestigePoints'];p.locator('[data-node=maquina]').click();p.locator('[data-expand=maquina]').click()
   check(saved(p)['prestigePoints']==points-2 and saved(p)['factoryExpansions']['maquina']==1,'selected prestige detail performs real independent purchase')
   p.once('dialog',lambda d:d.dismiss());p.locator('#prestigeBtn').click();check(saved(p)['prestigePoints']==points-2,'rebirth remains explicitly confirmed and cancellable')
@@ -110,7 +116,7 @@ try:
   c,p=open_game(b,seed);p.goto(BASE+'pages/pets.html');ready(p);p.locator('[data-egg=celestial]').click()
   batch=p.locator('[data-hatch="2"]');check('10 bi' in batch.inner_text() and '10.000.000.000' in batch.get_attribute('aria-label'),'10-billion batch uses short price and exact accessible amount')
   check(batch.evaluate('(a)=>a.scrollWidth<=a.clientWidth'),'large egg price fits its actual button')
-  out=ROOT/'docs/screenshots/game-hud/after';out.mkdir(parents=True,exist_ok=True);p.screenshot(path=str(out/'390x844-late-10bi-eggs.png'))
+  out=ROOT/'test-results/hud';out.mkdir(parents=True,exist_ok=True);p.screenshot(path=str(out/'390x844-late-10bi-eggs.png'))
   p.locator('#openTeamBtn').click();check(p.locator('#petTeam svg').count()==3,'equipped portraits precede optional team tools')
   c.close()
   seed=copy.deepcopy(fixtures['fresh']);seed.update(pirulitos=4999999999,totalEarned=1e15,prestigeLevel=10,prestigeClaimed=10);seed['pets']['unlockedEggs']=['acucarado','celestial']

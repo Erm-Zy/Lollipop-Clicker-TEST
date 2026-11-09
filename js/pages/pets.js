@@ -2,13 +2,21 @@ import { cost, exact } from "../format.js";
 import { bootPage, format, setText } from "../ui/shared.js";
 import { getWorldStage, WORLD_CHAPTERS } from "../world.js";
 import { getTotalUpgradesCount } from "../progression.js";
+import { getEquippedPetSlotCapacity, getPetSlotCost } from "../pets/slots.js";
+import { sanctuaryHeader, pawSVG } from "../ui/cartoon.js";
+import {
+  canAutoFuse,
+  hatchWithAutoFusion,
+  setAutoFusion,
+  safeFusionQuote,
+  fuseEligibleDuplicates,
+} from "../pets/auto-fusion.js";
 import {
   EGGS,
   SPECIES,
   RARITIES,
   STAGES,
   PET_CAPACITY,
-  PET_SLOTS,
   DISCOVERIES,
   STRATEGIES,
   discoveryKey,
@@ -17,7 +25,6 @@ import {
 } from "../pets/catalog.js";
 import {
   eggQuote,
-  hatchPets,
   equipPet,
   unequipPet,
   equipBest,
@@ -43,6 +50,7 @@ import { UPGRADES_DATA } from "../data.js";
 import { petSVG, eggSVG } from "../pets/art.js";
 import {
   inventoryCard,
+  inventoryDetail,
   resultCard,
   percent,
   bonusLabel,
@@ -51,6 +59,7 @@ import {
 
 const runtime = await bootPage("pets");
 const byId = (id) => document.getElementById(id);
+byId("sanctuaryHeader").innerHTML = sanctuaryHeader("pets");
 const money = { format: cost };
 const selected = new Set();
 let eggId = "acucarado",
@@ -62,6 +71,11 @@ let eggId = "acucarado",
   bulkReview = null,
   replaceId = null,
   returnFocus = null;
+let detailId = null,
+  detailOpener = null,
+  detailSignature = "",
+  safeReview = null;
+let safeBusy = false;
 let previousInventory,
   previousEquipped,
   previousAvailability,
@@ -77,6 +91,8 @@ try {
 }
 byId("skipHatchAnimation").checked = skipAnimation;
 const filters = {
+  subset: "all",
+  speciesId: "all",
   search: "",
   rarity: "all",
   egg: "all",
@@ -106,7 +122,7 @@ STAGES.forEach((stage, index) =>
 byId("eggSelection").innerHTML = Object.entries(EGGS)
   .map(
     ([id, egg]) =>
-      `<button type="button" class="pet-egg" data-egg="${id}" aria-pressed="${id === eggId}" aria-label="${egg.name}, ${exact(egg.price)} doces">${eggSVG(id)}<strong>${egg.name}</strong><span>${money.format(egg.price)} doces</span><small data-egg-state></small></button>`,
+      `<button type="button" class="pet-egg" data-egg="${id}" aria-pressed="${id === eggId}" aria-label="${egg.name}, ${exact(egg.price)} doces">${eggSVG(id)}<strong>${egg.name}</strong><span>${money.format(egg.price)}</span><small data-egg-state></small></button>`,
   )
   .join("");
 byId("hatchButtons").innerHTML = [1, 2, 3]
@@ -121,6 +137,8 @@ function eggRequirement(egg) {
 }
 for (const [id, species] of Object.entries(SPECIES))
   byId("bulkSpecies").add(new Option(species.name, id));
+for (const [id, species] of Object.entries(SPECIES))
+  byId("speciesFilter").add(new Option(species.name, id));
 function canAct() {
   return runtime.writable && runtime.canSave && !runtime.updating;
 }
@@ -137,6 +155,14 @@ function preferenceAnimation() {
 }
 function showOdds() {
   const egg = EGGS[eggId];
+  byId("selectedEggArt").innerHTML = eggSVG(eggId);
+  byId("eggPetPreview").innerHTML = hatchTable(eggId)
+    .slice(0, 3)
+    .map(
+      (row) =>
+        `<span>${petSVG(row.species.id)}<small>${row.species.name} · ${String(row.percent).replace(".", ",")}%</small></span>`,
+    )
+    .join("");
   setText("selectedEggName", egg.name);
   setText("oddsCaption", `${egg.name} · total 100%`);
   setText(
@@ -154,6 +180,21 @@ function showOdds() {
 }
 function renderControls(state) {
   const available = canAct();
+  byId("confirmSafeFusion").disabled = !available || safeBusy || !safeReview;
+  updateDialogNotice("safeFusionNotice");
+  byId("autoFusionToggle").checked = state.pets.autoFusionEnabled;
+  byId("autoFusionToggle").disabled = !available;
+  byId("reviewSafeFusion").disabled = !available;
+  const checkingUpdate = document.querySelector(
+    '#pwaUpdate[data-ready="checking"]',
+  );
+  const fusionLabel = state.pets.autoFusionEnabled
+    ? checkingUpdate
+      ? "Auto-fusão ligada · aguardando verificação de versão."
+      : "Auto-fusão ligada · só após abrir ovos, com jogo ativo e online."
+    : "Auto-fusão desligada.";
+  setText("autoFusionStatus", fusionLabel);
+  setText("eggAutoFusionStatus", fusionLabel);
   for (const id of [
     "savePetPreset",
     "loadPetPreset",
@@ -216,7 +257,13 @@ function renderControls(state) {
   byId("teamStrategy").disabled = !available;
   byId("teamStrategy").value = state.pets.strategy;
   byId("equipBestBtn").disabled = !available || !state.pets.inventory.length;
-  setText("strategyExplanation", explanations[state.pets.strategy]);
+  setText(
+    "strategyExplanation",
+    explanations[state.pets.strategy] +
+      (getEquippedPetSlotCapacity(state) > 3
+        ? " Em inventários grandes, a busca de 4/5 espaços é limitada e pode não encontrar a melhor combinação global."
+        : ""),
+  );
   byId("fuseSelectedBtn").disabled = !available || selected.size !== 5;
   setText(
     "fusionSelectionCount",
@@ -227,7 +274,15 @@ function renderControls(state) {
 }
 function renderTeam(state) {
   const bonuses = getPetBonuses(state);
-  setText("teamCount", `${state.pets.equipped.length} / ${PET_SLOTS}`);
+  const capacity = getEquippedPetSlotCapacity(state);
+  setText("teamCount", `${state.pets.equipped.length} / ${capacity}`);
+  const slotLink = byId("nextPetSlot"),
+    slotCost = getPetSlotCost(state);
+  slotLink.hidden = !Number.isFinite(slotCost);
+  slotLink.textContent =
+    state.prestigePoints >= slotCost
+      ? "+1 espaço disponível no Prestígio →"
+      : `Ampliar equipe · ${cost(slotCost)} PP →`;
   setText(
     "teamBonus",
     `Equipe: ${bonusLabel(bonuses)}. Apenas equipados dão bônus; fábricas acima da capacidade ficam inativas.`,
@@ -238,14 +293,23 @@ function renderTeam(state) {
   const signature = JSON.stringify([
     pets.map((pet) => [pet.id, pet.speciesId, pet.stage]),
     canAct(),
+    capacity,
   ]);
   if (signature === teamSignature) return;
   teamSignature = signature;
-  byId("petTeam").innerHTML = Array.from({ length: PET_SLOTS }, (_, index) => {
+  byId("activeTeamPortraits").innerHTML = pets.length
+    ? pets
+        .map(
+          (p) =>
+            `<button type="button" data-team-detail="${p.id}" aria-label="Ver ${SPECIES[p.speciesId].name}">${petSVG(p.speciesId, p.stage)}</button>`,
+        )
+        .join("")
+    : `<span class="empty-team-icon">${pawSVG()}</span><small>Seu primeiro amigo espera!</small>`;
+  byId("petTeam").innerHTML = Array.from({ length: capacity }, (_, index) => {
     const pet = pets[index];
     return pet
-      ? `<article class="pet-team-slot">${petSVG(pet.speciesId, pet.stage)}<div><strong>${SPECIES[pet.speciesId].name}</strong><p>${STAGES[pet.stage].name}</p>${bonusChips(petPower(pet))}<button type="button" class="item-preview" data-unequip="${pet.id}" ${!canAct() ? "disabled" : ""}>Retirar</button></div></article>`
-      : `<div class="pet-team-slot empty">Espaço ${index + 1}<br />Equipe um amigo</div>`;
+      ? `<article class="pet-team-slot"><button type="button" class="team-portrait" data-team-detail="${pet.id}" aria-label="Detalhes de ${SPECIES[pet.speciesId].name}">${petSVG(pet.speciesId, pet.stage)}<strong>${SPECIES[pet.speciesId].name}</strong><span class="stage-chip">${STAGES[pet.stage].name}</span></button><button type="button" class="item-preview" data-unequip="${pet.id}" ${!canAct() ? "disabled" : ""}>Retirar</button></article>`
+      : `<div class="pet-team-slot empty">${pawSVG()}<strong>Espaço ${index + 1}</strong><span>Equipe um amigo</span></div>`;
   }).join("");
 }
 function renderInventory(state, force = false) {
@@ -274,6 +338,7 @@ function renderInventory(state, force = false) {
     .map((pet) =>
       inventoryCard(pet, state.pets, {
         selected: selected.has(pet.id),
+        inspected: detailId === pet.id,
         writable: canAct(),
       }),
     )
@@ -315,12 +380,104 @@ function renderCatalog(state) {
               discovered.has(discoveryKey(pet.id, stage)),
             ),
             found = stages.some(Boolean);
-          return `<article class="pet-catalog-entry ${stages.every(Boolean) ? "complete" : ""}" data-species="${pet.id}">${petSVG(pet.id, 0, !found)}<h4>${found ? pet.name : "??? · Amigo misterioso"}</h4><p>${RARITIES[pet.rarity].mark} ${RARITIES[pet.rarity].name}${stages.every(Boolean) ? " · ✓ Coleção completa" : ""}</p><ul class="pet-evolutions">${STAGES.map((stage, index) => `<li class="${stages[index] ? "found" : ""}" aria-label="${stage.name}: ${stages[index] ? "descoberto" : "não descoberto"}">${stages[index] ? "✓" : "?"} ${stage.name}</li>`).join("")}</ul></article>`;
+          return `<article class="pet-catalog-entry ${stages.every(Boolean) ? "complete" : ""}" data-species="${pet.id}">${petSVG(pet.id, 0, !found)}<h4>${found ? pet.name : "??? · Amigo misterioso"}</h4><p>${RARITIES[pet.rarity].mark} ${RARITIES[pet.rarity].name}${stages.every(Boolean) ? " · ✓ Coleção completa" : ""}</p><ul class="pet-evolutions">${STAGES.map((stage, index) => `<li class="${stages[index] ? "found" : ""}" aria-label="${stage.name}: ${stages[index] ? "descoberto" : "não descoberto"}"><button type="button" data-discovery="${pet.id}:${index}" aria-pressed="false" aria-controls="discoveryDetail" aria-label="${found ? pet.name : "Amigo misterioso"}, ${stage.name}, ${stages[index] ? "descoberto" : "não descoberto"}">${stages[index] ? "✓" : "?"} ${stage.name}</button></li>`).join("")}</ul></article>`;
         })
         .join("")}</div></section>`;
     })
     .join("");
 }
+function renderDetail(state) {
+  if (!byId("petDetailDialog").open || !detailId) return;
+  updateDialogNotice("petDetailNotice");
+  const pet = state.pets.inventory.find((p) => p.id === detailId);
+  if (!pet) {
+    byId("petDetailDialog").close();
+    return;
+  }
+  const signature = JSON.stringify([
+    pet,
+    state.pets.equipped,
+    getEquippedPetSlotCapacity(state),
+    canAct(),
+    selected.has(detailId),
+  ]);
+  if (signature === detailSignature) return;
+  const action = byId("petDetail").contains(document.activeElement)
+    ? document.activeElement.dataset.action
+    : null;
+  detailSignature = signature;
+  byId("petDetail").innerHTML = inventoryDetail(
+    pet,
+    state.pets,
+    getEquippedPetSlotCapacity(state),
+    { selected: selected.has(detailId), writable: canAct() },
+  );
+  if (action)
+    byId("petDetail")
+      .querySelector(`[data-action="${action}"]`)
+      ?.focus({ preventScroll: true });
+}
+function inspectPet(id, trigger) {
+  auto.stop("Abertura parada para ver um companheiro.");
+  byId("petDetailFeedback").hidden = true;
+  detailId = id;
+  detailOpener = trigger;
+  detailSignature = "";
+  byId("petDetailDialog").showModal();
+  renderDetail(runtime.state);
+  byId("petDetailTitle").focus({ preventScroll: true });
+  for (const b of byId("petInventory").querySelectorAll("[data-inspect]"))
+    b.setAttribute("aria-pressed", String(b.dataset.inspect === id));
+}
+function restorePetFocus(preferred) {
+  const options = [
+    preferred,
+    ...document.querySelectorAll(
+      `[data-inspect="${detailId}"],[data-team-detail="${detailId}"]`,
+    ),
+    document.querySelector('[data-panel][aria-pressed="true"]'),
+  ];
+  options
+    .find((el) => el?.isConnected && !el.disabled && el.getClientRects().length)
+    ?.focus({ preventScroll: true });
+}
+function updateDialogNotice(id) {
+  const message = runtime.updating
+    ? "Atualização em andamento. Seu progresso está protegido."
+    : !runtime.writable
+      ? "Modo de consulta: outra janela ou uma pausa está protegendo o jogo."
+      : !runtime.canSave
+        ? "Save protegido. Feche os detalhes e use os Ajustes para exportar ou recuperar."
+        : document.querySelector('#pwaUpdate[data-ready="true"]')
+          ? "Nova versão pronta. Feche os detalhes para atualizar com segurança."
+          : "";
+  const changed = byId(id).textContent !== message;
+  setText(id, message);
+  byId(id).hidden = !message;
+  if (message && changed && byId(id).closest("dialog")?.open)
+    byId(id).scrollIntoView({ block: "nearest" });
+}
+document.addEventListener("lollipop:toast", (event) => {
+  if (!byId("petDetailDialog").open) return;
+  setText("petDetailFeedback", event.detail.message);
+  byId("petDetailFeedback").hidden = false;
+  byId("petDetailFeedback").scrollIntoView({ block: "nearest" });
+  byId("toast").hidden = true;
+});
+byId("petInventory").addEventListener("click", (event) => {
+  const b = event.target.closest("[data-inspect]");
+  if (b) inspectPet(b.dataset.inspect, b);
+});
+document.addEventListener("click", (event) => {
+  const b = event.target.closest("[data-team-detail]");
+  if (b) inspectPet(b.dataset.teamDetail, b);
+});
+byId("closePetDetail").addEventListener("click", () =>
+  byId("petDetailDialog").close(),
+);
+byId("petDetailDialog").addEventListener("close", () => {
+  if (!document.querySelector("dialog[open]")) restorePetFocus(detailOpener);
+});
 function render(state) {
   setText("capacityCount", `${state.pets.inventory.length}/${PET_CAPACITY}`);
   setText(
@@ -343,13 +500,25 @@ function render(state) {
   renderTeam(state);
   renderInventory(state);
   renderCatalog(state);
+  renderDetail(state);
 }
 function openBatch(id, count, automatic = false) {
   if (!canAct() || manualBusy || document.hidden) return false;
   if (!automatic) manualBusy = true;
   const requestId = crypto.randomUUID?.() || `${Date.now()}-${Math.random()}`;
   const result = transaction(
-    (state, now) => hatchPets(state, id, count, now, { requestId }),
+    (state, now) =>
+      hatchWithAutoFusion(state, id, count, now, {
+        requestId,
+        autoFusionAllowed: canAutoFuse(runtime, {
+          hidden: document.hidden,
+          online: navigator.onLine,
+          busy: fusionBusy || byId("safeFusionDialog").open,
+          updatePending: Boolean(
+            document.querySelector('#pwaUpdate:not([data-ready="false"])'),
+          ),
+        }),
+      }),
     "win",
   );
   if (!result) {
@@ -358,6 +527,10 @@ function openBatch(id, count, automatic = false) {
     return false;
   }
   const cards = result.received.map(resultCard).join("");
+  if (result.autoFusion)
+    runtime.notify(
+      `${result.autoFusion.fusions} fusões realizadas · ${result.autoFusion.freeSlots} espaços livres. Resultados originais do lote salvos no histórico de descobertas.`,
+    );
   if (automatic) {
     byId("autoResults").hidden = false;
     byId("autoPetResults").innerHTML = cards;
@@ -384,6 +557,7 @@ const auto = createAutoHatcher({
   },
 });
 function reviewFusion(ids, trigger) {
+  if (byId("petDetailDialog").open) byId("petDetailDialog").close();
   auto.stop("Abertura parada para revisar a fusão.");
   const quote = fusionQuote(runtime.state.pets, ids);
   if (!quote.ok) {
@@ -392,7 +566,7 @@ function reviewFusion(ids, trigger) {
   }
   bulkReview = null;
   fusionIds = [...ids];
-  returnFocus = trigger;
+  returnFocus = trigger?.closest("#petDetail") ? detailOpener : trigger;
   fusionBusy = false;
   setText("confirmFusionBtn", "Confirmar fusão de 5 pets");
   setText("fusionTitle", `Evoluir ${quote.species.name}`);
@@ -494,10 +668,10 @@ byId("petTeam").addEventListener("click", (event) => {
   if (button && !button.disabled)
     transaction((state, now) => unequipPet(state, button.dataset.unequip, now));
 });
-byId("petInventory").addEventListener("click", (event) => {
+byId("petDetail").addEventListener("click", (event) => {
   const button = event.target.closest("[data-action]");
   if (!button || button.disabled) return;
-  const id = button.closest("[data-pet]").dataset.pet,
+  const id = button.closest("[data-instance]").dataset.instance,
     pet = runtime.state.pets.inventory.find((item) => item.id === id);
   if (button.dataset.action === "fusion")
     return reviewFusion(
@@ -507,10 +681,12 @@ byId("petInventory").addEventListener("click", (event) => {
   if (
     button.dataset.action === "equip" &&
     !runtime.state.pets.equipped.includes(id) &&
-    runtime.state.pets.equipped.length >= PET_SLOTS
+    runtime.state.pets.equipped.length >=
+      getEquippedPetSlotCapacity(runtime.state)
   ) {
     replaceId = id;
-    returnFocus = button;
+    returnFocus = detailOpener;
+    byId("petDetailDialog").close();
     byId("replacePetOptions").innerHTML = runtime.state.pets.equipped
       .map(
         (old) =>
@@ -528,12 +704,13 @@ byId("petInventory").addEventListener("click", (event) => {
       : togglePetFlag(state, id, button.dataset.action),
   );
 });
-byId("petInventory").addEventListener("change", (event) => {
+byId("petDetail").addEventListener("change", (event) => {
   if (!event.target.matches("[data-select]")) return;
   const id = event.target.dataset.select;
   if (event.target.checked) selected.add(id);
   else selected.delete(id);
   renderControls(runtime.state);
+  renderInventory(runtime.state, true);
 });
 byId("fuseSelectedBtn").addEventListener("click", (event) =>
   reviewFusion([...selected], event.currentTarget),
@@ -548,6 +725,7 @@ for (const [id, key] of [
   ["eggFilter", "egg"],
   ["stageFilter", "stage"],
   ["petSort", "sort"],
+  ["speciesFilter", "speciesId"],
 ])
   byId(id).addEventListener(
     id === "petSearch" ? "input" : "change",
@@ -570,9 +748,8 @@ byId("cancelFusionBtn").addEventListener("click", () =>
   byId("fusionDialog").close(),
 );
 byId("fusionDialog").addEventListener("close", () => {
-  (returnFocus?.isConnected ? returnFocus : byId("inventoryTitle")).focus({
-    preventScroll: true,
-  });
+  fusionBusy = false;
+  restorePetFocus(returnFocus);
 });
 byId("confirmFusionBtn").addEventListener("click", () => {
   if (fusionBusy || !canAct()) return;
@@ -666,9 +843,7 @@ byId("cancelReplacePet").addEventListener("click", () =>
   byId("replacePetDialog").close(),
 );
 byId("replacePetDialog").addEventListener("close", () => {
-  (returnFocus?.isConnected ? returnFocus : byId("inventoryTitle")).focus({
-    preventScroll: true,
-  });
+  restorePetFocus(returnFocus);
 });
 byId("replacePetOptions").addEventListener("click", (event) => {
   const button = event.target.closest("[data-replace]");
@@ -758,6 +933,89 @@ byId("reviewBulkFusion").addEventListener("click", (event) => {
 showOdds();
 runtime.subscribe(render);
 
+for (const b of document.querySelectorAll("[data-pet-filter]"))
+  b.addEventListener("click", () => {
+    filters.subset = b.dataset.petFilter;
+    page = 0;
+    for (const option of document.querySelectorAll("[data-pet-filter]"))
+      option.setAttribute("aria-pressed", String(option === b));
+    renderInventory(runtime.state, true);
+  });
+byId("autoFusionToggle").addEventListener("change", (event) => {
+  const enabled = event.target.checked;
+  const confirmed =
+    !enabled ||
+    confirm(
+      "Ligar auto-fusão após abrir ovos? Cinco cópias iguais livres serão consumidas permanentemente. Favoritos, bloqueados, equipados, conjuntos e reserva ficam protegidos. Sem encadear resultados. Só com jogo ativo, online e save disponível. Você pode desligar a qualquer momento.",
+    );
+  if (confirmed)
+    transaction((state) => setAutoFusion(state, enabled, { confirmed }), null);
+  renderControls(runtime.state);
+});
+byId("reviewSafeFusion").addEventListener("click", (event) => {
+  auto.stop("Abertura parada para revisar fusões.");
+  const quote = safeFusionQuote(runtime.state.pets);
+  if (!quote.ok)
+    return runtime.notify(
+      "Nenhum grupo de cinco livre após as proteções, conjuntos e reserva.",
+    );
+  safeReview = { signature: quote.signature, opener: event.currentTarget };
+  safeBusy = false;
+  byId("safeFusionPreview").innerHTML =
+    `<p>${quote.fusions} fusões · ${quote.consumed.length} cópias consumidas · ${quote.freeSlots} espaços livres depois.</p><details><summary>Ver todos os IDs e resultados</summary><ul>${quote.steps
+      .flatMap((s) => s.quote.operations)
+      .map(
+        (op) =>
+          `<li>${op.ids.join(", ")} → ${SPECIES[op.output.speciesId].name} ${STAGES[op.output.stage].name} (${op.output.id})</li>`,
+      )
+      .join("")}</ul></details>`;
+  setText("safeFusionError", "");
+  byId("confirmSafeFusion").disabled = !canAct();
+  byId("safeFusionDialog").showModal();
+});
+byId("cancelSafeFusion").addEventListener("click", () =>
+  byId("safeFusionDialog").close(),
+);
+byId("safeFusionDialog").addEventListener("close", () => {
+  safeReview?.opener?.focus({ preventScroll: true });
+  safeReview = null;
+  safeBusy = false;
+});
+byId("confirmSafeFusion").addEventListener("click", () => {
+  if (!safeReview || !canAct()) return;
+  safeBusy = true;
+  byId("confirmSafeFusion").disabled = true;
+  const result = transaction(
+    (state, now) => fuseEligibleDuplicates(state, now, safeReview.signature),
+    "win",
+  );
+  if (result) {
+    byId("safeFusionDialog").close();
+    runtime.notify(
+      `${result.fusions} fusões salvas · ${result.freeSlots} espaços livres.`,
+    );
+  } else {
+    setText(
+      "safeFusionError",
+      "A prévia mudou ou não foi possível salvar. Nenhuma cópia foi consumida. Cancele e revise novamente.",
+    );
+  }
+});
+
 byId("openTeamBtn").addEventListener("click", () =>
   document.querySelector("[data-panel=team]").click(),
 );
+
+byId("petCatalog").addEventListener("click", (event) => {
+  const button = event.target.closest("[data-discovery]");
+  if (!button) return;
+  const [id, level] = button.dataset.discovery.split(":"),
+    stage = Number(level),
+    found = runtime.state.pets.discovered.includes(button.dataset.discovery);
+  for (const b of byId("petCatalog").querySelectorAll("[data-discovery]"))
+    b.setAttribute("aria-pressed", String(b === button));
+  const target = byId("discoveryDetail");
+  target.hidden = false;
+  target.innerHTML = `${petSVG(id, stage, !found)}<h3>${found ? SPECIES[id].name : "Amigo misterioso"} · ${STAGES[stage].name}</h3><p>${found ? "✓ Descoberta permanente" : "Ainda não descoberto"}</p>${found ? bonusChips(petPower({ speciesId: id, stage })) : ""}`;
+  target.scrollIntoView({ block: "nearest" });
+});
