@@ -287,7 +287,12 @@ export function validateState(
       };
     }
   }
-  const normalizedPets = normalizePets(raw.pets, now, getEquippedPetSlotCapacity(state));
+  // Old schemas had no informed opt-in. Unknown fields in an old import must
+  // never turn irreversible automation on; the exact raw original is backed up.
+  const petSource = number(raw.version) < 7 && record(raw.pets)
+    ? {...raw.pets, autoFusionEnabled:false, autoFusionStats:undefined}
+    : raw.pets;
+  const normalizedPets = normalizePets(petSource, now, getEquippedPetSlotCapacity(state));
   state.pets = normalizedPets.pets;
   if (number(raw.version) < 6) {
     // Grandfather old world-based unlocks before applying the new invitation requirements.

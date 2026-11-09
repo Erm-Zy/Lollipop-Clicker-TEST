@@ -3,27 +3,27 @@
   "results": [
     {
       "strategy": "balanced",
-      "milliseconds": 67.30000000074506
+      "milliseconds": 68.69999999925494
     },
     {
       "strategy": "production",
-      "milliseconds": 51.80000000074506
+      "milliseconds": 48.80000000074506
     },
     {
       "strategy": "clicks",
-      "milliseconds": 17.599999997764826
+      "milliseconds": 18
     },
     {
       "strategy": "combat",
-      "milliseconds": 40.899999998509884
+      "milliseconds": 43.5
     },
     {
       "strategy": "prestige",
-      "milliseconds": 74.09999999776483
+      "milliseconds": 87.39999999850988
     },
     {
       "strategy": "capacity",
-      "milliseconds": 19.099999997764826
+      "milliseconds": 25.899999998509884
     }
   ]
 }

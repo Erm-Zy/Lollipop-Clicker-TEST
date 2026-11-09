@@ -75,6 +75,7 @@ let detailId = null,
   detailOpener = null,
   detailSignature = "",
   safeReview = null;
+let safeBusy = false;
 let previousInventory,
   previousEquipped,
   previousAvailability,
@@ -179,6 +180,8 @@ function showOdds() {
 }
 function renderControls(state) {
   const available = canAct();
+  byId("confirmSafeFusion").disabled = !available || safeBusy || !safeReview;
+  updateDialogNotice("safeFusionNotice");
   byId("autoFusionToggle").checked = state.pets.autoFusionEnabled;
   byId("autoFusionToggle").disabled = !available;
   byId("reviewSafeFusion").disabled = !available;
@@ -385,6 +388,7 @@ function renderCatalog(state) {
 }
 function renderDetail(state) {
   if (!byId("petDetailDialog").open || !detailId) return;
+  updateDialogNotice("petDetailNotice");
   const pet = state.pets.inventory.find((p) => p.id === detailId);
   if (!pet) {
     byId("petDetailDialog").close();
@@ -414,6 +418,8 @@ function renderDetail(state) {
       ?.focus({ preventScroll: true });
 }
 function inspectPet(id, trigger) {
+  auto.stop("Abertura parada para ver um companheiro.");
+  byId("petDetailFeedback").hidden = true;
   detailId = id;
   detailOpener = trigger;
   detailSignature = "";
@@ -435,6 +441,29 @@ function restorePetFocus(preferred) {
     .find((el) => el?.isConnected && !el.disabled && el.getClientRects().length)
     ?.focus({ preventScroll: true });
 }
+function updateDialogNotice(id) {
+  const message = runtime.updating
+    ? "Atualização em andamento. Seu progresso está protegido."
+    : !runtime.writable
+      ? "Modo de consulta: outra janela ou uma pausa está protegendo o jogo."
+      : !runtime.canSave
+        ? "Save protegido. Feche os detalhes e use os Ajustes para exportar ou recuperar."
+        : document.querySelector('#pwaUpdate[data-ready="true"]')
+          ? "Nova versão pronta. Feche os detalhes para atualizar com segurança."
+          : "";
+  const changed = byId(id).textContent !== message;
+  setText(id, message);
+  byId(id).hidden = !message;
+  if (message && changed && byId(id).closest("dialog")?.open)
+    byId(id).scrollIntoView({ block: "nearest" });
+}
+document.addEventListener("lollipop:toast", (event) => {
+  if (!byId("petDetailDialog").open) return;
+  setText("petDetailFeedback", event.detail.message);
+  byId("petDetailFeedback").hidden = false;
+  byId("petDetailFeedback").scrollIntoView({ block: "nearest" });
+  byId("toast").hidden = true;
+});
 byId("petInventory").addEventListener("click", (event) => {
   const b = event.target.closest("[data-inspect]");
   if (b) inspectPet(b.dataset.inspect, b);
@@ -931,6 +960,7 @@ byId("reviewSafeFusion").addEventListener("click", (event) => {
       "Nenhum grupo de cinco livre após as proteções, conjuntos e reserva.",
     );
   safeReview = { signature: quote.signature, opener: event.currentTarget };
+  safeBusy = false;
   byId("safeFusionPreview").innerHTML =
     `<p>${quote.fusions} fusões · ${quote.consumed.length} cópias consumidas · ${quote.freeSlots} espaços livres depois.</p><details><summary>Ver todos os IDs e resultados</summary><ul>${quote.steps
       .flatMap((s) => s.quote.operations)
@@ -949,9 +979,11 @@ byId("cancelSafeFusion").addEventListener("click", () =>
 byId("safeFusionDialog").addEventListener("close", () => {
   safeReview?.opener?.focus({ preventScroll: true });
   safeReview = null;
+  safeBusy = false;
 });
 byId("confirmSafeFusion").addEventListener("click", () => {
   if (!safeReview || !canAct()) return;
+  safeBusy = true;
   byId("confirmSafeFusion").disabled = true;
   const result = transaction(
     (state, now) => fuseEligibleDuplicates(state, now, safeReview.signature),

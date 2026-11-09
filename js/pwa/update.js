@@ -82,7 +82,7 @@ export function initializeUpdates(runtime) {
     if (!registration || disposed || busy || prepared) return;
     try {
       const worker = registration.waiting || sw.controller;
-      if (registration.waiting) banner.dataset.ready = 'true';
+      if (registration.waiting) banner.dataset.ready = 'checking';
       const release = await identify(worker);
       if (!release || disposed || busy || prepared) {
         if (!worker && !registration.waiting) banner.dataset.ready = 'false';

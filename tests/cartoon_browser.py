@@ -49,6 +49,9 @@ try:
    check(p.evaluate('document.documentElement.scrollWidth<=innerWidth'),f'{w}: no egg overflow')
    p.locator('[data-egg=celestial]').click();check('10 bi' in p.locator('[data-hatch="2"]').inner_text() and '10.000.000.000' in p.locator('[data-hatch="2"]').get_attribute('aria-label'),f'{w}: 10 bi compact/exact price')
    panel(p,'inventory');check(p.locator('[data-pet]').count()==48,f'{w}: real instance pagination')
+   if w>=900:
+    p.evaluate('scrollTo(0,0)');tile=p.locator('[data-pet]').first.bounding_box();dock=p.locator('.bottom-nav').bounding_box()
+    check(tile['y']>=0 and tile['y']+tile['height']<=dock['y'],f'{w}: first pet row is fully visible above the dock at desktop startup')
    check(p.locator('[data-action]').count()==0,f'{w}: no repeated action panels in grid')
    id=p.locator('[data-pet]').first.get_attribute('data-pet');inspect_pet(p,id)
    check(p.locator('#petDetail [data-instance]').count()==1 and p.locator('#petDetail [data-action]').count()==4,f'{w}: one selected instance detail')
@@ -90,6 +93,20 @@ try:
   p.evaluate("window.realSet=Storage.prototype.setItem;Storage.prototype.setItem=function(k,v){if(k==='lollipopSave')throw Error('quota');return realSet.call(this,k,v)};true")
   p.locator('#autoOpenBtn').click();check(saved(p)['pets']==auto_saved['pets'] and p.locator('#stopAutoBtn').is_hidden(),'failed auto batch rolls back fusion/debit and stops safely')
   c.close()
+  # Inspecting a team member stops hatching instead of hiding automation behind a modal.
+  inspect_seed=copies(6);inspect_seed['pets']['equipped']=['pet-1']
+  c,p=open_game(b,inspect_seed);hatch_control(p,'#autoOpenBtn').click();p.locator('[data-team-detail="pet-1"]').first.click();at_inspect=saved(p)['pets']['stats']['hatched'];p.wait_for_timeout(2700)
+  check(p.locator('#petDetailDialog').is_visible() and p.locator('#stopAutoBtn').is_hidden() and saved(p)['pets']['stats']['hatched']==at_inspect,'pet inspection stops the only hatch timer and never consumes behind the modal')
+  c.close()
+  # Essential feedback belongs inside the visible modal, including actual quota failure.
+  c,p=open_game(b,copies());panel(p,'inventory');inspect_pet(p,'pet-1')
+  p.evaluate("window.realSet=Storage.prototype.setItem;Storage.prototype.setItem=function(k,v){if(k==='lollipopSave')throw Error('quota');return realSet.call(this,k,v)};true")
+  p.locator('#petDetail [data-action=favorite]').click();expect(p.locator('#petDetailFeedback')).to_contain_text('salvar')
+  check(not saved(p)['pets']['inventory'][0]['favorite'] and p.locator('#petDetailFeedback').is_visible() and p.locator('#petDetailFeedback').bounding_box()['y']>=0,'real quota rollback is announced visibly inside the pet detail')
+  p.evaluate("Storage.prototype.setItem=realSet;document.querySelector('#pwaUpdate').dataset.ready='true';true")
+  expect(p.locator('#petDetailNotice')).to_contain_text('Nova versão')
+  check(p.locator('#petDetailNotice').is_visible() and p.locator('#closePetDetail').bounding_box()['y']>=0,'waiting PWA update remains accessible inside pet details with its close action')
+  c.close()
   # Quota rolls back debit, all original IDs, fusion output, counters AND option history.
   seed=copies();seed['pets']['autoFusionEnabled']=True
   c,p=open_game(b,seed);fusion_ready(p);before=saved(p)
@@ -114,6 +131,8 @@ try:
   # Background/native pause/second tab can never hatch or change opt-in.
   c,p=open_game(b,seed);other=c.new_page();other.goto(BASE+'pages/pets.html');other.wait_for_function("document.body.dataset.readonly==='true'");panel(other,'inventory')
   check(other.locator('#autoFusionToggle').is_disabled() and other.locator('#reviewSafeFusion').is_disabled(),'second readonly tab cannot enable or execute safe fusion')
+  inspect_pet(other,'pet-1');expect(other.locator('#petDetailNotice')).to_contain_text('consulta')
+  check(other.locator('#petDetail [data-action]:disabled').count()==4 and other.locator('#petDetailNotice').is_visible(),'readonly pet details retain a visible ownership warning and all four actions are disabled')
   other.close();p.bring_to_front();p.evaluate("document.dispatchEvent(new Event('lollipop:native-pause'))")
   paused=saved(p);p.locator('[data-hatch="1"]').click()
   check(saved(p)['pets']==paused['pets'] and saved(p)['pirulitos']==paused['pirulitos'] and not p.locator('#hatchDialog').is_visible(),'native backgrounding prevents new hatch/fusion transactions')

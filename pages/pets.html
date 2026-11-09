@@ -332,10 +332,13 @@
       </details>
       <dialog id="petDetailDialog" class="pet-dialog" aria-labelledby="petDetailTitle">
         <button id="closePetDetail" class="item-preview" type="button">Fechar detalhes</button>
+        <p id="petDetailNotice" role="status" hidden></p>
+        <p id="petDetailFeedback" role="status" aria-live="polite" hidden></p>
         <section id="petDetail" class="pet-focused-detail"></section>
       </dialog>
       <dialog id="safeFusionDialog" class="pet-dialog" aria-labelledby="safeFusionTitle">
         <h2 id="safeFusionTitle">Revisar duplicados elegíveis</h2>
+        <p id="safeFusionNotice" role="status" hidden></p>
         <p>Fusão permanente de cinco iguais. Favoritos, bloqueados, equipados, conjuntos e reserva são preservados. Resultados não serão reutilizados.</p>
         <div id="safeFusionPreview"></div><p id="safeFusionError" role="status"></p>
         <button id="cancelSafeFusion" type="button" class="item-preview">Cancelar</button>

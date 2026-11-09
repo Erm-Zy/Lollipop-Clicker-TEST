@@ -159,6 +159,23 @@ test("migration v6 backs up exact raw save; defaults OFF/3; failed backup protec
     assert.equal(blocked.getItem(SAVE_KEY), raw);
   }
 });
+test("pre-v7 unknown automation fields cannot imply opt-in or buy extra slots", () => {
+  const s = state();
+  give(s, "balinha", 0, 5);
+  s.version = 6;
+  s.petSlotUpgradeLevel = 2;
+  s.pets.autoFusionEnabled = true;
+  s.pets.autoFusionStats.fusions = 99;
+  const raw = JSON.stringify(s),
+    store = memory({ [SAVE_KEY]: raw }),
+    loaded = loadGame(store, NOW);
+  assert.equal(loaded.canSave, true);
+  assert.equal(store.getItem(V6_BACKUP_KEY), raw);
+  assert.equal(loaded.state.pets.autoFusionEnabled, false);
+  assert.equal(loaded.state.pets.autoFusionStats.fusions, 0);
+  assert.equal(loaded.state.petSlotUpgradeLevel, 0);
+  assert.deepEqual(loaded.state.pets.inventory, s.pets.inventory);
+});
 test("invalid slot level and unearned spending protect current raw save", () => {
   for (const level of [-1, 3, 1.5, "1", null]) {
     const s = state();

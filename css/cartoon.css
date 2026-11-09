@@ -956,6 +956,86 @@ body:is([data-page="pets"], [data-page="achievements"])
   scroll-margin-top: 100px;
   scroll-margin-bottom: 120px;
 }
+@media (min-width: 900px) {
+  .sanctuary-hero {
+    display: grid;
+    grid-template-columns: 100px minmax(0, 1fr);
+    align-items: center;
+    gap: 0 12px;
+    min-height: 0;
+    padding: 8px 100px;
+    margin-bottom: 6px;
+  }
+  .sanctuary-emblem {
+    grid-row: 1 / 3;
+    width: 100px;
+    height: 70px;
+    margin: 0;
+  }
+  .title-ribbon {
+    width: 100%;
+    margin: 0;
+  }
+  .title-ribbon h1 {
+    font-size: 30px;
+    padding: 6px 12px 8px;
+  }
+  .sanctuary-hero > p {
+    grid-column: 2;
+    font-size: 12px;
+    margin: 7px 0 0;
+  }
+  .pets-page .team-strip {
+    padding: 4px 12px;
+    margin: 4px 0 8px;
+  }
+  .active-team-portraits button {
+    width: 44px;
+    height: 44px;
+  }
+  .pets-page .pet-sections {
+    max-width: 620px;
+    margin: 8px auto 12px;
+  }
+  .pets-page .pet-sections button {
+    min-height: 60px;
+    padding: 5px 4px;
+    font-size: 13px;
+    gap: 2px;
+    line-height: 1.1;
+  }
+  .pets-page .pet-sections button::before {
+    width: 23px;
+    height: 23px;
+  }
+  .pet-sections button > span {
+    font-size: 10px;
+  }
+  .pets-page .pet-section-heading {
+    margin: 6px 0;
+  }
+  .pets-page .pet-section-heading h2 {
+    font-size: 18px;
+  }
+  .pet-quick-filters {
+    display: inline-flex;
+    vertical-align: middle;
+  }
+  .auto-fusion-control {
+    display: inline-flex;
+    vertical-align: middle;
+    margin: 0 0 0 18px;
+  }
+  .pets-page .inventory-tools {
+    margin: 6px 0 10px;
+  }
+  .pet-tile > button {
+    min-height: 164px;
+  }
+  .pets-page .pet-tile .pet-art {
+    height: 90px;
+  }
+}
 @media (min-width: 1300px) {
   .pets-page .pet-hatch-panel {
     grid-template-columns: 200px minmax(0, 1fr) 300px;
