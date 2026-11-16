@@ -4,7 +4,7 @@ export function mountGamePanels(runtime) {
   const titles = {
     shop: ["LOJA DE ENGENHOCAS", "Mais doces, menos trabalho"],
     rewards: ["TENDA DOS DESEJOS", "Uma pitada de sorte"],
-    world: ["SUA PRODUÇÃO", "Um mundo que cresce"],
+    world: ["MEU REINO", "Minhas engenhocas"],
   };
   let current = "",
     opener = null,

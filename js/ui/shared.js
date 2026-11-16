@@ -97,6 +97,7 @@ function bindMenus() {
 }
 export async function bootPage(page) {
   document.body.dataset.page = page;
+  document.documentElement.classList.toggle("home-stage", page === "home");
   const utility = (id) => navLink(id, page, "utility-tile");
   document.getElementById("gameHeader").innerHTML = `
     <a class="skip-link" href="#${document.querySelector("main")?.id || "mainContent"}">Pular para o jogo</a>

@@ -467,7 +467,7 @@
     height: 260px;
     min-height: 260px;
   }
-  .building-lots {
+  .world-zone .building-lots {
     display: none;
   }
   .world-log {

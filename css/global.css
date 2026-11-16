@@ -23,6 +23,7 @@
 html {
   min-width: 280px;
   scroll-behavior: smooth;
+  overscroll-behavior-y: none;
 }
 body {
   margin: 0;

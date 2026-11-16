@@ -1,3 +1,4 @@
+import { buildingContribution } from "../ui/qol.js";
 import { petSVG } from "../pets/art.js";
 import { mountGamePanels } from "../ui/panels.js";
 import { mountWheel } from "../ui/wheel.js";
@@ -71,13 +72,14 @@ runtime.subscribe((state, info) => {
     "worldProgress",
     stage < 3
       ? `${count} / ${WORLD_CHAPTERS[stage + 1].minimum} engenhocas para expandir o mundo`
-      : WORLD_CHAPTERS[stage].story,
+      : "Último capítulo alcançado",
   );
   setText(
     "buildingCount",
     `${format(count)} engenhoca${count !== 1 ? "s" : ""}`,
   );
-  const signature = Object.values(state.upgrades).join("/");
+  const signature = Object.keys(UPGRADES_DATA).map(key => `${state.upgrades[key]}/${game.getActiveFactoryCount(state, key)}/${format(buildingContribution(state, key, now))}`).join("|");
+  if (count && document.getElementById("worldLog").textContent.trim() === "Tudo começa com um pirulito.") setText("worldLog", "Toque em uma engenhoca para encontrá-la na Loja.");
   if (signature !== buildingSignature) {
     buildingSignature = signature;
     document.getElementById("buildingLots").innerHTML = Object.entries(
@@ -85,7 +87,7 @@ runtime.subscribe((state, info) => {
     )
       .map(
         ([key, data]) =>
-          `<a href="pages/shop.html#${key}" data-game-panel="shop" data-focus-upgrade="${key}" class="building-lot ${state.upgrades[key] ? "built running" : "locked"}" aria-label="${data.name}, ${state.upgrades[key]} possuídas"><span class="lot-art">${buildingSVG(key, state.upgrades[key])}</span><span class="lot-name">${data.name}</span><b>${state.upgrades[key] ? `×${format(state.upgrades[key])}` : "a descobrir"}</b></a>`,
+          `<a href="pages/shop.html#${key}" data-game-panel="shop" data-focus-upgrade="${key}" class="building-lot ${state.upgrades[key] ? "built running" : "locked"}" aria-label="${data.name}, ${state.upgrades[key]} possuídas"><span class="lot-art">${buildingSVG(key, state.upgrades[key])}</span><span class="lot-name">${data.name}</span><b>${state.upgrades[key] ? `${format(game.getActiveFactoryCount(state, key))} ativas / ${format(state.upgrades[key])} possuídas<br>+${format(buildingContribution(state, key, now))} /s` : "A descobrir · ver Loja"}</b></a>`,
       )
       .join("");
   }
@@ -94,8 +96,11 @@ runtime.subscribe((state, info) => {
   );
   setText(
     "nextAchievement",
-    next ? next.title : "Todos os segredos descobertos!",
+    next ? next.title : "Álbum completo!",
   );
+  const milestoneLabel = document.querySelector(".world-milestone").firstChild;
+  const milestoneText = next ? "Próxima conquista: " : "Conquistas: ";
+  if (milestoneLabel.textContent !== milestoneText) milestoneLabel.textContent = milestoneText;
   const boostLeft = state.boostEndTime - now;
   const cooldown = state.lastBoostTime
     ? Math.max(0, state.lastBoostTime + BOOST_COOLDOWN_MS - now)
