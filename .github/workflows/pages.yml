@@ -51,6 +51,7 @@ jobs:
           python tests/ui_system_browser.py
           python tests/game_hud_browser.py
           python tests/cartoon_browser.py
+          python tests/mobile_polish_browser.py
           npm run test:pets
           npm run test:browser
           python tests/qol_browser.py
